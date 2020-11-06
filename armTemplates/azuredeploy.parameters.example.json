@@ -1,0 +1,89 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "applicationAdminEmail": {
+            "value": "[Your custom value here]"
+        },
+        "applicationAdminPassword": {
+            "value": "[Your custom value here]"
+        },
+        "applicationAdminUsername": {
+            "value": "[Your custom value here]"
+        },
+        "applicationCustomFqdn": {
+            "value": "[Your custom value here]"
+        },
+        "armTemplateRepoBaseUrl": {
+            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
+        },
+        "databaseAdminPassword": {
+            "value": "[Your custom value here]"
+        },
+        "databaseAdminUsername": {
+            "value": "[Your custom value here]"
+        },
+        "databaseBackupRetentionDays": {
+            "value": 7
+        },
+        "databaseCapacity": {
+            "value": 2
+        },
+        "databaseApplicationPassword": {
+            "value": "[Your custom value here]"
+        },
+        "databaseApplicationUsername": {
+            "value": "matomo"
+        },
+        "databaseStorageMb": {
+            "value": 102400
+        },
+        "dataDiskSizeGB" : {
+            "value": 50
+        },
+        "environmentName": {
+            "value": "dev"
+        },
+        "fileRepositoryUri": {
+            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/master"
+        },
+        "gatewaySslCertificateUri": {
+            "value": "[Your specific value here]"
+        },
+        "gatewayUserAssignedIdentity": {
+            "value": {
+                "[Your specific value here]": {}
+            }
+        },
+        "location": {
+            "value": "Canada Central"
+        },
+        "projectShortName": {
+            "value": "[Your custom value here]"
+        },
+        "resourceTags": {
+            "value": {
+                "[Tag name 1]": "[Tag value 1]",
+                "[Tag name 2]": "[Tag value 2]"
+            }
+        },
+        "smtpRelayFqdn": {
+            "value": "[Your custom value here]"
+        },
+        "smtpRelayPrivateIp": {
+            "value": "10.10.10.1"
+        },
+        "virtualNetworkAddressBase": {
+            "value": "10.10.10"
+        },
+        "webServerAdminPassword": {
+            "value": "[Your custom value here]"
+        },
+        "webServerAdminUsername": {
+            "value": "[Your custom value here]"
+        },
+        "webServerVirtualMachineSize": {
+            "value": "[Your custom value here]"
+        }
+    }
+}
