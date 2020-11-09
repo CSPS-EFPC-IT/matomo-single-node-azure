@@ -56,7 +56,6 @@
                 "description": "The Matomo application database account username."
             }
         },
-
         "databaseBackupRetentionDays": {
             "type": "int",
             "minValue": 7,
@@ -196,7 +195,6 @@
         }
     ],
     "variables": {
-        "applicationDataMountPointPath": "/var/www/html/matomo",
         "applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
         "applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
         "applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
@@ -232,14 +230,15 @@
         "gatewaySslCertificateHttpsName": "HTTPS-Certificate",
         "gatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
         "gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
+        "recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
         "recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
         "recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultProtectedItems'), 64)]",
-        "recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
         "resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
         "storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
         "virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
         "virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
         "webServerComputerName": "webserver",
+        "webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
         "webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
         "webServerVirtualMachineInstallMatomoExtensionName": "InstallMatomo",
         "webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
@@ -1087,8 +1086,7 @@
                 },
                 "protectedSettings": {
                     "fileUris": ["[concat(parameters('fileRepositoryUri'),'/scripts/install_matomo.sh')]"],
-                    //"commandToExecute": "[concat('sudo ./install_matomo.sh -dataDiskSize ', parameters('dataDiskSizeGB'), 'G', ' -dbServerAdminPassword ', parameters('databaseAdminPassword'), ' -dbServerAdminUsername ', parameters('databaseAdminUsername'), ' -dbServerFqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' -dbServerName ', variables('databaseName'), ' -applicationAdminEmail ', parameters('applicationAdminEmail'), ' -applicationAdminPassword ', parameters('applicationAdminPassword'), ' -applicationAdminUsername ', parameters('applicationAdminUsername'), ' -applicationDataMountPointPath ', variables('applicationDataMountPointPath'), ' -applicationDbName ', variables('databaseApplicationDatabaseName'), ' -applicationDbPassword ', parameters('databaseApplicationPassword'), ' -applicationDbUsername ', parameters('databaseApplicationUsername'), ' -applicationFqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' -smtpRelayFqdn ', parameters('smtpRelayFqdn'), ' -smtpRelayPrivateIp ', parameters('smtpRelayPrivateIp'), ' > /var/log/install_matomo.log 2>&1')]",
-                    "commandToExecute": "cat install_matomo.sh > /var/log/install_matomo.log 2>&1"
+                    "commandToExecute": "[concat('sudo ./install_matomo.sh -dataDiskSize ', parameters('dataDiskSizeGB'), 'G', ' -dataDiskMountPointPath ', variables('webServerVirtualMachineDataDiskMountPoint'), ' -dbServerAdminPassword ', parameters('databaseAdminPassword'), ' -dbServerAdminUsername ', parameters('databaseAdminUsername'), ' -dbServerFqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' -dbServerMatomoDbName ', variables('databaseApplicationDatabaseName'), ' -dbServerMatomoPassword ', parameters('databaseApplicationPassword'), ' -dbServerMatomoUsername ', parameters('databaseApplicationUsername'), ' -dbServerName ', variables('databaseName'), ' -smtpServerFqdn ', parameters('smtpServerFqdn'), ' -smtpServerPrivateIp ', parameters('smtpServerPrivateIp'), ' > /var/log/install_matomo.log 2>&1')]"
                 }
             }
         },
@@ -1196,7 +1194,7 @@
                                                 "locale": "en-us"
                                             }
                                         ],
-                                        "condition": "[concat('Name=\"', variables('applicationDataMountPointPath'), '\"')]",
+                                        "condition": "[concat('Name=\"', variables('webServerVirtualMachineDataDiskMountPoint'), '\"')]",
                                         "counter": "percentusedspace",
                                         "counterSpecifier": "/builtin/filesystem/datausedspace",
                                         "type": "builtin",
