@@ -1088,7 +1088,7 @@
                 "protectedSettings": {
                     "fileUris": ["[concat(parameters('fileRepositoryUri'),'/scripts/install_matomo.sh')]"],
                     //"commandToExecute": "[concat('sudo ./install_matomo.sh -dataDiskSize ', parameters('dataDiskSizeGB'), 'G', ' -dbServerAdminPassword ', parameters('databaseAdminPassword'), ' -dbServerAdminUsername ', parameters('databaseAdminUsername'), ' -dbServerFqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' -dbServerName ', variables('databaseName'), ' -applicationAdminEmail ', parameters('applicationAdminEmail'), ' -applicationAdminPassword ', parameters('applicationAdminPassword'), ' -applicationAdminUsername ', parameters('applicationAdminUsername'), ' -applicationDataMountPointPath ', variables('applicationDataMountPointPath'), ' -applicationDbName ', variables('databaseApplicationDatabaseName'), ' -applicationDbPassword ', parameters('databaseApplicationPassword'), ' -applicationDbUsername ', parameters('databaseApplicationUsername'), ' -applicationFqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' -smtpRelayFqdn ', parameters('smtpRelayFqdn'), ' -smtpRelayPrivateIp ', parameters('smtpRelayPrivateIp'), ' > /var/log/install_matomo.log 2>&1')]",
-                    "commandToExecute": "touch extension_was_here.txt"
+                    "commandToExecute": "cat install_matomo.sh > /var/log/install_matomo.log 2>&1"
                 }
             }
         },
