@@ -139,13 +139,13 @@
                 "description": "Additional tags to add to each resource created."
             }
         },
-        "smtpRelayFqdn": {
+        "smtpServerFqdn": {
             "type": "string",
             "metadata": {
                 "description": "The fully qualified domain name of the email server to use."
             }
         },
-        "smtpRelayPrivateIp": {
+        "smtpServerPrivateIp": {
             "type": "string",
             "metadata": {
                 "description": "The private IP address of the email server to use."
@@ -172,7 +172,7 @@
         "webServerVirtualMachineSize": {
             "type": "string",
             "metadata": {
-                "description": "The size of the virtual machine used as webserver."
+                "description": "The size of the virtual machine used as webserver. See https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-sizes-specs for allowed values."
             }
         }
     },

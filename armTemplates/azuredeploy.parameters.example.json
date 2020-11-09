@@ -23,17 +23,17 @@
         "databaseAdminUsername": {
             "value": "[Your custom value here]"
         },
-        "databaseBackupRetentionDays": {
-            "value": 7
-        },
-        "databaseCapacity": {
-            "value": 2
-        },
         "databaseApplicationPassword": {
             "value": "[Your custom value here]"
         },
         "databaseApplicationUsername": {
             "value": "matomo"
+        },
+        "databaseBackupRetentionDays": {
+            "value": 7
+        },
+        "databaseCapacity": {
+            "value": 2
         },
         "databaseStorageMb": {
             "value": 102400
@@ -67,10 +67,10 @@
                 "[Tag name 2]": "[Tag value 2]"
             }
         },
-        "smtpRelayFqdn": {
+        "smtpServerFqdn": {
             "value": "[Your custom value here]"
         },
-        "smtpRelayPrivateIp": {
+        "smtpServerPrivateIp": {
             "value": "10.10.10.1"
         },
         "virtualNetworkAddressBase": {
