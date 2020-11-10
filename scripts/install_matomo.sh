@@ -325,7 +325,7 @@ echo_info "Done."
 echo_title "Matomo Post installation process."
 ###############################################################################
 matomoArchiveCrontabEntryPath=/etc/cron.d/matomo-archive
-matomoArchiveLogPath=/var/log/matamo-archive.log
+matomoArchiveLogPath=/var/log/matomo-archive.log
 
 echo_action "Setting up Matomo Archive Crontab..."
 if [ -f ${matomoArchiveCrontabEntryPath} ]; then
