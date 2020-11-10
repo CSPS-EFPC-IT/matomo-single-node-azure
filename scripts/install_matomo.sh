@@ -155,18 +155,22 @@ done
 echo_info "Data disk file system UUID: $dataDiskFileSystemUuid"
 echo_info "Done."
 
-echo_action "Creating Matomo File System mount point..."
-mkdir -p ${parameters[dataDiskMountPointPath]}
-echo_info "${parameters[dataDiskMountPointPath]} directory created."
-echo_info "Done."
+echo_action "Creating data disk mount point..."
+if [ -d ${parameters[dataDiskMountPointPath]} ]; then
+    echo_info "Skipped: ${parameters[dataDiskMountPointPath]} directory already exists."
+else
+    mkdir -p ${parameters[dataDiskMountPointPath]}
+    echo_info "${parameters[dataDiskMountPointPath]} directory created."
+    echo_info "Done."
+fi
 
 fstabFilePath=/etc/fstab
 echo_action "Updating $fstabFilePath file to automount the data disk using its UUID..."
-if ! grep -q "$dataDiskFileSystemUuid" $fstabFilePath; then
+if grep -q "$dataDiskFileSystemUuid" $fstabFilePath; then
+    echo_info "Skipped: already set up."
+else
     printf "UUID=${dataDiskFileSystemUuid}\t${parameters[dataDiskMountPointPath]}\t${dataDiskFileSystemType}\tdefaults,nofail\t0\t2\n" >> $fstabFilePath
     echo_info "Done."
-else
-    echo_info "Skipped: already set up."
 fi
 
 echo_action 'Mounting all drives...'
@@ -178,7 +182,7 @@ echo_title "Download and extract Matomo files."
 ###############################################################################
 # Ref.: https://builds.matomo.org/
 if [ -d ${matomoDocumentRootDirPath} ]; then
-    echo_action "Matomo already installed. Skipping."
+    echo_action "Skipped: Matomo already installed."
 else
     echo_action "Downloading Matomo 3.11 tar file..."
     wget https://builds.matomo.org/matomo-3.11.0.tar.gz
@@ -219,11 +223,11 @@ echo_info "Done."
 echo_title "Setup SMTP Relay."
 ###############################################################################
 echo_action "Adding SMTP Relay Private IP address in ${hostsFilePath}..."
-if ! grep -q "${parameters[smtpServerFqdn]}" $hostsFilePath; then
+if grep -q "${parameters[smtpServerFqdn]}" $hostsFilePath; then
+    echo_info "Skipped: ${hostsFilePath} file already set up."
+else
     echo -e "\n# Redirect SMTP Server FQDN to Private IP Address.\n${parameters[smtpServerPrivateIp]}\t${parameters[smtpServerFqdn]}" >> $hostsFilePath
     echo_info "Done."
-else
-    echo_info "Skipped: ${hostsFilePath} file already set up."
 fi
 
 ###############################################################################
@@ -238,13 +242,13 @@ echo_info "Done."
 echo_title "Update Apache config."
 ###############################################################################
 echo_action "Updating Apache default site DocumentRoot property in ${apache2SitesEnabledDefaultFilePath}..."
-if ! grep -q "${matomoDocumentRootDirPath}" $apache2SitesEnabledDefaultFilePath; then
+if grep -q "${matomoDocumentRootDirPath}" $apache2SitesEnabledDefaultFilePath; then
+    echo_info "Skipped: DocumentRoot already properly set."
+else
     escapedApache2DefaultDocumentRootDirPath=$(sed -E 's/(\/)/\\\1/g' <<< ${apache2DefaultDocumentRootDirPath})
     escapedMatomoDocumentRootDirPath=$(sed -E 's/(\/)/\\\1/g' <<< ${matomoDocumentRootDirPath})
     sed -i -E "s/DocumentRoot[[:space:]]*${escapedApache2DefaultDocumentRootDirPath}/DocumentRoot ${escapedMatomoDocumentRootDirPath}/g" $apache2SitesEnabledDefaultFilePath
     echo_info "Done."
-else
-    echo_info "Skipped. DocumentRoot already properly set."
 fi
 
 echo_action "Updating Apache ServerSignature and ServerToken directives in ${apache2ConfEnabledSecurityFilePath}..."
