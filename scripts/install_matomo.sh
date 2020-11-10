@@ -228,12 +228,34 @@ fi
 ###############################################################################
 echo_title "Update PHP config."
 ###############################################################################
-phpIniFilePath="/etc/php/7.2/apache2/php.ini"
 
-echo_action "Updating upload_max_filesize and post_max_size settings in ${phpIniFilePath}..."
-sed -i "s/upload_max_filesize.*/upload_max_filesize = 2048M/" $phpIniFilePath
-sed -i "s/post_max_size.*/post_max_size = 2048M/" $phpIniFilePath
-echo_info "Done."
+function setPhpConfig {
+    parameterName=$1
+    parameterValue=$2
+    phpIniFilePath="/etc/php/7.2/apache2/php.ini"
+    echo_action "Updating ${parameterName} to settings to ${parameterValue} in ${phpIniFilePath}..."
+    sed -i "s/${parameterName}.*/${parameterName} = ${parametervalue}/" $phpIniFilePath
+    echo_info "Done."
+}
+
+setPhpConfig upload_max_filesize 2048M
+setPhpConfig post_max_size 2048M
+setPhpConfig memory_limit 512M
+
+# uploadMaxFilesizeValue=2048M
+# echo_action "Updating upload_max_filesize to settings to ${uploadMaxFilesizeValue} in ${phpIniFilePath}..."
+# sed -i "s/upload_max_filesize.*/upload_max_filesize = ${uploadMaxFilesizeValue}/" $phpIniFilePath
+# echo_info "Done."
+
+# postMaxSizeValue=2048M
+# echo_action "Updating post_max_size settings to ${postMaxSizeValue} in ${phpIniFilePath}..."
+# sed -i "s/post_max_size.*/post_max_size = ${postMaxSizeValue}/" $phpIniFilePath
+# echo_info "Done."
+
+# postMaxSizeValue=512M
+# echo_action "Updating memory_limit settings to ${postMaxSizeValue} in ${phpIniFilePath}..."
+# sed -i "s/memory_limit.*/memory_limit = ${postMaxSizeValue}/" $phpIniFilePath
+# echo_info "Done."
 
 ###############################################################################
 echo_title "Update Apache config."
