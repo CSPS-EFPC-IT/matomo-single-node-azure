@@ -48,7 +48,7 @@ declare -A parameters=( [dataDiskSize]= \
                         [dbServerName]= \
                         [smtpServerFqdn]= \
                         [smtpServerPrivateIp]= \
-                        [webServerFqdn=])
+                        [webServerFqdn]= )
 sortedParameterList=$(echo ${!parameters[@]} | tr " " "\n" | sort | tr "\n" " ");
 echo_info "Done."
 
