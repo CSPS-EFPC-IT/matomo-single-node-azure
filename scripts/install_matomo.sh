@@ -97,17 +97,10 @@ done
 echo_info "Done."
 
 ###############################################################################
-echo_title "Set internal parameters."
+echo_title "Set global variables."
 ###############################################################################
-echo_action "Setting useful variables..."
-apache2DefaultDocumentRootDirPath="/var/www/html"
-apache2ConfEnabledSecurityFilePath="/etc/apache2/conf-enabled/security.conf"
-apache2SitesEnabledDefaultFilePath="/etc/apache2/sites-enabled/000-default.conf"
-apache2User="www-data"
-hostsFilePath="/etc/hosts"
-installDirPath="$(pwd)"
+echo_action "Setting matomoDocumentRootDirPath..."
 matomoDocumentRootDirPath="${parameters[dataDiskMountPointPath]}/matomo"
-phpIniFilePath="/etc/php/7.2/apache2/php.ini"
 echo_info "Done."
 
 ###############################################################################
@@ -222,6 +215,8 @@ echo_info "Done."
 ###############################################################################
 echo_title "Setup SMTP Relay."
 ###############################################################################
+hostsFilePath="/etc/hosts"
+
 echo_action "Adding SMTP Relay Private IP address in ${hostsFilePath}..."
 if grep -q "${parameters[smtpServerFqdn]}" $hostsFilePath; then
     echo_info "Skipped: ${hostsFilePath} file already set up."
@@ -233,6 +228,8 @@ fi
 ###############################################################################
 echo_title "Update PHP config."
 ###############################################################################
+phpIniFilePath="/etc/php/7.2/apache2/php.ini"
+
 echo_action "Updating upload_max_filesize and post_max_size settings in ${phpIniFilePath}..."
 sed -i "s/upload_max_filesize.*/upload_max_filesize = 2048M/" $phpIniFilePath
 sed -i "s/post_max_size.*/post_max_size = 2048M/" $phpIniFilePath
@@ -241,14 +238,43 @@ echo_info "Done."
 ###############################################################################
 echo_title "Update Apache config."
 ###############################################################################
-echo_action "Updating Apache default site DocumentRoot property in ${apache2SitesEnabledDefaultFilePath}..."
-if grep -q "${matomoDocumentRootDirPath}" $apache2SitesEnabledDefaultFilePath; then
-    echo_info "Skipped: DocumentRoot already properly set."
+
+apache2DefaultDocumentRootDirPath="/var/www/html"
+apache2SitesAvailablePath="/etc/apache2/sites-available"
+apache2SitesEnabledPath="/etc/apache2/sites-enabled"
+apache2MatomoSiteConfigFileName="matomo.conf"
+apache2DefaultSiteConfigFileName="000-default.conf"
+apache2ConfEnabledSecurityFilePath="/etc/apache2/conf-enabled/security.conf"
+apache2User="www-data"
+
+echo_action "Creating Matomo Site configuration file under ${apache2SitesAvailablePath}..."
+# Test for the existence of Matomo site config file.
+if [ -f ${apache2SitesAvailablePath}/apache2MatomoSiteConfigFileName} ]; then
+    echo_info "Skipped: Matomo site configuration file already exist."
 else
+    # Use the Default site config file as a template.
+    cp ${apache2SitesAvailablePath}/${apache2DefaultSiteConfigFileName} ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName}
+    # Update the document root
     escapedApache2DefaultDocumentRootDirPath=$(sed -E 's/(\/)/\\\1/g' <<< ${apache2DefaultDocumentRootDirPath})
     escapedMatomoDocumentRootDirPath=$(sed -E 's/(\/)/\\\1/g' <<< ${matomoDocumentRootDirPath})
-    sed -i -E "s/DocumentRoot[[:space:]]*${escapedApache2DefaultDocumentRootDirPath}/DocumentRoot ${escapedMatomoDocumentRootDirPath}/g" $apache2SitesEnabledDefaultFilePath
+    sed -i -E "s/DocumentRoot[[:space:]]*${escapedApache2DefaultDocumentRootDirPath}/DocumentRoot ${escapedMatomoDocumentRootDirPath}/g" ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName}
     echo_info "Done."
+fi
+
+echo_action "Enabling Matomo Site..."
+if [ -L ${apache2SitesEnabledPath}/apache2MatomoSiteConfigFileName} ]; then
+    echo_info "Skipped: Matomo site already enabled."
+else
+    ln -s ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName} ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName}
+    echo_info "Done."
+fi
+
+echo_action "Disabling default site..."
+if [ -L ${apache2SitesEnabledPath}/apache2DefaultSiteConfigFileName} ]; then
+    rm ${apache2SitesEnabledPath}/apache2DefaultSiteConfigFileName}
+    echo_info "Done."
+else
+    echo_info "Skipped: Default site already disabled."
 fi
 
 echo_action "Updating Apache ServerSignature and ServerToken directives in ${apache2ConfEnabledSecurityFilePath}..."
