@@ -325,12 +325,15 @@ echo_info "Done."
 echo_title "Matomo Post installation process."
 ###############################################################################
 matomoArchiveCrontabEntryPath=/etc/cron.d/matomo-archive
+matomoArchiveLogPath=/var/log/matamo-archive.log
 
 echo_action "Setting up Matomo Archive Crontab..."
 if [ -f ${matomoArchiveCrontabEntryPath} ]; then
     echo_info "Skipped: Matomo Archive Crontab already exist."
 else
-    echo "5 * * * * www-data /usr/bin/php ${matomoDocumentRootDirPath}/console core:archive --url=https://${parameters[webServerFqdn]} > /var/log/matomo-archive.log" > ${matomoArchiveCrontabEntryPath}
+    touch ${matomoArchiveLogPath}
+    chown ${apache2User} ${matomoArchiveLogPath}
+    echo "5 * * * * ${apache2User} /usr/bin/php ${matomoDocumentRootDirPath}/console core:archive --url=https://${parameters[webServerFqdn]} > ${matomoArchiveLogPath} 2>&1" > ${matomoArchiveCrontabEntryPath}
     echo_info "Done."
 fi
 
