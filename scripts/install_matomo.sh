@@ -234,7 +234,7 @@ function setPhpConfig {
     parameterValue=$2
     phpIniFilePath="/etc/php/7.2/apache2/php.ini"
     echo_action "Updating ${parameterName} to settings to ${parameterValue} in ${phpIniFilePath}..."
-    sed -i "s/${parameterName}.*/${parameterName} = ${parametervalue}/" $phpIniFilePath
+    sed -i "s/${parameterName}.*/${parameterName} = ${parameterValue}/" $phpIniFilePath
     echo_info "Done."
 }
 
