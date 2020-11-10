@@ -177,7 +177,7 @@ echo_info "Done."
 echo_title "Download and extract Matomo files."
 ###############################################################################
 # Ref.: https://builds.matomo.org/
-if [ -d ${moodleDocumentRootDirPath} ]; then
+if [ -d ${matomoDocumentRootDirPath} ]; then
     echo_action "Matomo already installed. Skipping."
 else
     echo_action "Downloading Matomo 3.11 tar file..."
