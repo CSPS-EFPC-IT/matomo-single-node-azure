@@ -262,7 +262,7 @@ else
 fi
 
 echo_action "Enabling Matomo Site..."
-if [ -L ${apache2SitesEnabledPath}/apache2MatomoSiteConfigFileName} ]; then
+if [ -L ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName} ]; then
     echo_info "Skipped: Matomo site already enabled."
 else
     ln -s ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName} ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName}
@@ -270,8 +270,8 @@ else
 fi
 
 echo_action "Disabling default site..."
-if [ -L ${apache2SitesEnabledPath}/apache2DefaultSiteConfigFileName} ]; then
-    rm ${apache2SitesEnabledPath}/apache2DefaultSiteConfigFileName}
+if [ -L ${apache2SitesEnabledPath}/${apache2DefaultSiteConfigFileName} ]; then
+    rm ${apache2SitesEnabledPath}/${apache2DefaultSiteConfigFileName}
     echo_info "Done."
 else
     echo_info "Skipped: Default site already disabled."
