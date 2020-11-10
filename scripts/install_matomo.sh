@@ -249,7 +249,7 @@ apache2User="www-data"
 
 echo_action "Creating Matomo Site configuration file under ${apache2SitesAvailablePath}..."
 # Test for the existence of Matomo site config file.
-if [ -f ${apache2SitesAvailablePath}/apache2MatomoSiteConfigFileName} ]; then
+if [ -f ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName} ]; then
     echo_info "Skipped: Matomo site configuration file already exist."
 else
     # Use the Default site config file as a template.
@@ -264,6 +264,7 @@ fi
 echo_action "Enabling Matomo Site..."
 if [ -L ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName} ]; then
     echo_info "Skipped: Matomo site already enabled."
+fi
 else
     ln -s ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName} ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName}
     echo_info "Done."
