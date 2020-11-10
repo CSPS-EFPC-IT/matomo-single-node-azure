@@ -1082,7 +1082,7 @@
                 "typeHandlerVersion": "2.1",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "timestamp": 2
+                    "timestamp": 1
                 },
                 "protectedSettings": {
                     "fileUris": ["[concat(parameters('fileRepositoryUri'),'/scripts/install_matomo.sh')]"],

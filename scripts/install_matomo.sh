@@ -90,7 +90,7 @@ if [[ $extraParameterFlag == "true" || $missingParameterFlag == "true" ]]; then
     exit 1;
 fi
 
-echo_action 'Printing input parameter values fro debugging purposes...'
+echo_action 'Printing input parameter values for debugging purposes...'
 for p in $sortedParameterList; do
     echo_info "$p = \"${parameters[$p]}\""
 done
