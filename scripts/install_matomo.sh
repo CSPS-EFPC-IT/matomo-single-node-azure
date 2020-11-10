@@ -278,8 +278,8 @@ echo_info "Done."
 
 echo_action "Creating and granting privileges to database user ${parameters[dbServerMatomoUsername]}..."
 mysql --defaults-extra-file=${mysqlConnectionFilePath} <<EOF
-DROP USER IF EXISTS "${parameters[dbServerMatomoUsername]}";
-CREATE USER "{parameters[dbServerMatomoUsername]}" IDENTIFIED BY '${parameters[dbServerMatomoPassword]}';
+DROP USER IF EXISTS ${parameters[dbServerMatomoUsername]};
+CREATE USER ${parameters[dbServerMatomoUsername]} IDENTIFIED BY '${parameters[dbServerMatomoPassword]}';
 GRANT ALL PRIVILEGES ON ${parameters[dbServerMatomoDbName]}.* TO ${parameters[dbServerMatomoUsername]};
 FLUSH PRIVILEGES;
 exit
