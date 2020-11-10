@@ -47,7 +47,8 @@ declare -A parameters=( [dataDiskSize]= \
                         [dbServerMatomoUsername]= \
                         [dbServerName]= \
                         [smtpServerFqdn]= \
-                        [smtpServerPrivateIp]=)
+                        [smtpServerPrivateIp]= \
+                        [webServerFqdn=])
 sortedParameterList=$(echo ${!parameters[@]} | tr " " "\n" | sort | tr "\n" " ");
 echo_info "Done."
 
@@ -233,40 +234,22 @@ function setPhpConfig {
     parameterName=$1
     parameterValue=$2
     phpIniFilePath="/etc/php/7.2/apache2/php.ini"
-    echo_action "Updating ${parameterName} to settings to ${parameterValue} in ${phpIniFilePath}..."
+    echo_action "Setting ${parameterName} to ${parameterValue} in ${phpIniFilePath}..."
     sed -i "s/${parameterName}.*/${parameterName} = ${parameterValue}/" $phpIniFilePath
     echo_info "Done."
 }
 
-setPhpConfig upload_max_filesize 2048M
-setPhpConfig post_max_size 2048M
 setPhpConfig memory_limit 512M
-
-# uploadMaxFilesizeValue=2048M
-# echo_action "Updating upload_max_filesize to settings to ${uploadMaxFilesizeValue} in ${phpIniFilePath}..."
-# sed -i "s/upload_max_filesize.*/upload_max_filesize = ${uploadMaxFilesizeValue}/" $phpIniFilePath
-# echo_info "Done."
-
-# postMaxSizeValue=2048M
-# echo_action "Updating post_max_size settings to ${postMaxSizeValue} in ${phpIniFilePath}..."
-# sed -i "s/post_max_size.*/post_max_size = ${postMaxSizeValue}/" $phpIniFilePath
-# echo_info "Done."
-
-# postMaxSizeValue=512M
-# echo_action "Updating memory_limit settings to ${postMaxSizeValue} in ${phpIniFilePath}..."
-# sed -i "s/memory_limit.*/memory_limit = ${postMaxSizeValue}/" $phpIniFilePath
-# echo_info "Done."
 
 ###############################################################################
 echo_title "Update Apache config."
 ###############################################################################
-
+apache2ConfEnabledSecurityFilePath="/etc/apache2/conf-enabled/security.conf"
 apache2DefaultDocumentRootDirPath="/var/www/html"
+apache2DefaultSiteConfigFileName="000-default.conf"
+apache2MatomoSiteConfigFileName="matomo.conf"
 apache2SitesAvailablePath="/etc/apache2/sites-available"
 apache2SitesEnabledPath="/etc/apache2/sites-enabled"
-apache2MatomoSiteConfigFileName="matomo.conf"
-apache2DefaultSiteConfigFileName="000-default.conf"
-apache2ConfEnabledSecurityFilePath="/etc/apache2/conf-enabled/security.conf"
 apache2User="www-data"
 
 echo_action "Creating Matomo Site configuration file under ${apache2SitesAvailablePath}..."
@@ -341,15 +324,15 @@ echo_info "Done."
 ###############################################################################
 echo_title "Matomo Post installation process."
 ###############################################################################
+matomoArchiveCrontabEntryPath=/etc/cron.d/matomo-archive
 
-# echo_action "Setting up Moodle Crontab..."
-# crontabEntry="* * * * * sudo -u ${apache2User} php ${moodleDocumentRootDirPath}/admin/cli/cron.php > /dev/null"
-# if [ -z "$(crontab -l | grep --fixed-strings "$crontabEntry")" ]; then
-#     crontab -l | { cat; echo "$crontabEntry"; } | crontab -
-#     echo_info "Done."
-# else
-#     echo_info "Skipped: crontab already set up."
-# fi
+echo_action "Setting up Matomo Archive Crontab..."
+if [ -f ${matomoArchiveCrontabEntryPath} ]; then
+    echo_info "Skipped: Matomo Archive Crontab already exist."
+else
+    echo "5 * * * * www-data /usr/bin/php ${matomoDocumentRootDirPath}/console core:archive --url=https://${parameters[webServerFqdn]} > /var/log/matomo-archive.log" > ${matomoArchiveCrontabEntryPath}
+    echo_info "Done."
+fi
 
 ###############################################################################
 echo_title "Finishing $0 on $(date)."
