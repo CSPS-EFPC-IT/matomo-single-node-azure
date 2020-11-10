@@ -264,7 +264,6 @@ fi
 echo_action "Enabling Matomo Site..."
 if [ -L ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName} ]; then
     echo_info "Skipped: Matomo site already enabled."
-fi
 else
     ln -s ${apache2SitesAvailablePath}/${apache2MatomoSiteConfigFileName} ${apache2SitesEnabledPath}/${apache2MatomoSiteConfigFileName}
     echo_info "Done."
