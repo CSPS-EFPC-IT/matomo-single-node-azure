@@ -106,7 +106,7 @@ apache2SitesEnabledDefaultFilePath="/etc/apache2/sites-enabled/000-default.conf"
 apache2User="www-data"
 hostsFilePath="/etc/hosts"
 installDirPath="$(pwd)"
-matomoDocumentRootDirPath="${parameters[matomoFileSystemMountPointPath]}/matomo"
+matomoDocumentRootDirPath="${parameters[dataDiskMountPointPath]}/matomo"
 phpIniFilePath="/etc/php/7.2/apache2/php.ini"
 echo_info "Done."
 
@@ -156,14 +156,14 @@ echo_info "Data disk file system UUID: $dataDiskFileSystemUuid"
 echo_info "Done."
 
 echo_action "Creating Matomo File System mount point..."
-mkdir -p ${parameters[matomoFileSystemMountPointPath]}
-echo_info "${parameters[matomoFileSystemMountPointPath]} directory created."
+mkdir -p ${parameters[dataDiskMountPointPath]}
+echo_info "${parameters[dataDiskMountPointPath]} directory created."
 echo_info "Done."
 
 fstabFilePath=/etc/fstab
 echo_action "Updating $fstabFilePath file to automount the data disk using its UUID..."
 if ! grep -q "$dataDiskFileSystemUuid" $fstabFilePath; then
-    printf "UUID=${dataDiskFileSystemUuid}\t${parameters[matomoFileSystemMountPointPath]}\t${dataDiskFileSystemType}\tdefaults,nofail\t0\t2\n" >> $fstabFilePath
+    printf "UUID=${dataDiskFileSystemUuid}\t${parameters[dataDiskMountPointPath]}\t${dataDiskFileSystemType}\tdefaults,nofail\t0\t2\n" >> $fstabFilePath
     echo_info "Done."
 else
     echo_info "Skipped: already set up."
@@ -185,7 +185,7 @@ else
     echo_info "Done."
 
     echo_action "Extracting Matomo tar file..."
-    tar zxf matomo-3.11.0.tar.gz -C ${parameters[matomoFileSystemMountPointPath]}
+    tar zxf matomo-3.11.0.tar.gz -C ${parameters[dataDiskMountPointPath]}
     echo_info "Done."
 fi
 
