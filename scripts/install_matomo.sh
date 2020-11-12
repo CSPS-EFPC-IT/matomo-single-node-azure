@@ -102,6 +102,9 @@ echo_title "Set global variables."
 ###############################################################################
 echo_action "Setting matomoDocumentRootDirPath..."
 matomoDocumentRootDirPath="${parameters[dataDiskMountPointPath]}/matomo"
+
+echo_action "Setting workingDir..."
+workingDir=$(pwd)
 echo_info "Done."
 
 ###############################################################################
@@ -176,7 +179,7 @@ echo_title "Download and extract Matomo files."
 ###############################################################################
 # Ref.: https://builds.matomo.org/
 if [ -d ${matomoDocumentRootDirPath} ]; then
-    echo_action "Skipped: Matomo already installed."
+    echo_info "Skipped: Matomo already installed."
 else
     echo_action "Downloading Matomo 3.11 tar file..."
     wget https://builds.matomo.org/matomo-3.11.0.tar.gz
