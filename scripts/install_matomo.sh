@@ -239,6 +239,7 @@ function setPhpConfig {
     echo_info "Done."
 }
 
+# Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
 setPhpConfig memory_limit 512M
 
 ###############################################################################
