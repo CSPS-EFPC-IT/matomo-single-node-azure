@@ -207,6 +207,13 @@ echo_info "Done."
 echo_action "Installing php packages..."
 apt-get install --yes --quiet php-cli php-mysql php-xml php-mbstring php-json php-gd
 
+echo_action "Installing libmaxminddb packages..."
+# ref.: https://fr.matomo.org/faq/how-to/faq_164/
+# Ref.: https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
+add-apt-repository --yes ppa:maxmind/ppa
+apt update
+apt-get install --yes --quiet libmaxminddb0 libmaxminddb-dev mmdb-bin
+
 echo_info "Done."
 
 ###############################################################################
