@@ -334,12 +334,17 @@ matomoArchiveCrontabEntryPath=/etc/cron.d/matomo-archive
 matomoArchiveLogPath=/var/log/matomo-archive.log
 
 echo_action "Setting up Matomo Archive Crontab..."
+# Ref.: See section "Launching multiple archivers at once" in 
+#       https://matomo.org/docs/setup-auto-archiving/#linux-unix-how-to-set-up-a-crontab-to-automatically-archive-the-reports
 if [ -f ${matomoArchiveCrontabEntryPath} ]; then
     echo_info "Skipped: Matomo Archive Crontab already exist."
 else
-    touch ${matomoArchiveLogPath}
-    chown ${apache2User} ${matomoArchiveLogPath}
-    echo "5 * * * * ${apache2User} /usr/bin/php ${matomoDocumentRootDirPath}/console core:archive --url=https://${parameters[webServerFqdn]} > ${matomoArchiveLogPath} 2>&1" > ${matomoArchiveCrontabEntryPath}
+    for archiverId in {1..2}
+    do
+        touch ${matomoArchiveLogPath}.${archiverId}
+        chown ${apache2User} ${matomoArchiveLogPath}.${archiverId}
+        echo "${archiverId} * * * * ${apache2User} /usr/bin/php ${matomoDocumentRootDirPath}/console core:archive --url=https://${parameters[webServerFqdn]} > ${matomoArchiveLogPath}.${archiverId} 2>&1" >> ${matomoArchiveCrontabEntryPath}
+    done
     echo_info "Done."
 fi
 
