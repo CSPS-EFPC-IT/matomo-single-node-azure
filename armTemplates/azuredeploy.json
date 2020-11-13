@@ -893,6 +893,18 @@
             }
         },
         {
+            "type": "Microsoft.DBforMySQL/servers/configurations",
+            "apiVersion": "2017-12-01",
+            "name": "[concat(variables('databaseName'), '/wait_timeout')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+            ],
+            "properties": {
+                "value": "1800",
+                "source": "user-override"
+            }
+        },
+        {
             "type": "Microsoft.DBforMySQL/servers/databases",
             "apiVersion": "2017-12-01",
             "name": "[concat(variables('databaseName'), '/', variables('databaseApplicationDatabaseName'))]",

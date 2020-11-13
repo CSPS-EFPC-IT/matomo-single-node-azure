@@ -243,7 +243,9 @@ function setPhpConfig {
 }
 
 # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
-setPhpConfig memory_limit 512M
+# Values required to run report on 12 months of data.
+setPhpConfig memory_limit 2048M
+setPhpConfig max_execution_time 90
 
 ###############################################################################
 echo_title "Update Apache config."
