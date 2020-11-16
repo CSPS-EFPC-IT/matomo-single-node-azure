@@ -206,6 +206,7 @@
         "applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
         "applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
         "bastionName": "[concat(variables('resourceNamePrefix'), '-BH')]",
+        "bastionNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-BH-NSG')]",
         "bastionPublicIpName": "[concat(variables('bastionName'), '-PublicIP')]",
         "bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
         "bastionSubnetName": "AzureBastionSubnet",
@@ -262,6 +263,7 @@
             "tags": "[parameters('resourceTags')]",
             "location": "[parameters('location')]",
             "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastionNetworkSecurityGroupName'))]",
                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]",
                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]"
             ],
@@ -276,6 +278,9 @@
                         "name": "[variables('bastionSubnetName')]",
                         "properties": {
                             "addressPrefix": "[variables('bastionSubnetAddressPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastionNetworkSecurityGroupName'))]"
+                            },
                             "serviceEndpoints": [],
                             "delegations": [],
                             "privateEndpointNetworkPolicies": "Enabled",
@@ -322,6 +327,143 @@
             }
         },
 
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-05-01",
+            "name": "[variables('bastionNetworkSecurityGroupName')]",
+            "tags": "[parameters('resourceTags')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "Allow_Internet_TCP_443_Inbound",
+                        "properties": {
+                            "description": "Ref.: https://docs.microsoft.com/en-us/azure/bastion/bastion-nsg",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Allow_GatewayManager_TCP_443_Inbound",
+                        "properties": {
+                            "description": "Ref.: https://docs.microsoft.com/en-us/azure/bastion/bastion-nsg",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "GatewayManager",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Allow_AzureLoadBalancer_TCP_443_Inbound",
+                        "properties": {
+                            "description": "Ref.: https://docs.microsoft.com/en-us/azure/bastion/bastion-nsg",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "AzureLoadBalancer",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 130,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Deny_AllOther_Inbound",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 4096,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Allow_VirtualNetwork_Any_22_3389_Outbound",
+                        "properties": {
+                            "description": "Ref.: https://docs.microsoft.com/en-us/azure/bastion/bastion-nsg",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [
+                                "22",
+                                "3389"
+                            ],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Allow_AzureCloud_TCP_443_Outbound",
+                        "properties": {
+                            "description": "Ref.: https://docs.microsoft.com/en-us/azure/bastion/bastion-nsg",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "AzureCloud",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Deny_AllOther_Outbound",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 4096,
+                            "direction": "Outbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
@@ -375,7 +517,7 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "AllowPublicInternet_Any_80_443",
+                        "name": "AllowPublicInternet_Any_80_443_Inbound",
                         "properties": {
                             "protocol": "*",
                             "sourcePortRange": "*",
@@ -394,7 +536,7 @@
                         }
                     },
                     {
-                        "name": "AllowGatewayManager_TCP_65200-65535",
+                        "name": "Allow_GatewayManager_TCP_65200-65535_Inbound",
                         "properties": {
                             "description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
                             "protocol": "TCP",
@@ -412,7 +554,7 @@
                         }
                     },
                     {
-                        "name": "AllowAzureLoadBalancer_Any_Any",
+                        "name": "Allow_AzureLoadBalancer_Any_Any_Inbound",
                         "properties": {
                             "description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
                             "protocol": "*",
@@ -430,7 +572,7 @@
                         }
                     },
                     {
-                        "name": "DenyAllOtherTraffic",
+                        "name": "Deny_AllOther_Inbound",
                         "properties": {
                             "protocol": "*",
                             "sourcePortRange": "*",
@@ -698,7 +840,7 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "[concat('Allow', variables('gatewayName'), '_TCP_80')]",
+                        "name": "[concat('Allow', variables('gatewayName'), '_TCP_80_Inbound')]",
                         "properties": {
                             "protocol": "TCP",
                             "sourcePortRange": "*",
@@ -716,7 +858,7 @@
                         }
                     },
                     {
-                        "name": "[concat('Allow', variables('bastionName'), '_TCP_22')]",
+                        "name": "[concat('Allow', variables('bastionName'), '_TCP_22_Inbound')]",
                         "properties": {
                             "protocol": "TCP",
                             "sourcePortRange": "*",
@@ -733,7 +875,7 @@
                         }
                     },
                     {
-                        "name": "DenyAllOtherTraffic",
+                        "name": "Deny_AllOther_Inbound",
                         "properties": {
                             "protocol": "*",
                             "sourcePortRange": "*",
