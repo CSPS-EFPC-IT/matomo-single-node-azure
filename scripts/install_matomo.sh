@@ -205,7 +205,7 @@ apt-get install --yes --quiet apache2 libapache2-mod-php
 echo_info "Done."
 
 echo_action "Installing php packages..."
-apt-get install --yes --quiet php-cli php-mysql php-xml php-mbstring php-json php-gd
+apt-get install --yes --quiet php-cli php-gd php-json php-mbstring php-mysql php-xml
 
 echo_action "Installing libmaxminddb packages..."
 # ref.: https://fr.matomo.org/faq/how-to/faq_164/
