@@ -50,11 +50,13 @@ And installs the following software (up to their latest available patch level fo
 1. Edit the new _azureDeploy.parameters.json_ file to your liking.
 1. Authenticate your Azure Client to your Azure subscription by running the `az login` command and following the instructions.
 1. Adapt and run the following commands (on linux):\
-`deploymentName="MoodleManualDeployment"`\
-`resourceGroupName="[Your resource Group name]"`\
-`templateFile="armTemplate/azureDeploy.json"`\
-`parameterFile="armTemplates/azureDeploy.parameters.json"`\
-`az deployment group create --name $deploymentName --resource-group $resourceGroupName --template-file $templateFile --parameter @$parameterFile --verbose`
+```
+deploymentName="MoodleManualDeployment"
+resourceGroupName="[Your resource Group name]"
+templateFile="armTemplate/azureDeploy.json"
+parameterFile="armTemplates/azureDeploy.parameters.json"
+az deployment group create --name $deploymentName --resource-group $resourceGroupName --template-file $templateFile --parameter @$parameterFile --verbose
+```
 
 # Useful References
 - The database setup by this project enforces TLS/SSL connections. See [HOW DO I SETUP MATOMO TO SECURELY CONNECT TO THE DATABASE USING MYSQL SSL?](https://matomo.org/faq/how-to-install/faq_26273/) for details about how to finalize Matomo installation. Once the initial setup is completed, add the following lines to your [matomo installation folder]/config/config.ini.php:
