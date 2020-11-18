@@ -349,30 +349,6 @@ exit
 EOF
 echo_info "Done."
 
-
-delimiter ;;
-CREATE PROCEDURE matomo.anonymous()
-BEGIN
-    SELECT COUNT(*) INTO @userCount FROM mysql.user WHERE user = 'matomo';
-    IF ( @userCount = 0 ) THEN
-        SELECT 'Adding user...' as 'Info';
-        CREATE USER matomo IDENTIFIED BY 'ToBeChanged!';
-        SELECT 'Granting privileges...' as "Info";
-        GRANT ALL PRIVILEGES ON matomo.* TO matomo;
-        SELECT 'Flushing privileges...' as `Info`;
-        FLUSH PRIVILEGES;
-        SELECT 'Done' as `Info`;
-    ELSE
-        SELECT 'Skipped: User matomo already exists.' as `Info`;
-    END IF;
-END;
-;;
-delimiter ;
-CALL matomo.anonymous();
-DROP PROCEDURE matomo.anonymous;
-exit
-
-
 ###############################################################################
 echo_title "Matomo Post installation process."
 ###############################################################################
