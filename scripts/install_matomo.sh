@@ -326,10 +326,26 @@ echo_info "Done."
 
 echo_action "Creating and granting privileges to database user ${parameters[dbServerMatomoUsername]}..."
 mysql --defaults-extra-file=${mysqlConnectionFilePath} <<EOF
-DROP USER IF EXISTS ${parameters[dbServerMatomoUsername]};
-CREATE USER ${parameters[dbServerMatomoUsername]} IDENTIFIED BY '${parameters[dbServerMatomoPassword]}';
-GRANT ALL PRIVILEGES ON ${parameters[dbServerMatomoDbName]}.* TO ${parameters[dbServerMatomoUsername]};
-FLUSH PRIVILEGES;
+delimiter ;;
+CREATE PROCEDURE anonymous()
+BEGIN
+    SELECT COUNT(*) INTO @userCount FROM USER WHERE user = '${parameters[dbServerMatomoUsername]}';
+    IF ( @userCount = 0 ) THEN
+        SELECT 'Adding user...' as ``;
+        CREATE USER ${parameters[dbServerMatomoUsername]} IDENTIFIED BY '${parameters[dbServerMatomoPassword]}';
+        SELECT 'Granting privileges...' as ``;
+        GRANT ALL PRIVILEGES ON ${parameters[dbServerMatomoDbName]}.* TO ${parameters[dbServerMatomoUsername]};
+        SELECT 'Flushing privileges...' as ``;
+        FLUSH PRIVILEGES;
+        SELECT 'Done' as ``;
+    ELSE
+        SELECT 'Skipped: User ${parameters[dbServerMatomoUsername]} already exists.' as ``;
+    END IF;
+END;
+;;
+delimiter ;
+CALL anonymous();
+DROP PROCEDURE anonymous;
 exit
 EOF
 echo_info "Done."
