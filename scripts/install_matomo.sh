@@ -331,15 +331,15 @@ CREATE PROCEDURE mysql.anonymous()
 BEGIN
     SELECT COUNT(*) INTO @userCount FROM mysql.user WHERE user = '${parameters[dbServerMatomoUsername]}';
     IF ( @userCount = 0 ) THEN
-        SELECT 'Adding user...' as "Info";
+        SELECT 'Adding user...' as `Info`;
         CREATE USER ${parameters[dbServerMatomoUsername]} IDENTIFIED BY '${parameters[dbServerMatomoPassword]}';
-        SELECT 'Granting privileges...' as "Info";
+        SELECT 'Granting privileges...' as `Info`;
         GRANT ALL PRIVILEGES ON ${parameters[dbServerMatomoDbName]}.* TO ${parameters[dbServerMatomoUsername]};
-        SELECT 'Flushing privileges...' as "Info";
+        SELECT 'Flushing privileges...' as `Info`;
         FLUSH PRIVILEGES;
         SELECT 'Done' as ``;
     ELSE
-        SELECT 'Skipped: User ${parameters[dbServerMatomoUsername]} already exists.' as "Info";
+        SELECT 'Skipped: User ${parameters[dbServerMatomoUsername]} already exists.' as `Info`;
     END IF;
 END;
 ;;
