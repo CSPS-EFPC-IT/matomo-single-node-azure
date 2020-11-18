@@ -90,7 +90,7 @@
             "type": "int",
             "defaultValue": "[int(utcNow('ddHHmmss'))]",
             "metadata": {
-                "description": "The deployment timestamp. Determine whether the Virtual Machine Custom Script extension is rerun. Default value will have the Virtual Machine Custom Script extension rerun at each ARM template deployment. Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-linux#property-value-details"
+                "description": "The deployment timestamp. Determines whether the Virtual Machine Custom Script extension is rerun. Default value will have the Virtual Machine Custom Script extension rerun at each ARM template deployment. Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-linux#property-value-details"
             }
         },
         "environmentName": {
@@ -1267,6 +1267,7 @@
         "virtualNetworkName": {
             "type": "string",
             "value": "[variables('virtualNetworkName')]"
-        }
+        },
+
     }
 }
