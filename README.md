@@ -49,7 +49,7 @@ And installs the following software (up to their latest available patch level fo
 1. Create a new file named *armTemplates/azureDeploy.parameters.json* based on the *armTemplates/azureDeploy.parameters.example.json* file.
 1. Edit the new _azureDeploy.parameters.json_ file to your liking.
 1. Authenticate your Azure Client to your Azure subscription by running the `az login` command and following the instructions.
-1. Adapt and run the following commands (on linux):\
+1. Adapt and run the following commands (on linux):
 ```
 deploymentName="MoodleManualDeployment"
 resourceGroupName="[Your resource Group name]"
@@ -59,7 +59,7 @@ az deployment group create --name $deploymentName --resource-group $resourceGrou
 ```
 
 # Useful References
-- The database setup by this project enforces TLS/SSL connections. See [HOW DO I SETUP MATOMO TO SECURELY CONNECT TO THE DATABASE USING MYSQL SSL?](https://matomo.org/faq/how-to-install/faq_26273/) for details about how to finalize Matomo installation. Once the initial setup is completed, add the following lines to your [matomo installation folder]/config/config.ini.php:
+- The database setup by this project enforces TLS/SSL connections. See [HOW DO I SETUP MATOMO TO SECURELY CONNECT TO THE DATABASE USING MYSQL SSL?](https://matomo.org/faq/how-to-install/faq_26273/) for details about how to finalize Matomo installation. Once the initial setup is completed, add the following lines to your [matomo installation folder]/config/config.ini.php under the `[database]` section:
 ```
 ; Database SSL Options START
 ; Turn on or off SSL connection to database, possible values for enable_ssl: 1 or 0
