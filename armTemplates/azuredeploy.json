@@ -1267,7 +1267,6 @@
         "virtualNetworkName": {
             "type": "string",
             "value": "[variables('virtualNetworkName')]"
-        },
-
+        }
     }
 }
