@@ -310,7 +310,7 @@ service apache2 restart
 echo_info "Done."
 
 ###############################################################################
-echo_title "Create Matomo database user if not existing."
+echo_title "Create ${parameters[dbServerMatomoUsername]} database user if not existing."
 ###############################################################################
 echo_action "Saving database connection parameters to file..."
 mysqlConnectionFilePath=${workingDir}/mysql.connection
@@ -324,31 +324,54 @@ password="${parameters[dbServerAdminPassword]}"
 EOF
 echo_info "Done."
 
-echo_action "Creating and granting privileges to database user ${parameters[dbServerMatomoUsername]}..."
-mysql --defaults-extra-file=${mysqlConnectionFilePath} <<EOF
+echo_action "Creating ${parameters[dbServerMatomoUsername]} user and granting privileges on ${parameters[dbServerMatomoDbName]} database..."
+mysql --defaults-extra-file=${mysqlConnectionFilePath} ${parameters[dbServerMatomoDbName]} <<EOF
 delimiter ;;
-CREATE PROCEDURE mysql.anonymous()
+CREATE PROCEDURE anonymous()
 BEGIN
     SELECT COUNT(*) INTO @userCount FROM mysql.user WHERE user = '${parameters[dbServerMatomoUsername]}';
     IF ( @userCount = 0 ) THEN
-        SELECT 'Adding user...' as `Info`;
+        SELECT 'Creating user...' as "Info";
         CREATE USER ${parameters[dbServerMatomoUsername]} IDENTIFIED BY '${parameters[dbServerMatomoPassword]}';
-        SELECT 'Granting privileges...' as `Info`;
+        SELECT 'Granting privileges...' as "Info";
         GRANT ALL PRIVILEGES ON ${parameters[dbServerMatomoDbName]}.* TO ${parameters[dbServerMatomoUsername]};
-        SELECT 'Flushing privileges...' as `Info`;
+        SELECT 'Flushing privileges...' as "Info";
         FLUSH PRIVILEGES;
-        SELECT 'Done' as ``;
     ELSE
-        SELECT 'Skipped: User ${parameters[dbServerMatomoUsername]} already exists.' as `Info`;
+        SELECT 'Skipped: User ${parameters[dbServerMatomoUsername]} already exists.' as "Info";
     END IF;
 END;
 ;;
 delimiter ;
-CALL mysql.anonymous();
-DROP PROCEDURE mysql.anonymous;
+CALL anonymous();
+DROP PROCEDURE anonymous;
 exit
 EOF
 echo_info "Done."
+
+
+delimiter ;;
+CREATE PROCEDURE matomo.anonymous()
+BEGIN
+    SELECT COUNT(*) INTO @userCount FROM mysql.user WHERE user = 'matomo';
+    IF ( @userCount = 0 ) THEN
+        SELECT 'Adding user...' as 'Info';
+        CREATE USER matomo IDENTIFIED BY 'ToBeChanged!';
+        SELECT 'Granting privileges...' as "Info";
+        GRANT ALL PRIVILEGES ON matomo.* TO matomo;
+        SELECT 'Flushing privileges...' as `Info`;
+        FLUSH PRIVILEGES;
+        SELECT 'Done' as `Info`;
+    ELSE
+        SELECT 'Skipped: User matomo already exists.' as `Info`;
+    END IF;
+END;
+;;
+delimiter ;
+CALL matomo.anonymous();
+DROP PROCEDURE matomo.anonymous;
+exit
+
 
 ###############################################################################
 echo_title "Matomo Post installation process."
