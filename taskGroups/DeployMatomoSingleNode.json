@@ -1,0 +1,543 @@
+{
+  "tasks": [
+    {
+      "environment": {},
+      "displayName": "ARM Template deployment: Resource Group scope",
+      "alwaysRun": false,
+      "continueOnError": false,
+      "condition": "succeeded()",
+      "enabled": true,
+      "timeoutInMinutes": 0,
+      "inputs": {
+        "deploymentScope": "Resource Group",
+        "ConnectedServiceName": "$(serviceConnectionName)",
+        "subscriptionName": "$(subscriptionId)",
+        "action": "Create Or Update Resource Group",
+        "resourceGroupName": "$(resourceGroupName)",
+        "location": "$(location)",
+        "templateLocation": "Linked artifact",
+        "csmFileLink": "",
+        "csmParametersFileLink": "",
+        "csmFile": "$(System.DefaultWorkingDirectory)/_CSPS-EFPC-IT_matomo-single-node-azure/armTemplates/azuredeploy.json",
+        "csmParametersFile": "",
+        "overrideParameters": "-applicationAdminEmail \"$(applicationAdminEmail)\" -applicationAdminPassword \"$(applicationAdminPassword)\" -applicationAdminUsername \"$(applicationAdminUsername)\" -applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -environmentName \"$(environmentName)\" -fileRepositoryUri \"$(fileRepositoryUri)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -location \"$(location)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags \"$(virtualMachineTags)\" -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime \"$(webServerBackendMaxExecutionTime)\" -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
+        "deploymentMode": "Incremental",
+        "deploymentName": "DeployMatomoSingleNode_TaskGroup",
+        "deploymentOutputs": "armOutput1",
+        "addSpnToEnvironment": "false"
+      },
+      "task": {
+        "id": "94a74903-f93f-4075-884f-dc11f34058b4",
+        "versionSpec": "3.*",
+        "definitionType": "task"
+      }
+    },
+    {
+      "environment": {},
+      "displayName": "Task group: Arm Outputs",
+      "alwaysRun": false,
+      "continueOnError": false,
+      "condition": "succeeded()",
+      "enabled": true,
+      "timeoutInMinutes": 0,
+      "inputs": {
+        "armDeploymentOutputs": "$(armOutput1)"
+      },
+      "task": {
+        "id": "3ec489be-8fe0-480b-a2d6-7b08edfe1e5d",
+        "versionSpec": "1.*",
+        "definitionType": "metaTask"
+      }
+    },
+    {
+      "environment": {},
+      "displayName": "Task group: SMTP Peering: $(virtualNetworkName) <-> $(smtpVirtualNetworkName)",
+      "alwaysRun": true,
+      "continueOnError": true,
+      "condition": "succeededOrFailed()",
+      "enabled": true,
+      "timeoutInMinutes": 0,
+      "inputs": {
+        "Vnet1_Name": "$(virtualNetworkName)",
+        "Vnet1_RGName": "$(resourceGroupName)",
+        "Vnet1_ServiceConnection": "$(serviceConnectionName)",
+        "Vnet1_SubID": "$(subscriptionId)",
+        "Vnet2_Name": "$(smtpVirtualNetworkName)",
+        "Vnet2_RGName": "$(smtpResourceGroupName)",
+        "Vnet2_ServiceConnection": "$(smtpServiceConnectionName)",
+        "Vnet2_SubID": "$(smtpSubscriptionId)"
+      },
+      "task": {
+        "id": "fe63ecb9-0ab0-489c-8f6b-3878c9faa6fd",
+        "versionSpec": "3.*",
+        "definitionType": "metaTask"
+      }
+    }
+  ],
+  "runsOn": [
+    "Agent",
+    "DeploymentGroup"
+  ],
+  "revision": 1,
+  "createdBy": {
+    "displayName": "Patrick Messier",
+    "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
+    "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
+  },
+  "createdOn": "2021-02-05T16:57:22.237Z",
+  "modifiedBy": {
+    "displayName": "Patrick Messier",
+    "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
+    "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
+  },
+  "modifiedOn": "2021-02-05T16:57:22.237Z",
+  "id": "a2efbcf5-5e16-4c58-9138-c0768ee7ebb8",
+  "name": "Deploy Matomo Single Node - New",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 0,
+    "isTest": false
+  },
+  "iconUrl": "https://cdn.vsassets.io/v/M176_20201022.3/_content/icon-meta-task.png",
+  "friendlyName": "Deploy Matomo Single Node - New",
+  "description": "",
+  "category": "Deploy",
+  "definitionType": "metaTask",
+  "author": "Patrick Messier",
+  "demands": [],
+  "groups": [],
+  "inputs": [
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "applicationAdminEmail",
+      "label": "applicationAdminEmail",
+      "defaultValue": "$(applicationAdminEmail)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "applicationAdminPassword",
+      "label": "applicationAdminPassword",
+      "defaultValue": "$(applicationAdminPassword)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "applicationAdminUsername",
+      "label": "applicationAdminUsername",
+      "defaultValue": "$(applicationAdminUsername)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "applicationCustomFqdn",
+      "label": "applicationCustomFqdn",
+      "defaultValue": "$(applicationCustomFqdn)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "armTemplateRepoBaseUrl",
+      "label": "armTemplateRepoBaseUrl",
+      "defaultValue": "$(armTemplateRepoBaseUrl)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseAdminPassword",
+      "label": "databaseAdminPassword",
+      "defaultValue": "$(databaseAdminPassword)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseAdminUsername",
+      "label": "databaseAdminUsername",
+      "defaultValue": "$(databaseAdminUsername)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseApplicationPassword",
+      "label": "databaseApplicationPassword",
+      "defaultValue": "$(databaseApplicationPassword)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseApplicationUsername",
+      "label": "databaseApplicationUsername",
+      "defaultValue": "$(databaseApplicationUsername)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseBackupRetentionDays",
+      "label": "databaseBackupRetentionDays",
+      "defaultValue": "$(databaseBackupRetentionDays)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseCapacity",
+      "label": "databaseCapacity",
+      "defaultValue": "$(databaseCapacity)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "databaseStorageMb",
+      "label": "databaseStorageMb",
+      "defaultValue": "$(databaseStorageMb)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "dataDiskSizeGB",
+      "label": "dataDiskSizeGB",
+      "defaultValue": "$(dataDiskSizeGB)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "environmentName",
+      "label": "environmentName",
+      "defaultValue": "$(environmentName)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "fileRepositoryUri",
+      "label": "fileRepositoryUri",
+      "defaultValue": "$(fileRepositoryUri)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "gatewaySslCertificateUri",
+      "label": "gatewaySslCertificateUri",
+      "defaultValue": "$(gatewaySslCertificateUri)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "gatewayUserAssignedIdentity",
+      "label": "gatewayUserAssignedIdentity",
+      "defaultValue": "$(gatewayUserAssignedIdentity)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "location",
+      "label": "location",
+      "defaultValue": "$(location)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "projectShortName",
+      "label": "projectShortName",
+      "defaultValue": "$(projectShortName)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "resourceGroupName",
+      "label": "resourceGroupName",
+      "defaultValue": "$(resourceGroupName)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "resourceTags",
+      "label": "resourceTags",
+      "defaultValue": "$(resourceTags)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {
+        "EndpointFilterRule": "ScopeLevel >= deploymentScope"
+      },
+      "name": "serviceConnectionName",
+      "label": "serviceConnectionName",
+      "defaultValue": "$(serviceConnectionName)",
+      "required": true,
+      "type": "connectedService:AzureRM",
+      "helpMarkDown": "Select the Azure Resource Manager service connection having access to the selected deployment scope.",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "smtpResourceGroupName",
+      "label": "smtpResourceGroupName",
+      "defaultValue": "$(smtpResourceGroupName)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "Resource Group containing the SMTP VN.",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "smtpServerFqdn",
+      "label": "smtpServerFqdn",
+      "defaultValue": "$(smtpServerFqdn)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "smtpServerPrivateIp",
+      "label": "smtpServerPrivateIp",
+      "defaultValue": "$(smtpServerPrivateIp)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {
+        "EndpointFilterRule": ""
+      },
+      "name": "smtpServiceConnectionName",
+      "label": "smtpServiceConnectionName",
+      "defaultValue": "$(smtpServiceConnectionName)",
+      "required": true,
+      "type": "connectedService:AzureRM",
+      "helpMarkDown": "Service Connection of the RG containing the SMTP server unless the SMTP server is in the same subscription as Vnet1. In that case, use the same service connection as Vnet1_ServiceConnection.",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "smtpSubscriptionId",
+      "label": "smtpSubscriptionId",
+      "defaultValue": "$(smtpSubscriptionId)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "Subscription ID of the subscription  containing the SMTP VN.",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "smtpVirtualNetworkName",
+      "label": "smtpVirtualNetworkName",
+      "defaultValue": "$(smtpVirtualNetworkName)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "Name of the SMTP VN.",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "subscriptionId",
+      "label": "subscriptionId",
+      "defaultValue": "$(subscriptionId)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "virtualMachineTags",
+      "label": "virtualMachineTags",
+      "defaultValue": "$(virtualMachineTags)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "virtualNetworkAddressBase",
+      "label": "virtualNetworkAddressBase",
+      "defaultValue": "$(virtualNetworkAddressBase)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "webServerAdminPassword",
+      "label": "webServerAdminPassword",
+      "defaultValue": "$(webServerAdminPassword)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "webServerAdminUsername",
+      "label": "webServerAdminUsername",
+      "defaultValue": "$(webServerAdminUsername)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "webServerBackendMaxExecutionTime",
+      "label": "webServerBackendMaxExecutionTime",
+      "defaultValue": "$(webServerBackendMaxExecutionTime)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "webServerVirtualMachineSize",
+      "label": "webServerVirtualMachineSize",
+      "defaultValue": "$(webServerVirtualMachineSize)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    }
+  ],
+  "satisfies": [],
+  "sourceDefinitions": [],
+  "dataSourceBindings": [],
+  "instanceNameFormat": "Task group: Deploy Matomo Single Node - New",
+  "preJobExecution": {},
+  "execution": {},
+  "postJobExecution": {}
+}
