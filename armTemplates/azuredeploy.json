@@ -182,6 +182,12 @@
                 "description": "The username to use to connect to the VMSS instances."
             }
         },
+        "webServerBackendMaxExcutionTime": {
+            "type": "int",
+            "metadata": {
+                "description": "The time (in seconds) allowed to the Web server backend to fullfil a request."
+            }
+        },
         "webServerVirtualMachineSize": {
             "type": "string",
             "metadata": {
@@ -227,6 +233,7 @@
         },
         "gatewayBackendAddressPoolName": "matomo-web-server",
         "gatewayBackendHttpSettingsCollectionName": "[concat(parameters('projectShortName'), '-HTTP-Settings')]",
+        "gatewayBackendHttpSettingsCollectionRequestTimeout": "[add(parameters('webServerBackendMaxExcutionTime'),1)]",
         "gatewayFrontendIPConfigurationsName": "appGwPublicFrontendIp",
         "gatewayFrontendPortHttpName": "HTTP-Port",
         "gatewayFrontendPortHttpsName": "HTTPS-Port",
@@ -545,7 +552,7 @@
                             "protocol": "Http",
                             "cookieBasedAffinity": "Disabled",
                             "pickHostNameFromBackendAddress": false,
-                            "requestTimeout": 60
+                            "requestTimeout": "[variables('gatewayBackendHttpSettingsCollectionRequestTimeout')]"
                         }
                     }
                 ],
