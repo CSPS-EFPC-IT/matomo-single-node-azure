@@ -46,7 +46,7 @@ declare -A parameters=( [dataDiskSize]= \
                         [dbServerMatomoPassword]= \
                         [dbServerMatomoUsername]= \
                         [dbServerName]= \
-                        [maxExecutionTime] = \
+                        [maxExecutionTime]= \
                         [smtpServerFqdn]= \
                         [smtpServerPrivateIp]= \
                         [webServerFqdn]= )
