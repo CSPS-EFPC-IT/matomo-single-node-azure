@@ -3,28 +3,28 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "applicationAdminEmail": {
-            "value": "[Your custom value here]"
+            "value": "my.email@my.domain.com"
         },
         "applicationAdminPassword": {
-            "value": "[Your custom value here]"
+            "value": "mySecret"
         },
         "applicationAdminUsername": {
-            "value": "[Your custom value here]"
+            "value": "myAppAdminUsername"
         },
         "applicationCustomFqdn": {
-            "value": "[Your custom value here]"
+            "value": "myapp.domain.com"
         },
         "armTemplateRepoBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
         },
         "databaseAdminPassword": {
-            "value": "[Your custom value here]"
+            "value": "mySecret"
         },
         "databaseAdminUsername": {
-            "value": "[Your custom value here]"
+            "value": "myDbAdminUsername"
         },
         "databaseApplicationPassword": {
-            "value": "[Your custom value here]"
+            "value": "mySecret"
         },
         "databaseApplicationUsername": {
             "value": "matomo"
@@ -45,54 +45,54 @@
             "value": "dev"
         },
         "fileRepositoryUri": {
-            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/master"
+            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
         },
         "gatewaySslCertificateUri": {
-            "value": "[Your specific value here]"
+            "value": "https://mykeyvaultname.vault.azure.net/secrets/my-certificate-name/my-certificate-version"
         },
         "gatewayUserAssignedIdentity": {
             "value": {
-                "[Your specific value here]": {}
+                "/subscriptions/my-subscription-id/resourceGroups/my-resource-group-name/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myUAMI": {}
             }
         },
         "location": {
             "value": "Canada Central"
         },
         "projectShortName": {
-            "value": "[Your custom value here]"
+            "value": "myProShoName"
         },
         "resourceTags": {
             "value": {
-                "[Tag name 1]": "[Tag value 1]",
-                "[Tag name 2]": "[Tag value 2]"
+                "tag1": "value1",
+                "tag2": "value2"
             }
         },
         "smtpServerFqdn": {
-            "value": "[Your custom value here]"
+            "value": "my.smtp.domain.com"
         },
         "smtpServerPrivateIp": {
             "value": "10.10.10.1"
         },
         "virtualMachineTags": {
             "value": {
-                "[Tag name 1]": "[Tag value 1]",
-                "[Tag name 2]": "[Tag value 2]"
+                "tag1": "value1",
+                "tag2": "value2"
             }
         },
         "virtualNetworkAddressBase": {
             "value": "10.10.10"
         },
         "webServerAdminPassword": {
-            "value": "[Your custom value here]"
+            "value": "mySecret"
         },
         "webServerAdminUsername": {
-            "value": "[Your custom value here]"
+            "value": "myWebServerAdminUsername"
         },
         "webServerBackendMaxExecutionTime": {
-            "value": "[Your custom value here]"
+            "value": "60"
         },
         "webServerVirtualMachineSize": {
-            "value": "[Your custom value here]"
+            "value": "Standard_DS2_v2"
         }
     }
 }
