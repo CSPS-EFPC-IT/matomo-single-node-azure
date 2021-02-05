@@ -46,6 +46,7 @@ declare -A parameters=( [dataDiskSize]= \
                         [dbServerMatomoPassword]= \
                         [dbServerMatomoUsername]= \
                         [dbServerName]= \
+                        [maxExecutionTime]= \
                         [smtpServerFqdn]= \
                         [smtpServerPrivateIp]= \
                         [webServerFqdn]= )
@@ -252,7 +253,7 @@ function setPhpConfig {
 # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
 # Values required to run report on 12 months of data.
 setPhpConfig memory_limit 2048M
-setPhpConfig max_execution_time 90
+setPhpConfig max_execution_time ${parameters[maxExecutionTime]}
 
 ###############################################################################
 echo_title "Update Apache config."

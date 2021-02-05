@@ -88,6 +88,9 @@
         "webServerAdminUsername": {
             "value": "[Your custom value here]"
         },
+        "webServerBackendMaxExecutionTime": {
+            "value": "[Your custom value here]"
+        },
         "webServerVirtualMachineSize": {
             "value": "[Your custom value here]"
         }
