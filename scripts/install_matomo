@@ -71,7 +71,7 @@ function utils::mysql_create_database_if_not_exists() {
     "${CLIENT_OPTIONS_FILE_PATH}"
 
   utils::echo_action "Creating new MySQL database if not existing: ${database}..."
-  mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" --execute "CREATE DATABASE IF NOT EXISTS ${database};"
+  mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};"
 
   utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
   rm "${CLIENT_OPTIONS_FILE_PATH}"
@@ -97,7 +97,7 @@ function utils::mysql_create_user_if_not_exists() {
 
   utils::echo_action "Creating MySQL database user if not exising: ${user_username}..."
   mysql --defaults-extra-file=${CLIENT_OPTIONS_FILE_PATH} \
-    --execute "CREATE USER ${user_username} IF NOT EXISTS IDENTIFIED BY '${user_password}';"
+    --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';"
 
   utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
   rm "${CLIENT_OPTIONS_FILE_PATH}"
@@ -123,7 +123,7 @@ function utils::mysql_grant_all_privileges() {
 
   utils::echo_action "Granting all privileges on all ${database} database objects to user '${user_username}'..."
   mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" \
-    --execute "GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
+    --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
 
   utils::echo_action "Deleting mysql config file: ${file_path}..."
   rm "${CLIENT_OPTIONS_FILE_PATH}"
