@@ -50,7 +50,7 @@ function main() {
     --max_execution_time "${parameters[max_execution_time]}" \
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \
-    --web_server_fqdn "${parameters[web_server_fqdn]}" )
+    --web_server_fqdn "${parameters[web_server_fqdn]}"
 
   #############################################################################
 
