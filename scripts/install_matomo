@@ -36,11 +36,11 @@ function utils::mysql_create_client_options_file() {
 
   utils::echo_action "Creating mysql config file: ${file_path}..."
   if [[ -f "${file_path}" ]]; then
-    utils::echo_error "The file ${file_path} already exists. Aborting."
-    exit 1
+    utils::echo_info "The file ${file_path} already exists. Overwriting content."
+  else
+    touch "${file_path}"
   fi
 
-  touch "${file_path}"
   chmod 600 "${file_path}"
   cat <<EOF > "${file_path}"
 [client]
