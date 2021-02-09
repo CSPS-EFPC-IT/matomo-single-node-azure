@@ -31,7 +31,7 @@ function utils::mysql_create_client_options_file() {
   local password="$2"
   local host="$3"
   local port="$4"
-  local dbname="$5"
+  local database="$5"
   local file_path="$6"
 
   utils::echo_action "Creating mysql config file: ${file_path}..."
@@ -48,82 +48,82 @@ host="${host}"
 port="${port}"
 user="${username}@${host%%.*}"
 password="${password}"
-dbname="${dbname}"
+database="${database}"
 EOF
 
 }
 
 function utils::mysql_create_database_if_not_exists() {
-  local db_admin_username="$1"
-  local db_admin_password="$2"
-  local db_host_fqdn="$3"
-  local db_port="$4"
-  local db_name="$5"
+  local admin_username="$1"
+  local admin_password="$2"
+  local host="$3"
+  local port="$4"
+  local database="$5"
 
   readonly local CLIENT_OPTIONS_FILE_PATH=="/tmp/my.cnf"
 
   utils::mysql_create_client_options_file \
-    "${db_admin_username}" \
-    "${db_admin_password}" \
-    "${db_host_fqdn}" \
-    "${db_port}" \
+    "${admin_username}" \
+    "${admin_password}" \
+    "${host}" \
+    "${port}" \
     "mysql" \
     "${CLIENT_OPTIONS_FILE_PATH}"
 
-  utils::echo_action "Creating new MySQL database if not existing: ${db_name}..."
-  mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" --execute "CREATE DATABASE IF NOT EXISTS ${db_name};"
+  utils::echo_action "Creating new MySQL database if not existing: ${database}..."
+  mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" --execute "CREATE DATABASE IF NOT EXISTS ${database};"
 
   utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
   rm "${CLIENT_OPTIONS_FILE_PATH}"
 }
 
 function utils::mysql_create_user_if_not_exists() {
-  local db_admin_username="$1"
-  local db_admin_password="$2"
-  local db_host_fqdn="$3"
-  local db_port="$4"
-  local db_username="$5"
-  local db_user_password="$6"
+  local admin_username="$1"
+  local admin_password="$2"
+  local host="$3"
+  local port="$4"
+  local user_username="$5"
+  local user_password="$6"
 
   readonly local CLIENT_OPTIONS_FILE_PATH="/tmp/my.cnf"
 
   utils::mysql_create_client_options_file \
-    "${db_admin_username}" \
-    "${db_admin_password}" \
-    "${db_host_fqdn}" \
-    "${db_port}" \
+    "${admin_username}" \
+    "${admin_password}" \
+    "${host}" \
+    "${port}" \
     "mysql" \
     "${CLIENT_OPTIONS_FILE_PATH}"
 
-  utils::echo_action "Creating MySQL database user if not exising: ${db_username}..."
+  utils::echo_action "Creating MySQL database user if not exising: ${user_username}..."
   mysql --defaults-extra-file=${CLIENT_OPTIONS_FILE_PATH} \
-    --execute "CREATE USER ${db_username} IF NOT EXISTS IDENTIFIED BY '${db_user_password}';"
+    --execute "CREATE USER ${user_username} IF NOT EXISTS IDENTIFIED BY '${user_password}';"
 
   utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
   rm "${CLIENT_OPTIONS_FILE_PATH}"
 }
 
 function utils::mysql_grant_all_privileges() {
-  local db_admin_username="$1"
-  local db_admin_password="$2"
-  local db_host_fqdn="$3"
-  local db_port="$4"
-  local db_name="$5"
-  local db_username="$6"
+  local admin_username="$1"
+  local admin_password="$2"
+  local host="$3"
+  local port="$4"
+  local database="$5"
+  local user_username="$6"
 
   readonly local CLIENT_OPTIONS_FILE_PATH=="/tmp/my.cnf"
 
   utils::mysql_create_client_options_file \
-    "${db_admin_username}" \
-    "${db_admin_password}" \
-    "${db_host_fqdn}" \
-    "${db_port}" \
+    "${admin_username}" \
+    "${admin_password}" \
+    "${host}" \
+    "${port}" \
     "mysql" \
     "${CLIENT_OPTIONS_FILE_PATH}"
 
-  utils::echo_action "Granting all privileges on all ${db_name} database objects to ${db_username}..."
+  utils::echo_action "Granting all privileges on all ${database} database objects to user '${user_username}'..."
   mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" \
-    --execute "GRANT ALL PRIVILEGES ON ${db_name}.* TO ${db_username}; FLUSH PRIVILEGES;"
+    --execute "GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
 
   utils::echo_action "Deleting mysql config file: ${file_path}..."
   rm "${CLIENT_OPTIONS_FILE_PATH}"
@@ -297,7 +297,7 @@ function main() {
 
   utils::echo_title "Setup MySQL Database"
 
-  utils::mysql_create_user_if_not_exists
+  utils::mysql_create_user_if_not_exists \
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
@@ -305,7 +305,7 @@ function main() {
     "${parameters[db_server_matomo_username]}" \
     "${parameters[db_server_matomo_password]}"
 
-  utils::mysql_grant_all_privileges
+  utils::mysql_grant_all_privileges \
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
