@@ -199,7 +199,7 @@ function main() {
   utils::echo_action "Hardening web werver..."
   utils::harden_apache2 "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
 
-  utils::echo_action 'Setting file permissions...'
+  utils::echo_action 'Setting permission on files: ${apache2_matomo_site_document_root_dir_path}...'
   chown -R "${APACHE2_USER}:root" "${apache2_matomo_site_document_root_dir_path}"
   chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
   utils::echo_info "Done."
@@ -232,16 +232,16 @@ function main() {
     "${MYSQL_CREDENTIALS_FILE_PATH}"
 
   utils::mysql_create_database_if_not_exists \
-    "${MYSQL_CLIENT_OPTIONS_FILE_PATH}" \
+    "${MYSQL_CREDENTIALS_FILE_PATH}" \
     "${parameters[db_server_matomo_db_name]}"
 
   utils::mysql_create_user_if_not_exists \
-    "${MYSQL_CLIENT_OPTIONS_FILE_PATH}" \
+    "${MYSQL_CREDENTIALS_FILE_PATH}" \
     "${parameters[db_server_matomo_username]}" \
     "${parameters[db_server_matomo_password]}"
 
   utils::mysql_grant_all_privileges \
-    "${MYSQL_CLIENT_OPTIONS_FILE_PATH}" \
+    "${MYSQL_CREDENTIALS_FILE_PATH}" \
     "${parameters[db_server_matomo_db_name]}" \
     "${parameters[db_server_matomo_username]}"
 
