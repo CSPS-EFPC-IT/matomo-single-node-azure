@@ -77,12 +77,13 @@ function utils::mysql_grant_all_privileges() {
   local database="$2"
   local user_username="$3"
 
-  utils::echo_action "Granting all privileges on all ${database} database objects to user '${user_username}'..."
+  utils::echo_action "Granting all privileges on all '${database}' database objects to user '${user_username}'..."
   mysql --defaults-extra-file="${credentials_file_path}" \
         --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
 }
 
 function main() {
+
   local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
@@ -204,7 +205,7 @@ function main() {
   utils::echo_action "Hardening web werver..."
   utils::harden_apache2 "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
 
-  utils::echo_action 'Setting permission on files: ${apache2_matomo_site_document_root_dir_path}...'
+  utils::echo_action "Setting permission on files: ${apache2_matomo_site_document_root_dir_path}..."
   chown -R "${APACHE2_USER}:root" "${apache2_matomo_site_document_root_dir_path}"
   chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
   utils::echo_info "Done."
@@ -259,14 +260,14 @@ function main() {
   utils::echo_action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
   #       https://matomo.org/docs/setup-auto-archiving/#linux-unix-how-to-set-up-a-crontab-to-automatically-archive-the-reports
-  if [[ -f ${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH} ]]; then
+  if [[ -f "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}" ]]; then
       utils::echo_warn "Skipped: Matomo Archive Crontab already exist."
   else
       for archiver_id in {1..2}
       do
-          touch ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}
-          chown ${APACHE2_USER} ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}
-          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> ${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}
+          touch "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
+          chown "${APACHE2_USER}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
+          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
       done
   fi
 
