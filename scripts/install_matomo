@@ -54,31 +54,31 @@ EOF
 }
 
 function utils::mysql_create_database_if_not_exists() {
-  local client_options_file_path="$1"
+  local credentials_file_path="$1"
   local database="$2"
 
   utils::echo_action "Creating MySQL database if not existing: ${database}..."
-  mysql --defaults-extra-file="${client_options_file_path}" \
+  mysql --defaults-extra-file="${credentials_file_path}" \
         --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};"
 }
 
 function utils::mysql_create_user_if_not_exists() {
-  local client_options_file_path="$1"
+  local credentials_file_path="$1"
   local user_username="$2"
   local user_password="$3"
 
   utils::echo_action "Creating MySQL database user if not existing: ${user_username}..."
-  mysql --defaults-extra-file="${client_options_file_path}" \
+  mysql --defaults-extra-file="${credentials_file_path}" \
         --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';"
 }
 
 function utils::mysql_grant_all_privileges() {
-  local client_options_file_path="$1"
+  local credentials_file_path="$1"
   local database="$2"
   local user_username="$3"
 
   utils::echo_action "Granting all privileges on all ${database} database objects to user '${user_username}'..."
-  mysql --defaults-extra-file="${client_options_file_path}" \
+  mysql --defaults-extra-file="${credentials_file_path}" \
         --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
 }
 
