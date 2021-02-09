@@ -267,7 +267,7 @@
         "webServerComputerName": "webserver",
         "webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
         "webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-        "webServerVirtualMachineInstallMatomoExtensionName": "InstallMatomo",
+        "webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
         "webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
         "webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
         "webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
@@ -1111,7 +1111,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-06-01",
-            "name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineInstallMatomoExtensionName'))]",
+            "name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
@@ -1146,7 +1146,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineInstallMatomoExtensionName'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineSetUpExtensionName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Azure.Diagnostics",
