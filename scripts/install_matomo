@@ -70,7 +70,7 @@ function utils::mysql_create_database_if_not_exists() {
     "mysql" \
     "${CLIENT_OPTIONS_FILE_PATH}"
 
-  utils::echo_action "Creating new MySQL database if not existing: ${database}..."
+  utils::echo_action "Creating MySQL database if not existing: ${database}..."
   mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};"
 
   utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
@@ -85,7 +85,7 @@ function utils::mysql_create_user_if_not_exists() {
   local user_username="$5"
   local user_password="$6"
 
-  readonly local CLIENT_OPTIONS_FILE_PATH="/tmp/my.cnf"
+  local -r CLIENT_OPTIONS_FILE_PATH="/tmp/my.cnf"
 
   utils::mysql_create_client_options_file \
     "${admin_username}" \
@@ -95,7 +95,7 @@ function utils::mysql_create_user_if_not_exists() {
     "mysql" \
     "${CLIENT_OPTIONS_FILE_PATH}"
 
-  utils::echo_action "Creating MySQL database user if not exising: ${user_username}..."
+  utils::echo_action "Creating MySQL database user if not existing: ${user_username}..."
   mysql --defaults-extra-file=${CLIENT_OPTIONS_FILE_PATH} \
     --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';"
 
@@ -111,7 +111,7 @@ function utils::mysql_grant_all_privileges() {
   local database="$5"
   local user_username="$6"
 
-  readonly local CLIENT_OPTIONS_FILE_PATH=="/tmp/my.cnf"
+  local -r CLIENT_OPTIONS_FILE_PATH="/tmp/my.cnf"
 
   utils::mysql_create_client_options_file \
     "${admin_username}" \
@@ -256,10 +256,10 @@ function main() {
     "${apache2_matomo_site_document_root_dir_path}" \
     "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
-  utils::echo_action "Enabling Matomo Site..."
+  utils::echo_action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
   a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}"
 
-  utils::echo_action "Disabling default site..."
+  utils::echo_action "Disabling ${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf} site..."
   a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}"
 
   utils::echo_action "Hardening web werver..."
