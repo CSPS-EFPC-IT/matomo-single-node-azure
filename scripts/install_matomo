@@ -255,9 +255,9 @@ function main() {
 
   # Updating matomo site config DocumentRoot.
   utils::update_apache2_config_file \
-    local parameter="DocumentRoot"
-    local value="${matomo_document_root_dir_path}"
-    local config_file_path="${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
+    "DocumentRoot" \
+    "${matomo_document_root_dir_path}" \
+    "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   utils::echo_action "Enabling Matomo Site..."
   if [[ -L "${APACHE2_SITES_ENABLED_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}" ]]; then
@@ -297,7 +297,7 @@ function main() {
 
   utils::echo_title "Setup MySQL Database"
 
-  utils::utils:mysql_create_user_if_not_exists() {
+  utils::utils:mysql_create_user_if_not_exists
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
@@ -305,7 +305,7 @@ function main() {
     "${parameters[db_server_matomo_username]}" \
     "${parameters[db_server_matomo_password]}"
 
-  utils::mysql_grant_all_privileges() {
+  utils::mysql_grant_all_privileges
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
