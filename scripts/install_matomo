@@ -96,7 +96,7 @@ function main() {
   local apache2_matomo_site_document_root_dir_path
 
   utils::set_exit_trap
-  utils::echo_title "Start of $0"
+  utils::echo_info "Start of $0"
 
   #############################################################################
 
