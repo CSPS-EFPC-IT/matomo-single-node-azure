@@ -24,7 +24,7 @@ declare -A parameters=( \
 # Functions
 source ./utils.sh
 
-function utils::echo_warning() {
+function utils::echo_warn() {
   echo "$(date +"$DATE_FORMAT") | WARN   - *** $1 ***"
 }
 
