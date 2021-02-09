@@ -21,12 +21,14 @@ declare -A parameters=( \
   [web_server_fqdn]= \
 )
 
-# Constants
-
 # Functions
 source ./utils.sh
 
-function utils::mysql_create_client_options_file() {
+function utils::echo_warning() {
+  echo "$(date +"$DATE_FORMAT") | WARN   - *** $1 ***"
+}
+
+function utils::mysql_create_credentials_file() {
   local username="$1"
   local password="$2"
   local host="$3"
@@ -34,14 +36,13 @@ function utils::mysql_create_client_options_file() {
   local database="$5"
   local file_path="$6"
 
-  utils::echo_action "Creating mysql config file: ${file_path}..."
+  utils::echo_action "Creating MySQL credentials file: ${file_path}..."
   if [[ -f "${file_path}" ]]; then
-    utils::echo_info "The file ${file_path} already exists. Overwriting content."
+    utils::echo_warn "File already exists. Overwriting content."
   else
     touch "${file_path}"
   fi
-
-  chmod 600 "${file_path}"
+  chmod 400 "${file_path}"
   cat <<EOF > "${file_path}"
 [client]
 host="${host}"
@@ -50,93 +51,47 @@ user="${username}@${host%%.*}"
 password="${password}"
 database="${database}"
 EOF
-
 }
 
 function utils::mysql_create_database_if_not_exists() {
-  local admin_username="$1"
-  local admin_password="$2"
-  local host="$3"
-  local port="$4"
-  local database="$5"
-
-  readonly local CLIENT_OPTIONS_FILE_PATH=="/tmp/my.cnf"
-
-  utils::mysql_create_client_options_file \
-    "${admin_username}" \
-    "${admin_password}" \
-    "${host}" \
-    "${port}" \
-    "mysql" \
-    "${CLIENT_OPTIONS_FILE_PATH}"
+  local client_options_file_path="$1"
+  local database="$2"
 
   utils::echo_action "Creating MySQL database if not existing: ${database}..."
-  mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};"
-
-  utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
-  rm "${CLIENT_OPTIONS_FILE_PATH}"
+  mysql --defaults-extra-file="${client_options_file_path}" \
+        --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};"
 }
 
 function utils::mysql_create_user_if_not_exists() {
-  local admin_username="$1"
-  local admin_password="$2"
-  local host="$3"
-  local port="$4"
-  local user_username="$5"
-  local user_password="$6"
-
-  local -r CLIENT_OPTIONS_FILE_PATH="/tmp/my.cnf"
-
-  utils::mysql_create_client_options_file \
-    "${admin_username}" \
-    "${admin_password}" \
-    "${host}" \
-    "${port}" \
-    "mysql" \
-    "${CLIENT_OPTIONS_FILE_PATH}"
+  local client_options_file_path="$1"
+  local user_username="$2"
+  local user_password="$3"
 
   utils::echo_action "Creating MySQL database user if not existing: ${user_username}..."
-  mysql --defaults-extra-file=${CLIENT_OPTIONS_FILE_PATH} \
-    --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';"
-
-  utils::echo_action "Deleting temporary mysql config file: ${mysql_connection_file_path}..."
-  rm "${CLIENT_OPTIONS_FILE_PATH}"
+  mysql --defaults-extra-file="${client_options_file_path}" \
+        --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';"
 }
 
 function utils::mysql_grant_all_privileges() {
-  local admin_username="$1"
-  local admin_password="$2"
-  local host="$3"
-  local port="$4"
-  local database="$5"
-  local user_username="$6"
-
-  local -r CLIENT_OPTIONS_FILE_PATH="/tmp/my.cnf"
-
-  utils::mysql_create_client_options_file \
-    "${admin_username}" \
-    "${admin_password}" \
-    "${host}" \
-    "${port}" \
-    "mysql" \
-    "${CLIENT_OPTIONS_FILE_PATH}"
+  local client_options_file_path="$1"
+  local database="$2"
+  local user_username="$3"
 
   utils::echo_action "Granting all privileges on all ${database} database objects to user '${user_username}'..."
-  mysql --defaults-extra-file="${CLIENT_OPTIONS_FILE_PATH}" \
-    --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
-
-  utils::echo_action "Deleting mysql config file: ${file_path}..."
-  rm "${CLIENT_OPTIONS_FILE_PATH}"
+  mysql --defaults-extra-file="${client_options_file_path}" \
+        --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
 }
 
 function main() {
-
-  readonly local APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
-  readonly local APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
-  readonly local APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  readonly local APACHE2_PHP_INI_FILE_PATH="/etc/php/7.2/apache2/php.ini"
-  readonly local APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
-  readonly local APACHE2_USER="www-data"
+  local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
+  local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
+  local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
+  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/7.2/apache2/php.ini"
+  local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
+  local -r APACHE2_USER="www-data"
+  local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
+  local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
+  local -r MYSQL_CREDENTIALS_FILE_PATH="/tmp/my.cnf"
 
   local apache2_matomo_site_document_root_dir_path
 
@@ -146,6 +101,7 @@ function main() {
   #############################################################################
 
   utils::echo_title "Parse Input Parameters"
+
   utils::parse_parameters "$@"
 
   #############################################################################
@@ -155,11 +111,10 @@ function main() {
   utils::echo_action "Setting apache2_matomo_site_document_root_dir_path..."
   apache2_matomo_site_document_root_dir_path="${parameters[data_disk_mount_point_path]}/matomo"
 
-  utils::echo_info "Done."
-
   #############################################################################
 
   utils::echo_title "Mount Data Disk"
+
   utils::mount_data_disk_by_size \
     "${parameters[data_disk_size]}" \
     "${parameters[data_disk_mount_point_path]}"
@@ -167,80 +122,59 @@ function main() {
   #############################################################################
 
   utils::echo_title "Download and Extract Matomo Files"
-  # Ref.: https://builds.matomo.org/
+
   if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
-    utils::echo_info "Skipped: Matomo already installed."
+    utils::echo_warn "Skipped: Matomo already installed."
   else
     utils::echo_action "Downloading Matomo 3.11 tar file..."
     wget https://builds.matomo.org/matomo-3.11.0.tar.gz
-    utils::echo_info "Done."
 
     utils::echo_action "Extracting Matomo tar file..."
     tar zxf matomo-3.11.0.tar.gz -C "${parameters[data_disk_mount_point_path]}"
-    utils::echo_info "Done."
   fi
 
   #############################################################################
 
-  utils::echo_title "Install tools"
+  utils::echo_title "Install Debugging Tools"
+
   utils::echo_action "Installing mysql-client..."
   apt-get install --yes --quiet \
     mysql-client-5.7
-  utils::echo_info "Done."
 
   #############################################################################
 
   utils::echo_title "Install Matomo Dependencies"
 
-  utils::echo_action "Installing apache2 packages..."
-  apt install --yes --quiet \
-    apache2 \
-    libapache2-mod-php
-  utils::echo_info "Done."
+  # Ref.: https://matomo.org/docs/requirements/
+  #       https://fr.matomo.org/faq/how-to/faq_164/
+  #       https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
 
-  utils::echo_action "Installing php packages..."
-  apt install --yes --quiet \
-    php-cli \
-    php-gd \
-    php-json \
-    php-mbstring \
-    php-mysql \
-    php-xml
-
-  utils::echo_action "Installing libmaxminddb packages..."
-  # ref.: https://fr.matomo.org/faq/how-to/faq_164/
-  # Ref.: https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
+  utils::echo_action "Adding ppa:maxmind package repository..."
   add-apt-repository --yes ppa:maxmind/ppa
   apt update
-  apt install --yes --quiet \
-    libmaxminddb0 \
-    libmaxminddb-dev \
-    mmdb-bin
 
-  utils::echo_info "Done."
+  utils::echo_action "Installing packages..."
+  apt install --yes --quiet \
+    apache2 \
+    libapache2-mod-php \
+    libmaxminddb-dev \
+    libmaxminddb0 \
+    mmdb-bin \
+    php-cli \
+    php-curl \
+    php-gd \
+    php-mbstring \
+    php-mysql \
+    php-xml \
 
   #############################################################################
 
-  utils::echo_title "Map SMTP Server Private IP"
+  utils::echo_title "Set Up SMTP Server"
+
   utils::add_hosts_file_entry \
     "${parameters[smtp_server_private_ip]}" \
     "${parameters[smtp_server_fqdn]}" \
     "Redirect SMTP Server FQDN to Private IP Address."
-
-  #############################################################################
-
-  utils::echo_title "Update Apache2's PHP Configuration"
-
-  # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
-  # Values required to run report on 12 months of data.
-  utils::update_php_config_file \
-    "memory_limit" \
-    "2048M" \
-    "${APACHE2_PHP_INI_FILE_PATH}"
-  utils::update_php_config_file \
-    "max_execution_time" \
-    "${parameters[max_execution_time]}" \
-    "${APACHE2_PHP_INI_FILE_PATH}"
 
   #############################################################################
 
@@ -270,55 +204,70 @@ function main() {
   chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
   utils::echo_info "Done."
 
+  utils::echo_action "Updating Apache2's PHP configuration..."
+  # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
+  # Values required to run report on 12 months of data.
+  utils::update_php_config_file \
+    "memory_limit" \
+    "2048M" \
+    "${APACHE2_PHP_INI_FILE_PATH}"
+  utils::update_php_config_file \
+    "max_execution_time" \
+    "${parameters[max_execution_time]}" \
+    "${APACHE2_PHP_INI_FILE_PATH}"
+
   utils::echo_action "Restarting Apache2..."
   service apache2 restart
-  utils::echo_info "Done."
 
   #############################################################################
 
   utils::echo_title "Setup MySQL Database"
 
-  utils::mysql_create_user_if_not_exists \
+  utils::mysql_create_credentials_file \
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
     "3306" \
+    "mysql" \
+    "${MYSQL_CREDENTIALS_FILE_PATH}"
+
+  utils::mysql_create_database_if_not_exists \
+    "${MYSQL_CLIENT_OPTIONS_FILE_PATH}" \
+    "${parameters[db_server_matomo_db_name]}"
+
+  utils::mysql_create_user_if_not_exists \
+    "${MYSQL_CLIENT_OPTIONS_FILE_PATH}" \
     "${parameters[db_server_matomo_username]}" \
     "${parameters[db_server_matomo_password]}"
 
   utils::mysql_grant_all_privileges \
-    "${parameters[db_server_admin_username]}" \
-    "${parameters[db_server_admin_password]}" \
-    "${parameters[db_server_fqdn]}" \
-    "3306" \
+    "${MYSQL_CLIENT_OPTIONS_FILE_PATH}" \
     "${parameters[db_server_matomo_db_name]}" \
     "${parameters[db_server_matomo_username]}"
+
+  rm -f "${MYSQL_CREDENTIALS_FILE_PATH}"
 
   #############################################################################
 
   utils::echo_title "Matomo Post Installation Process"
 
-  matomo_archive_crontab_entry_path="/etc/cron.d/matomo-archive"
-  matomo_archive_log_path="/var/log/matomo-archive.log"
-
   utils::echo_action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
   #       https://matomo.org/docs/setup-auto-archiving/#linux-unix-how-to-set-up-a-crontab-to-automatically-archive-the-reports
-  if [[ -f ${matomo_archive_crontab_entry_path} ]]; then
-      utils::echo_info "Skipped: Matomo Archive Crontab already exist."
+  if [[ -f ${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH} ]]; then
+      utils::echo_warn "Skipped: Matomo Archive Crontab already exist."
   else
       for archiver_id in {1..2}
       do
-          touch ${matomo_archive_log_path}.${archiver_id}
-          chown ${APACHE2_USER} ${matomo_archive_log_path}.${archiver_id}
-          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${matomo_archive_log_path}.${archiver_id} 2>&1" >> ${matomo_archive_crontab_entry_path}
+          touch ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}
+          chown ${APACHE2_USER} ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}
+          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> ${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}
       done
-      utils::echo_info "Done."
   fi
 
   #############################################################################
 
-  utils::echo_title "End of $0"
+  utils::echo_info "End of $0"
   utils::unset_exit_trap
 }
 
