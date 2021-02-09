@@ -32,8 +32,8 @@ function main() {
   utils::echo_title "Start of $0"
 
   utils::echo_info "This script:"
-  utils::echo_info "1) Upgrade server and remove unused packages"
-  utils::echo_info "2) Install and configure Matomo and its dependencies"
+  utils::echo_info "1) Upgrades server and removes unused packages"
+  utils::echo_info "2) Installs and configures Matomo and its dependencies"
 
   #############################################################################
 
