@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# Setup Matomo Single Node Web Server.
+# This script must be run as root (ex.: sudo sh ./[script_name])
+# Style Guide: https://google.github.io/styleguide/shellguide.html
+
+# Parameters: all manadatory and must be prefixed with "--" on command line.
+declare -A parameters=( \
+  [data_disk_size]= \
+  [data_disk_mount_point_path]= \
+  [db_server_admin_password]= \
+  [db_server_admin_username]= \
+  [db_server_fqdn]= \
+  [db_server_matomo_db_name]= \
+  [db_server_matomo_password]= \
+  [db_server_matomo_username]= \
+  [db_server_name]= \
+  [max_execution_time]= \
+  [smtp_server_fqdn]= \
+  [smtp_server_private_ip]= \
+  [web_server_fqdn]= \
+)
+
+  # Functions
+source ./utils.sh
+
+function main() {
+  utils::set_exit_trap
+  utils::echo_title "Start of $0"
+
+  #############################################################################
+
+  utils::echo_title "Parse Input Parameters"
+  utils::parse_parameters "$@"
+
+  utils::echo_title "Upgrade Server and Removes Unused Packages"
+  ./upgrade_server
+
+  utils::echo_title "Install Matomo"
+  ./install_matomo \
+    --data_disk_size "${parameters[data_disk_size]}" \
+    --data_disk_mount_point_path "${parameters[data_disk_mount_point_path]}" \
+    --db_server_admin_password "${parameters[db_server_admin_password]}" \
+    --db_server_admin_username "${parameters[db_server_admin_username]}" \
+    --db_server_fqdn "${parameters[db_server_fqdn]}" \
+    --db_server_matomo_db_name "${parameters[db_server_matomo_db_name]}" \
+    --db_server_matomo_password "${parameters[db_server_matomo_password]}" \
+    --db_server_matomo_username "${parameters[db_server_matomo_username]}" \
+    --db_server_name "${parameters[db_server_name]}" \
+    --max_execution_time "${parameters[max_execution_time]}" \
+    --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
+    --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \
+    --web_server_fqdn "${parameters[web_server_fqdn]}" )
+
+  #############################################################################
+
+  utils::echo_title "End of $0"
+  utils::unset_exit_trap
+}
+
+main "$@"
