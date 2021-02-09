@@ -297,7 +297,7 @@ function main() {
 
   utils::echo_title "Setup MySQL Database"
 
-  utils:mysql_create_user_if_not_exists
+  utils::mysql_create_user_if_not_exists
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
