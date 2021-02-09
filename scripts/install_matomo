@@ -96,7 +96,12 @@ function main() {
   local apache2_matomo_site_document_root_dir_path
 
   utils::set_exit_trap
-  utils::echo_info "Start of $0"
+
+  #############################################################################
+
+  utils::echo_title "Start of $0"
+
+  utils::echo_info "This script sets up a web server running Matomo."
 
   #############################################################################
 
@@ -267,7 +272,12 @@ function main() {
 
   #############################################################################
 
-  utils::echo_info "End of $0"
+  utils::echo_title "End of Script"
+
+  utils::echo_info "$0 completed successfully."
+
+  #############################################################################
+
   utils::unset_exit_trap
 }
 
