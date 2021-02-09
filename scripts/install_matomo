@@ -132,16 +132,13 @@ function utils::mysql_grant_all_privileges() {
 function main() {
 
   readonly local APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
-  readonly local APACHE2_DEFAULT_DOCUMENT_ROOT_DIR_PATH="/var/www/html"
   readonly local APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   readonly local APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
   readonly local APACHE2_PHP_INI_FILE_PATH="/etc/php/7.2/apache2/php.ini"
   readonly local APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
-  readonly local APACHE2_SITES_ENABLED_PATH="/etc/apache2/sites-enabled"
   readonly local APACHE2_USER="www-data"
 
-  local matomo_document_root_dir_path
-  local working_dir
+  local apache2_matomo_site_document_root_dir_path
 
   utils::set_exit_trap
   utils::echo_title "Start of $0"
@@ -154,10 +151,10 @@ function main() {
   #############################################################################
 
   utils::echo_title "Set Global Variables"
-  utils::echo_action "Setting matomo_document_root_dir_path..."
-  matomo_document_root_dir_path="${parameters[data_disk_mount_point_path]}/matomo"
-  utils::echo_action "Setting working_dir..."
-  working_dir=$(pwd)
+
+  utils::echo_action "Setting apache2_matomo_site_document_root_dir_path..."
+  apache2_matomo_site_document_root_dir_path="${parameters[data_disk_mount_point_path]}/matomo"
+
   utils::echo_info "Done."
 
   #############################################################################
@@ -171,7 +168,7 @@ function main() {
 
   utils::echo_title "Download and Extract Matomo Files"
   # Ref.: https://builds.matomo.org/
-  if [[ -d "${matomo_document_root_dir_path}" ]]; then
+  if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
     utils::echo_info "Skipped: Matomo already installed."
   else
     utils::echo_action "Downloading Matomo 3.11 tar file..."
@@ -256,37 +253,21 @@ function main() {
   # Updating matomo site config DocumentRoot.
   utils::update_apache2_config_file \
     "DocumentRoot" \
-    "${matomo_document_root_dir_path}" \
+    "${apache2_matomo_site_document_root_dir_path}" \
     "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   utils::echo_action "Enabling Matomo Site..."
-  if [[ -L "${APACHE2_SITES_ENABLED_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}" ]]; then
-    utils::echo_info "Skipped: Matomo site already enabled."
-  else
-    ln -s "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}" "${APACHE2_SITES_ENABLED_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
-    utils::echo_info "Done."
-  fi
-
-  ### Experiment
   a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}"
 
   utils::echo_action "Disabling default site..."
-  if [[ -L "${APACHE2_SITES_ENABLED_PATH}/${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME}" ]]; then
-    rm "${APACHE2_SITES_ENABLED_PATH}/${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME}"
-    utils::echo_info "Done."
-  else
-    utils::echo_info "Skipped: Default site already disabled."
-  fi
-
-  ### Experiment
   a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}"
 
   utils::echo_action "Hardening web werver..."
   utils::harden_apache2 "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
 
   utils::echo_action 'Setting file permissions...'
-  chown -R "${APACHE2_USER}:root" "${matomo_document_root_dir_path}"
-  chmod -R 775 "${matomo_document_root_dir_path}"
+  chown -R "${APACHE2_USER}:root" "${apache2_matomo_site_document_root_dir_path}"
+  chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
   utils::echo_info "Done."
 
   utils::echo_action "Restarting Apache2..."
@@ -330,7 +311,7 @@ function main() {
       do
           touch ${matomo_archive_log_path}.${archiver_id}
           chown ${APACHE2_USER} ${matomo_archive_log_path}.${archiver_id}
-          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${matomo_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${matomo_archive_log_path}.${archiver_id} 2>&1" >> ${matomo_archive_crontab_entry_path}
+          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${matomo_archive_log_path}.${archiver_id} 2>&1" >> ${matomo_archive_crontab_entry_path}
       done
       utils::echo_info "Done."
   fi
