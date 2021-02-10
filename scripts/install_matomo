@@ -81,7 +81,7 @@ function utils::mysql_grant_all_privileges() {
   local database="$2"
   local user_username="$3"
 
-  utils::echo_action "Granting all privileges on all '${database}' database objects to user '${user_username}'..."
+  utils::echo_action "Granting all privileges on MySQL '${database}' database objects to user '${user_username}'..."
   utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
                             --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;")"
 }
