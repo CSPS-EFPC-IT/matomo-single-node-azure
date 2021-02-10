@@ -25,7 +25,9 @@ declare -A parameters=( \
 source ./utils.sh
 
 function utils::echo_warn() {
-  echo "$(date +"$DATE_FORMAT") | WARN   - *** $1 ***"
+  if [[ ! -z "$1" ]]; then 
+    echo "$(date +"$DATE_FORMAT") | WARN   - $1"
+  fi
 }
 
 function utils::mysql_create_credentials_file() {
@@ -58,8 +60,8 @@ function utils::mysql_create_database_if_not_exists() {
   local database="$2"
 
   utils::echo_action "Creating MySQL database if not existing: ${database}..."
-  mysql --defaults-extra-file="${credentials_file_path}" \
-        --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};"
+  utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
+                            --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};")"
 }
 
 function utils::mysql_create_user_if_not_exists() {
@@ -68,8 +70,8 @@ function utils::mysql_create_user_if_not_exists() {
   local user_password="$3"
 
   utils::echo_action "Creating MySQL database user if not existing: ${user_username}..."
-  mysql --defaults-extra-file="${credentials_file_path}" \
-        --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';"
+  utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
+                            --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';")"
 }
 
 function utils::mysql_grant_all_privileges() {
@@ -78,8 +80,8 @@ function utils::mysql_grant_all_privileges() {
   local user_username="$3"
 
   utils::echo_action "Granting all privileges on all '${database}' database objects to user '${user_username}'..."
-  mysql --defaults-extra-file="${credentials_file_path}" \
-        --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;"
+  utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
+                            --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;")"
 }
 
 function main() {
@@ -198,10 +200,10 @@ function main() {
     "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   utils::echo_action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
-  a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}"
+  utils::echo_warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
 
   utils::echo_action "Disabling ${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf} site..."
-  a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}"
+  utils::echo_warn "$(a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}")"
 
   utils::echo_action "Hardening web werver..."
   utils::harden_apache2 "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
@@ -209,7 +211,6 @@ function main() {
   utils::echo_action "Setting permission on files: ${apache2_matomo_site_document_root_dir_path}..."
   chown -R "${APACHE2_USER}:root" "${apache2_matomo_site_document_root_dir_path}"
   chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
-  utils::echo_info "Done."
 
   utils::echo_action "Updating Apache2's PHP configuration..."
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
