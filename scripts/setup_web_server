@@ -11,10 +11,9 @@ declare -A parameters=( \
   [db_server_admin_password]= \
   [db_server_admin_username]= \
   [db_server_fqdn]= \
-  [db_server_matomo_db_name]= \
+  [db_server_matomo_database]= \
   [db_server_matomo_password]= \
   [db_server_matomo_username]= \
-  [db_server_name]= \
   [max_execution_time]= \
   [smtp_server_fqdn]= \
   [smtp_server_private_ip]= \
@@ -55,10 +54,9 @@ function main() {
     --db_server_admin_password "${parameters[db_server_admin_password]}" \
     --db_server_admin_username "${parameters[db_server_admin_username]}" \
     --db_server_fqdn "${parameters[db_server_fqdn]}" \
-    --db_server_matomo_db_name "${parameters[db_server_matomo_db_name]}" \
+    --db_server_matomo_database "${parameters[db_server_matomo_database]}" \
     --db_server_matomo_password "${parameters[db_server_matomo_password]}" \
     --db_server_matomo_username "${parameters[db_server_matomo_username]}" \
-    --db_server_name "${parameters[db_server_name]}" \
     --max_execution_time "${parameters[max_execution_time]}" \
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \

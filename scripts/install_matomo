@@ -11,10 +11,9 @@ declare -A parameters=( \
   [db_server_admin_password]= \
   [db_server_admin_username]= \
   [db_server_fqdn]= \
-  [db_server_matomo_db_name]= \
+  [db_server_matomo_database]= \
   [db_server_matomo_password]= \
   [db_server_matomo_username]= \
-  [db_server_name]= \
   [max_execution_time]= \
   [smtp_server_fqdn]= \
   [smtp_server_private_ip]= \
@@ -25,7 +24,7 @@ declare -A parameters=( \
 source ./utils.sh
 
 function utils::echo_warn() {
-  if [[ ! -z "$1" ]]; then 
+  if [[ ! -z "$1" ]]; then
     echo "$(date +"$DATE_FORMAT") | WARN   - $1"
   fi
 }
@@ -241,7 +240,7 @@ function main() {
 
   utils::mysql_create_database_if_not_exists \
     "${MYSQL_CREDENTIALS_FILE_PATH}" \
-    "${parameters[db_server_matomo_db_name]}"
+    "${parameters[db_server_matomo_database]}"
 
   utils::mysql_create_user_if_not_exists \
     "${MYSQL_CREDENTIALS_FILE_PATH}" \
@@ -250,7 +249,7 @@ function main() {
 
   utils::mysql_grant_all_privileges \
     "${MYSQL_CREDENTIALS_FILE_PATH}" \
-    "${parameters[db_server_matomo_db_name]}" \
+    "${parameters[db_server_matomo_database]}" \
     "${parameters[db_server_matomo_username]}"
 
   rm -f "${MYSQL_CREDENTIALS_FILE_PATH}"
