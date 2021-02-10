@@ -25,7 +25,10 @@ source ./utils.sh
 
 function utils::echo_warn() {
   if [[ ! -z "$1" ]]; then
-    echo "$(date +"$DATE_FORMAT") | WARN   - $1"
+    # Print each line
+    echo "$1" | while read line ; do
+      echo "$(date +"$DATE_FORMAT") | WARN   - ${line}"
+    done
   fi
 }
 
