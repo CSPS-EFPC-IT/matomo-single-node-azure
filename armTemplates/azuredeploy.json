@@ -925,18 +925,6 @@
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/servers/databases",
-            "apiVersion": "2017-12-01",
-            "name": "[concat(variables('databaseName'), '/', variables('databaseApplicationDatabaseName'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "charset": "utf8",
-                "collation": "utf8_general_ci"
-            }
-        },
-        {
             "type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
             "apiVersion": "2017-12-01",
             "name": "[concat(variables('databaseName'), '/', variables('applicationSubnetName'))]",
@@ -1115,7 +1103,6 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-                "[resourceId('Microsoft.DBforMySQL/servers/databases', variables('databaseName'), variables('databaseApplicationDatabaseName') )]",
                 "[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseName'), variables('applicationSubnetName'))]"
             ],
             "properties": {
