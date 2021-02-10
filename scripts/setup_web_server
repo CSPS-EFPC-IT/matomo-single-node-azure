@@ -64,9 +64,7 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "End of Script"
-
-  utils::echo_info "$0 completed successfully."
+  utils::echo_title "End of $0"
 
   #############################################################################
 

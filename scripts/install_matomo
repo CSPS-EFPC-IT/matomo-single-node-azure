@@ -192,6 +192,7 @@ function main() {
     "${parameters[db_server_matomo_database]}" \
     "${parameters[db_server_matomo_username]}"
 
+  utils::echo_action "Deleting MySQL Credentials file..."
   rm -f "${MYSQL_CREDENTIALS_FILE_PATH}"
 
   #############################################################################
@@ -214,9 +215,7 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "End of Script"
-
-  utils::echo_info "$0 completed successfully."
+  utils::echo_title "End of $0"
 
   #############################################################################
 
