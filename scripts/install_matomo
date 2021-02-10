@@ -23,69 +23,6 @@ declare -A parameters=( \
 # Functions
 source ./utils.sh
 
-function utils::echo_warn() {
-  if [[ ! -z "$1" ]]; then
-    # Print each line
-    echo "$1" | while read line ; do
-      echo "$(date +"$DATE_FORMAT") | WARN   - ${line}"
-    done
-  fi
-}
-
-function utils::mysql_create_credentials_file() {
-  local username="$1"
-  local password="$2"
-  local host="$3"
-  local port="$4"
-  local database="$5"
-  local file_path="$6"
-
-  utils::echo_action "Creating MySQL credentials file: ${file_path}..."
-  if [[ -f "${file_path}" ]]; then
-    utils::echo_warn "File already exists. Overwriting content."
-  else
-    touch "${file_path}"
-  fi
-  chmod 400 "${file_path}"
-  cat <<EOF > "${file_path}"
-[client]
-host="${host}"
-port="${port}"
-user="${username}@${host%%.*}"
-password="${password}"
-database="${database}"
-EOF
-}
-
-function utils::mysql_create_database_if_not_exists() {
-  local credentials_file_path="$1"
-  local database="$2"
-
-  utils::echo_action "Creating MySQL database if not existing: ${database}..."
-  utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
-                            --execute "WARNINGS; CREATE DATABASE IF NOT EXISTS ${database};")"
-}
-
-function utils::mysql_create_user_if_not_exists() {
-  local credentials_file_path="$1"
-  local user_username="$2"
-  local user_password="$3"
-
-  utils::echo_action "Creating MySQL database user if not existing: ${user_username}..."
-  utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
-                            --execute "WARNINGS; CREATE USER IF NOT EXISTS ${user_username} IDENTIFIED BY '${user_password}';")"
-}
-
-function utils::mysql_grant_all_privileges() {
-  local credentials_file_path="$1"
-  local database="$2"
-  local user_username="$3"
-
-  utils::echo_action "Granting all privileges on MySQL '${database}' database objects to user '${user_username}'..."
-  utils::echo_warn "$(mysql --defaults-extra-file="${credentials_file_path}" \
-                            --execute "WARNINGS; GRANT ALL PRIVILEGES ON ${database}.* TO ${user_username}; FLUSH PRIVILEGES;")"
-}
-
 function main() {
 
   local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
