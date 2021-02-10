@@ -20,7 +20,7 @@
         "csmParametersFileLink": "",
         "csmFile": "$(System.DefaultWorkingDirectory)/_CSPS-EFPC-IT_matomo-single-node-azure/armTemplates/azuredeploy.json",
         "csmParametersFile": "",
-        "overrideParameters": "-applicationAdminEmail \"$(applicationAdminEmail)\" -applicationAdminPassword \"$(applicationAdminPassword)\" -applicationAdminUsername \"$(applicationAdminUsername)\" -applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -environmentName \"$(environmentName)\" -fileRepositoryUri \"$(fileRepositoryUri)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -location \"$(location)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags \"$(virtualMachineTags)\" -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime \"$(webServerBackendMaxExecutionTime)\" -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
+        "overrideParameters": "-applicationAdminEmail \"$(applicationAdminEmail)\" -applicationAdminPassword \"$(applicationAdminPassword)\" -applicationAdminUsername \"$(applicationAdminUsername)\" -applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -environmentName \"$(environmentName)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -genericShellScriptsPublicRawFilesUrl \"$(genericShellScriptsPublicRawFilesUrl)\" -location \"$(location)\" -projectPublicRawFilesBaseUrl \"$(projectPublicRawFilesBaseUrl)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags $(virtualMachineTags) -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime) -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
         "deploymentMode": "Incremental",
         "deploymentName": "DeployMatomoSingleNode_TaskGroup",
         "deploymentOutputs": "armOutput1",
@@ -128,7 +128,7 @@
       "label": "applicationAdminPassword",
       "defaultValue": "$(applicationAdminPassword)",
       "required": true,
-      "type": "string",
+      "type": "securestring",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -176,7 +176,7 @@
       "label": "databaseAdminPassword",
       "defaultValue": "$(databaseAdminPassword)",
       "required": true,
-      "type": "string",
+      "type": "securestring",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -200,7 +200,7 @@
       "label": "databaseApplicationPassword",
       "defaultValue": "$(databaseApplicationPassword)",
       "required": true,
-      "type": "string",
+      "type": "securestring",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -224,7 +224,7 @@
       "label": "databaseBackupRetentionDays",
       "defaultValue": "$(databaseBackupRetentionDays)",
       "required": true,
-      "type": "string",
+      "type": "int",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -236,7 +236,7 @@
       "label": "databaseCapacity",
       "defaultValue": "$(databaseCapacity)",
       "required": true,
-      "type": "string",
+      "type": "int",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -248,7 +248,7 @@
       "label": "databaseStorageMb",
       "defaultValue": "$(databaseStorageMb)",
       "required": true,
-      "type": "string",
+      "type": "int",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -260,7 +260,7 @@
       "label": "dataDiskSizeGB",
       "defaultValue": "$(dataDiskSizeGB)",
       "required": true,
-      "type": "string",
+      "type": "int",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -271,18 +271,6 @@
       "name": "environmentName",
       "label": "environmentName",
       "defaultValue": "$(environmentName)",
-      "required": true,
-      "type": "string",
-      "helpMarkDown": "",
-      "groupName": ""
-    },
-    {
-      "aliases": [],
-      "options": {},
-      "properties": {},
-      "name": "fileRepositoryUri",
-      "label": "fileRepositoryUri",
-      "defaultValue": "$(fileRepositoryUri)",
       "required": true,
       "type": "string",
       "helpMarkDown": "",
@@ -308,6 +296,31 @@
       "label": "gatewayUserAssignedIdentity",
       "defaultValue": "$(gatewayUserAssignedIdentity)",
       "required": true,
+      "type": "object",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "genericShellScriptsPublicRawFilesUrl",
+      "label": "genericShellScriptsPublicRawFilesUrl",
+      "defaultValue": "$(genericShellScriptsPublicRawFilesUrl)",
+      "required": true,
+      "type": "string",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "location",
+      "label": "location",
+      "defaultValue": "$(location)",
+      "required": true,
       "type": "string",
       "helpMarkDown": "",
       "groupName": ""
@@ -316,9 +329,9 @@
       "aliases": [],
       "options": {},
       "properties": {},
-      "name": "location",
-      "label": "location",
-      "defaultValue": "$(location)",
+      "name": "projectPublicRawFilesBaseUrl",
+      "label": "projectPublicRawFilesBaseUrl",
+      "defaultValue": "$(projectPublicRawFilesBaseUrl)",
       "required": true,
       "type": "string",
       "helpMarkDown": "",
@@ -356,7 +369,7 @@
       "label": "resourceTags",
       "defaultValue": "$(resourceTags)",
       "required": true,
-      "type": "string",
+      "type": "object",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -468,7 +481,7 @@
       "label": "virtualMachineTags",
       "defaultValue": "$(virtualMachineTags)",
       "required": true,
-      "type": "string",
+      "type": "object",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -480,7 +493,7 @@
       "label": "virtualNetworkAddressBase",
       "defaultValue": "$(virtualNetworkAddressBase)",
       "required": true,
-      "type": "string",
+      "type": "securestring",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -492,7 +505,7 @@
       "label": "webServerAdminPassword",
       "defaultValue": "$(webServerAdminPassword)",
       "required": true,
-      "type": "string",
+      "type": "securestring",
       "helpMarkDown": "",
       "groupName": ""
     },
@@ -516,7 +529,7 @@
       "label": "webServerBackendMaxExecutionTime",
       "defaultValue": "$(webServerBackendMaxExecutionTime)",
       "required": true,
-      "type": "string",
+      "type": "int",
       "helpMarkDown": "",
       "groupName": ""
     },
