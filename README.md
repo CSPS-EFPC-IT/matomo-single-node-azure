@@ -14,11 +14,11 @@ This project deploys the following Azure resources:
 And installs the following software (up to their latest available patch level for the linux distro) on the virtual machine:
 - Ubuntu 18.04
 - Mysql client 5.7
-- Apache2 2.4
+- Apache 2.4
 - PHP-CLI 7.2
 - PHP 7.2 modules
   - php7.2-gd
-  - php7.2-json
+  - php7.2-curl
   - php7.2-mbstring
   - php7.2-mysql
   - php7.2-xml
@@ -40,7 +40,7 @@ And installs the following software (up to their latest available patch level fo
 1. Permission to manage (CRUD) resources in the target resource group.
 1. GET permission on the Key Vault Secrets granted to the User Assigned Managed Identity. This will allow the Application Gateway to retrieve the SSL/TLS certificate private key from the Key Vault using the UAMI .
 
-## Other Dependencies
+## Others
 1. Optional - An SMTP server.
 1. Optional - A custom domain name for the new moodle instance.
 
@@ -59,6 +59,7 @@ az deployment group create --name $deploymentName --resource-group $resourceGrou
 ```
 
 # Useful References
+- This project makes use of some generic bash scripts and libraries hosted in a [separate project](https://github.com/CSPS-EFPC-IT/generic-shell-scripts).
 - The database setup by this project enforces TLS/SSL connections. See [HOW DO I SETUP MATOMO TO SECURELY CONNECT TO THE DATABASE USING MYSQL SSL?](https://matomo.org/faq/how-to-install/faq_26273/) for details about how to finalize Matomo installation. Once the initial setup is completed, add the following lines to your [matomo installation folder]/config/config.ini.php under the `[database]` section:
 ```
 ; Database SSL Options START
