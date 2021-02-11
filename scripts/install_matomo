@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install Moodle 3.10.1 and client requested plugins on Ubuntu 18.04.
+# Install Matomo 3.11.0 on Ubuntu 18.04.
 # This script must be run as root (ex.: sudo sh [script_name])
 # Style Guide: https://google.github.io/styleguide/shellguide.html
 
@@ -199,8 +199,7 @@ function main() {
   if [[ -f "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}" ]]; then
       utils::echo_warn "Skipped: Matomo Archive Crontab already exist."
   else
-      for archiver_id in {1..2}
-      do
+      for archiver_id in {1..2}; do
           touch "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
           chown "${APACHE2_USER}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
           echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
