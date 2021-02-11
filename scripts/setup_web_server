@@ -19,7 +19,7 @@ declare -A parameters=( \
   [db_server_matomo_database]= \
   [db_server_matomo_password]= \
   [db_server_matomo_username]= \
-  [max_execution_time]= \
+  [php_max_execution_time]= \
   [smtp_server_fqdn]= \
   [smtp_server_private_ip]= \
   [web_server_fqdn]= \
@@ -62,7 +62,7 @@ function main() {
     --db_server_matomo_database "${parameters[db_server_matomo_database]}" \
     --db_server_matomo_password "${parameters[db_server_matomo_password]}" \
     --db_server_matomo_username "${parameters[db_server_matomo_username]}" \
-    --max_execution_time "${parameters[max_execution_time]}" \
+    --php_max_execution_time "${parameters[php_max_execution_time]}" \
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \
     --web_server_fqdn "${parameters[web_server_fqdn]}"

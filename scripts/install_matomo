@@ -14,7 +14,7 @@ declare -A parameters=( \
   [db_server_matomo_database]= \
   [db_server_matomo_password]= \
   [db_server_matomo_username]= \
-  [max_execution_time]= \
+  [php_max_execution_time]= \
   [smtp_server_fqdn]= \
   [smtp_server_private_ip]= \
   [web_server_fqdn]= \
@@ -159,7 +159,7 @@ function main() {
     "${APACHE2_PHP_INI_FILE_PATH}"
   utils::update_php_config_file \
     "max_execution_time" \
-    "${parameters[max_execution_time]}" \
+    "${parameters[php_max_execution_time]}" \
     "${APACHE2_PHP_INI_FILE_PATH}"
 
   utils::echo_action "Restarting Apache2..."
