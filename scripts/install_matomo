@@ -33,7 +33,6 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MYSQL_CREDENTIALS_FILE_PATH="/tmp/my.cnf"
 
   local apache2_matomo_site_document_root_dir_path
 
@@ -170,30 +169,25 @@ function main() {
 
   utils::echo_title "Setup MySQL Database"
 
-  utils::mysql_create_credentials_file \
+  utils::mysql_create_user_options_file \
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
     "3306" \
-    "mysql" \
-    "${MYSQL_CREDENTIALS_FILE_PATH}"
+    "mysql"
 
   utils::mysql_create_database_if_not_exists \
-    "${MYSQL_CREDENTIALS_FILE_PATH}" \
     "${parameters[db_server_matomo_database]}"
 
   utils::mysql_create_user_if_not_exists \
-    "${MYSQL_CREDENTIALS_FILE_PATH}" \
     "${parameters[db_server_matomo_username]}" \
     "${parameters[db_server_matomo_password]}"
 
   utils::mysql_grant_all_privileges \
-    "${MYSQL_CREDENTIALS_FILE_PATH}" \
     "${parameters[db_server_matomo_database]}" \
     "${parameters[db_server_matomo_username]}"
 
-  utils::echo_action "Deleting MySQL Credentials file..."
-  rm -f "${MYSQL_CREDENTIALS_FILE_PATH}"
+  utils::mysql_delete_user_options_file
 
   #############################################################################
 
