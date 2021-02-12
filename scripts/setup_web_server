@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Setup Matomo Single Node Web Server.
+# This script must be run as root (ex.: sudo sh ./[script_name])
+# Style Guide: https://google.github.io/styleguide/shellguide.html
+
+# The function libraries and the upgrade_server script are injected on the
+# server at deployment time by the Azure Resource Manager (ARM). The source
+# code for these can be found at https://github.com/CSPS-EFPC-IT/generic-shell-scripts.
+# See the ARM template deployment parameters for the exact version used.
+
+# Parameters: all manadatory and must be prefixed with "--" on command line.
+declare -A parameters=( \
+  [data_disk_size]= \
+  [data_disk_mount_point_path]= \
+  [db_server_admin_password]= \
+  [db_server_admin_username]= \
+  [db_server_fqdn]= \
+  [db_server_matomo_database]= \
+  [db_server_matomo_password]= \
+  [db_server_matomo_username]= \
+  [php_max_execution_time]= \
+  [smtp_server_fqdn]= \
+  [smtp_server_private_ip]= \
+  [web_server_fqdn]= \
+)
+
+# Functions
+source ./logger.sh
+source ./utils.sh
+
+function main() {
+  utils::set_exit_trap
+
+  #############################################################################
+
+  logger::title "Start of $0"
+
+  logger::info "This script:"
+  logger::info "1) Upgrades server and removes unused packages"
+  logger::info "2) Installs and configures Matomo and its dependencies"
+
+  #############################################################################
+
+  logger::title "Parse Input Parameters"
+
+  utils::parse_parameters "$@"
+
+  #############################################################################
+
+  # Upgrade server and remove unused packages.
+  ./upgrade_server
+
+  #############################################################################
+
+  # Install and configure Matomo and its dependencies.
+  ./install_matomo \
+    --data_disk_size "${parameters[data_disk_size]}" \
+    --data_disk_mount_point_path "${parameters[data_disk_mount_point_path]}" \
+    --db_server_admin_password "${parameters[db_server_admin_password]}" \
+    --db_server_admin_username "${parameters[db_server_admin_username]}" \
+    --db_server_fqdn "${parameters[db_server_fqdn]}" \
+    --db_server_matomo_database "${parameters[db_server_matomo_database]}" \
+    --db_server_matomo_password "${parameters[db_server_matomo_password]}" \
+    --db_server_matomo_username "${parameters[db_server_matomo_username]}" \
+    --php_max_execution_time "${parameters[php_max_execution_time]}" \
+    --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
+    --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \
+    --web_server_fqdn "${parameters[web_server_fqdn]}"
+
+  #############################################################################
+
+  logger::title "End of $0"
+
+  #############################################################################
+
+  utils::unset_exit_trap
+}
+
+main "$@"

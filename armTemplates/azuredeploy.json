@@ -105,12 +105,6 @@
                 "description": "The name of the provisioned environment. Used to build resource names."
             }
         },
-        "fileRepositoryUri": {
-            "type": "string",
-            "metadata": {
-                "description": "The public URI to raw version of the project repository files."
-            }
-        },
         "gatewaySslCertificateUri": {
             "type": "string",
             "metadata": {
@@ -123,11 +117,23 @@
                 "description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
             }
         },
+        "genericShellScriptsPublicRawFilesUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "The public base URL of the generic-shell-scripts repository's raw files."
+            }
+        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "The name of the Azure Location where resources will be created."
+            }
+        },
+        "projectPublicRawFilesBaseUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "The public base URL of this project's repository's raw files."
             }
         },
         "projectShortName": {
@@ -261,7 +267,7 @@
         "webServerComputerName": "webserver",
         "webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
         "webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-        "webServerVirtualMachineInstallMatomoExtensionName": "InstallMatomo",
+        "webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
         "webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
         "webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
         "webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
@@ -919,18 +925,6 @@
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/servers/databases",
-            "apiVersion": "2017-12-01",
-            "name": "[concat(variables('databaseName'), '/', variables('databaseApplicationDatabaseName'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "charset": "utf8",
-                "collation": "utf8_general_ci"
-            }
-        },
-        {
             "type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
             "apiVersion": "2017-12-01",
             "name": "[concat(variables('databaseName'), '/', variables('applicationSubnetName'))]",
@@ -1105,11 +1099,10 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-06-01",
-            "name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineInstallMatomoExtensionName'))]",
+            "name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-                "[resourceId('Microsoft.DBforMySQL/servers/databases', variables('databaseName'), variables('databaseApplicationDatabaseName') )]",
                 "[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseName'), variables('applicationSubnetName'))]"
             ],
             "properties": {
@@ -1121,8 +1114,18 @@
                     "timestamp": "[parameters('deploymentTimestamp')]"
                 },
                 "protectedSettings": {
-                    "fileUris": ["[concat(parameters('fileRepositoryUri'),'/scripts/install_matomo.sh')]"],
-                    "commandToExecute": "[concat('sudo ./install_matomo.sh -dataDiskSize ', parameters('dataDiskSizeGB'), 'G', ' -dataDiskMountPointPath ', variables('webServerVirtualMachineDataDiskMountPoint'), ' -dbServerAdminPassword ', parameters('databaseAdminPassword'), ' -dbServerAdminUsername ', parameters('databaseAdminUsername'), ' -dbServerFqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' -dbServerMatomoDbName ', variables('databaseApplicationDatabaseName'), ' -dbServerMatomoPassword ', parameters('databaseApplicationPassword'), ' -dbServerMatomoUsername ', parameters('databaseApplicationUsername'), ' -dbServerName ', variables('databaseName'), ' -maxExecutionTime ', parameters('webServerBackendMaxExecutionTime'), ' -smtpServerFqdn ', parameters('smtpServerFqdn'), ' -smtpServerPrivateIp ', parameters('smtpServerPrivateIp'), ' -webServerFqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' > /var/log/install_matomo.log 2>&1')]"
+                    "fileUris": [
+                        "[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]",
+                        "[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/apache2.sh')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/logger.sh')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/mysql.sh')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/os.sh')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/php.sh')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/upgrade_server')]",
+                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/utils.sh')]"
+                    ],
+                    "commandToExecute": "[concat('sudo ./setup_web_server --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --data_disk_mount_point_path ', variables('webServerVirtualMachineDataDiskMountPoint'), ' --db_server_admin_password ', parameters('databaseAdminPassword'), ' --db_server_admin_username ', parameters('databaseAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' --db_server_matomo_database ', variables('databaseApplicationDatabaseName'), ' --db_server_matomo_password ', parameters('databaseApplicationPassword'), ' --db_server_matomo_username ', parameters('databaseApplicationUsername'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_private_ip ', parameters('smtpServerPrivateIp'), ' --web_server_fqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' > /var/log/setup_web_server.log 2>&1')]"
                 }
             }
         },
@@ -1135,7 +1138,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineInstallMatomoExtensionName'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineSetUpExtensionName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Azure.Diagnostics",

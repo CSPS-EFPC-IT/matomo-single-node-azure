@@ -44,9 +44,6 @@
         "environmentName": {
             "value": "dev"
         },
-        "fileRepositoryUri": {
-            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
-        },
         "gatewaySslCertificateUri": {
             "value": "https://mykeyvaultname.vault.azure.net/secrets/my-certificate-name/my-certificate-version"
         },
@@ -55,8 +52,14 @@
                 "/subscriptions/my-subscription-id/resourceGroups/my-resource-group-name/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myUAMI": {}
             }
         },
+        "genericShellScriptsPublicRawFilesUrl": {
+            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
+        },
         "location": {
             "value": "Canada Central"
+        },
+        "projectPublicRawFilesBaseUrl": {
+            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
         },
         "projectShortName": {
             "value": "myProShoName"
