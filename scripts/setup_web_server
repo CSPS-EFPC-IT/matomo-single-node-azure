@@ -4,9 +4,9 @@
 # This script must be run as root (ex.: sudo sh ./[script_name])
 # Style Guide: https://google.github.io/styleguide/shellguide.html
 
-# The utils.sh library and the upgrade_server script are injected on the server
-# at deployment time by the Azure Resource Manager (ARM). The source code for
-# these can be found at https://github.com/CSPS-EFPC-IT/generic-shell-scripts.
+# The function libraries and the upgrade_server script are injected on the
+# server at deployment time by the Azure Resource Manager (ARM). The source
+# code for these can be found at https://github.com/CSPS-EFPC-IT/generic-shell-scripts.
 # See the ARM template deployment parameters for the exact version used.
 
 # Parameters: all manadatory and must be prefixed with "--" on command line.
@@ -26,6 +26,7 @@ declare -A parameters=( \
 )
 
 # Functions
+source ./logger.sh
 source ./utils.sh
 
 function main() {
@@ -33,15 +34,15 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "Start of $0"
+  logger::title "Start of $0"
 
-  utils::echo_info "This script:"
-  utils::echo_info "1) Upgrades server and removes unused packages"
-  utils::echo_info "2) Installs and configures Matomo and its dependencies"
+  logger::info "This script:"
+  logger::info "1) Upgrades server and removes unused packages"
+  logger::info "2) Installs and configures Matomo and its dependencies"
 
   #############################################################################
 
-  utils::echo_title "Parse Input Parameters"
+  logger::title "Parse Input Parameters"
 
   utils::parse_parameters "$@"
 
@@ -69,7 +70,7 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "End of $0"
+  logger::title "End of $0"
 
   #############################################################################
 

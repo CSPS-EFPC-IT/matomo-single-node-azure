@@ -21,6 +21,11 @@ declare -A parameters=( \
 )
 
 # Functions
+source ./apache2.sh
+source ./logger.sh
+source ./mysql.sh
+source ./os.sh
+source ./php.sh
 source ./utils.sh
 
 function main() {
@@ -40,67 +45,67 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "Start of $0"
+  logger::title "Start of $0"
 
-  utils::echo_info "This script: "
-  utils::echo_info "1) Sets up a web server running Matomo."
+  logger::info "This script: "
+  logger::info "1) Sets up a web server running Matomo."
 
   #############################################################################
 
-  utils::echo_title "Parse Input Parameters"
+  logger::title "Parse Input Parameters"
 
   utils::parse_parameters "$@"
 
   #############################################################################
 
-  utils::echo_title "Set Global Variables"
+  logger::title "Set Global Variables"
 
-  utils::echo_action "Setting apache2_matomo_site_document_root_dir_path..."
+  logger::action "Setting apache2_matomo_site_document_root_dir_path..."
   apache2_matomo_site_document_root_dir_path="${parameters[data_disk_mount_point_path]}/matomo"
 
   #############################################################################
 
-  utils::echo_title "Mount Data Disk"
+  logger::title "Mount Data Disk"
 
-  utils::mount_data_disk_by_size \
+  os::mount_data_disk_by_size \
     "${parameters[data_disk_size]}" \
     "${parameters[data_disk_mount_point_path]}"
 
   #############################################################################
 
-  utils::echo_title "Download and Extract Matomo Files"
+  logger::title "Download and Extract Matomo Files"
 
   if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
-    utils::echo_warn "Skipped: Matomo already installed."
+    logger::warn "Skipped: Matomo already installed."
   else
-    utils::echo_action "Downloading Matomo 3.11 tar file..."
+    logger::action "Downloading Matomo 3.11 tar file..."
     wget https://builds.matomo.org/matomo-3.11.0.tar.gz
 
-    utils::echo_action "Extracting Matomo tar file..."
+    logger::action "Extracting Matomo tar file..."
     tar zxf matomo-3.11.0.tar.gz -C "${parameters[data_disk_mount_point_path]}"
   fi
 
   #############################################################################
 
-  utils::echo_title "Install Debugging Tools"
+  logger::title "Install Debugging Tools"
 
-  utils::echo_action "Installing mysql-client..."
+  logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
     mysql-client-5.7
 
   #############################################################################
 
-  utils::echo_title "Install Matomo Dependencies"
+  logger::title "Install Matomo Dependencies"
 
   # Ref.: https://matomo.org/docs/requirements/
   #       https://fr.matomo.org/faq/how-to/faq_164/
   #       https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
 
-  utils::echo_action "Adding ppa:maxmind package repository..."
+  logger::action "Adding ppa:maxmind package repository..."
   add-apt-repository --yes ppa:maxmind/ppa
   apt update
 
-  utils::echo_action "Installing packages..."
+  logger::action "Installing packages..."
   apt install --yes --quiet \
     apache2 \
     libapache2-mod-php \
@@ -116,88 +121,88 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "Set Up SMTP Server"
+  logger::title "Set Up SMTP Server"
 
-  utils::add_hosts_file_entry \
+  os::add_hosts_file_entry \
     "${parameters[smtp_server_private_ip]}" \
     "${parameters[smtp_server_fqdn]}" \
     "Redirect SMTP Server FQDN to Private IP Address."
 
   #############################################################################
 
-  utils::echo_title "Set Up Apache2"
+  logger::title "Set Up Apache2"
 
-  utils::echo_action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
+  logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
   # Use the Default site config file as a template.
   cp "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME}" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   # Updating matomo site config DocumentRoot.
-  utils::update_apache2_config_file \
+  apache2::update_config_file \
     "DocumentRoot" \
     "${apache2_matomo_site_document_root_dir_path}" \
     "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
-  utils::echo_action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
-  utils::echo_warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
+  logger::action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
+  logger::warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
 
-  utils::echo_action "Disabling ${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf} site..."
-  utils::echo_warn "$(a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}")"
+  logger::action "Disabling ${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf} site..."
+  logger::warn "$(a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}")"
 
-  utils::echo_action "Hardening web werver..."
-  utils::harden_apache2 "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
+  logger::action "Hardening web werver..."
+  apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
 
-  utils::echo_action "Setting permission on files: ${apache2_matomo_site_document_root_dir_path}..."
+  logger::action "Setting permission on files: ${apache2_matomo_site_document_root_dir_path}..."
   chown -R "${APACHE2_USER}:root" "${apache2_matomo_site_document_root_dir_path}"
   chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
 
-  utils::echo_action "Updating Apache2's PHP configuration..."
+  logger::action "Updating Apache2's PHP configuration..."
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
   # Values required to run report on 12 months of data.
-  utils::update_php_config_file \
+  php::update_config_file \
     "memory_limit" \
     "2048M" \
     "${APACHE2_PHP_INI_FILE_PATH}"
-  utils::update_php_config_file \
+  php::update_config_file \
     "max_execution_time" \
     "${parameters[php_max_execution_time]}" \
     "${APACHE2_PHP_INI_FILE_PATH}"
 
-  utils::echo_action "Restarting Apache2..."
+  logger::action "Restarting Apache2..."
   service apache2 restart
 
   #############################################################################
 
-  utils::echo_title "Setup MySQL Database"
+  logger::title "Setup MySQL Database"
 
-  utils::mysql_create_user_options_file \
+  mysql::create_user_options_file \
     "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
     "3306" \
     "mysql"
 
-  utils::mysql_create_database_if_not_exists \
+  mysql::create_database_if_not_exists \
     "${parameters[db_server_matomo_database]}"
 
-  utils::mysql_create_user_if_not_exists \
+  mysql::create_user_if_not_exists \
     "${parameters[db_server_matomo_username]}" \
     "${parameters[db_server_matomo_password]}"
 
-  utils::mysql_grant_all_privileges \
+  mysql::grant_all_privileges \
     "${parameters[db_server_matomo_database]}" \
     "${parameters[db_server_matomo_username]}"
 
-  utils::mysql_delete_user_options_file
+  mysql::delete_user_options_file
 
   #############################################################################
 
-  utils::echo_title "Matomo Post Installation Process"
+  logger::title "Matomo Post Installation Process"
 
-  utils::echo_action "Setting up Matomo Archive Crontab..."
+  logger::action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
   #       https://matomo.org/docs/setup-auto-archiving/#linux-unix-how-to-set-up-a-crontab-to-automatically-archive-the-reports
   if [[ -f "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}" ]]; then
-      utils::echo_warn "Skipped: Matomo Archive Crontab already exist."
+      logger::warn "Skipped: Matomo Archive Crontab already exist."
   else
       for archiver_id in {1..2}; do
           touch "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
@@ -208,7 +213,7 @@ function main() {
 
   #############################################################################
 
-  utils::echo_title "End of $0"
+  logger::title "End of $0"
 
   #############################################################################
 
