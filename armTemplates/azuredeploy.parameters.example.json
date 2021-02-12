@@ -2,15 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "applicationAdminEmail": {
-            "value": "my.email@my.domain.com"
-        },
-        "applicationAdminPassword": {
-            "value": "mySecret"
-        },
-        "applicationAdminUsername": {
-            "value": "myAppAdminUsername"
-        },
         "applicationCustomFqdn": {
             "value": "myapp.domain.com"
         },
@@ -73,6 +64,9 @@
         "smtpServerFqdn": {
             "value": "my.smtp.domain.com"
         },
+        "smtpServerPort": {
+            "value": 25
+        },
         "smtpServerPrivateIp": {
             "value": "10.10.10.1"
         },
@@ -85,6 +79,9 @@
         "virtualNetworkAddressBase": {
             "value": "10.10.10"
         },
+        "webServerAdminEmail": {
+            "value": "admin.email@my.domain.com"
+        },
         "webServerAdminPassword": {
             "value": "mySecret"
         },
@@ -93,6 +90,9 @@
         },
         "webServerBackendMaxExecutionTime": {
             "value": "60"
+        },
+        "webServerRebootUtcTime": {
+            "value": "05:00"
         },
         "webServerVirtualMachineSize": {
             "value": "Standard_DS2_v2"
