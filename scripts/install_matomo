@@ -38,8 +38,10 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
+  local -r MATOMO_INSTALL_PACKAGE_URL="https://builds.matomo.org/matomo-3.11.0.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
+  local matomo_install_package_file
 
   utils::set_exit_trap
 
@@ -78,8 +80,21 @@ function main() {
   if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
     logger::warn "Skipped: Matomo already installed."
   else
-    logger::action "Downloading Matomo 3.11 tar file..."
-    wget https://builds.matomo.org/matomo-3.11.0.tar.gz
+    logger::action "Downloading Matomo package and signature files..."
+    wget "${MATOMO_INSTALL_PACKAGE_URL}"
+    wget "${MATOMO_INSTALL_PACKAGE_URL}.asc"
+wget https://builds.matomo.org/matomo-3.12.0.tar.gz.asc #testing
+
+    logger::action "Downloading and installing Matomo packages' signing certificate..."
+    gpg --keyserver keys.gnupg.net --recv-keys 814E346FA01A20DBB04B6807B5DBD5925590A237
+
+    logger::action "Checking Matomo's package file integrity and origin..."
+    matomo_install_package_file=$(basename "${MATOMO_INSTALL_PACKAGE_URL}")
+    #if ! gpg --verify "${matomo_install_package_file}"{.asc*,};  then
+if ! gpg --verify matomo-3.12.0.tar.gz.asc "${matomo_install_package_file}";  then # testing
+      logger::error "Downloaded package file fails signature check. Aborting."
+      exit 1
+    fi
 
     logger::action "Extracting Matomo tar file..."
     tar zxf matomo-3.11.0.tar.gz -C "${parameters[data_disk_mount_point_path]}"
