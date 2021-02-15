@@ -38,8 +38,10 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-3.11.0.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
+  local matomo_package_file_name
 
   utils::set_exit_trap
 
@@ -78,11 +80,23 @@ function main() {
   if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
     logger::warn "Skipped: Matomo already installed."
   else
-    logger::action "Downloading Matomo 3.11 tar file..."
-    wget https://builds.matomo.org/matomo-3.11.0.tar.gz
+    logger::action "Downloading Matomo package and signature files..."
+    # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
+    wget "${MATOMO_PACKAGE_FILE_URL}"
+    wget "${MATOMO_PACKAGE_FILE_URL}.asc"
 
-    logger::action "Extracting Matomo tar file..."
-    tar zxf matomo-3.11.0.tar.gz -C "${parameters[data_disk_mount_point_path]}"
+    logger::action "Downloading and installing Matomo packages' signing certificate..."
+    gpg --keyserver keys.gnupg.net --recv-keys 814E346FA01A20DBB04B6807B5DBD5925590A237
+
+    logger::action "Checking Matomo package file integrity and origin..."
+    matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
+    if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
+      logger::error "Downloaded Matomo package file fails signature check. Aborting."
+      exit 1
+    fi
+
+    logger::action "Extracting Matomo package files..."
+    tar zxf "${matomo_package_file_name}" -C "${parameters[data_disk_mount_point_path]}"
   fi
 
   #############################################################################
