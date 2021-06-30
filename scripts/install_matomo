@@ -6,8 +6,8 @@
 
 # Parameters: all manadatory and must be prefix with "--" on command line.
 declare -A parameters=( \
-  [data_disk_size]=\
   [data_disk_mount_point_path]=\
+  [data_disk_size]=\
   [db_server_admin_password]=\
   [db_server_admin_username]=\
   [db_server_fqdn]=\
@@ -220,7 +220,7 @@ function main() {
   # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
   # The command below will complain about the configuration file not being 
   # found. This is the expected behaviour as Matomo's configuration file will
-  # only be created  once the initial set up procedure is completed through 
+  # only be created once the initial set up procedure is completed through 
   # the application Web portal.
   logger::info "$(runuser -u www-data -- php "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files)"
 
