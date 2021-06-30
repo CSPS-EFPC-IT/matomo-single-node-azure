@@ -158,7 +158,7 @@ function main() {
 
   logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 1/2)..."
   # Ref.: https://httpd.apache.org/docs/2.4/mod/core.html#allowoverride
-  sed -i sed "/^[[:space:]]*DocumentRoot .*$/a  \ \n\t<Directory ${apache2_matomo_site_document_root_dir_path}>\n\t\tAllowOverride AuthConfig\n\t<\/Directory>\n" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
+  sed -i "/^[[:space:]]*DocumentRoot .*$/a  \ \n\t<Directory ${apache2_matomo_site_document_root_dir_path}>\n\t\tAllowOverride AuthConfig\n\t<\/Directory>\n" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   logger::action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
   logger::warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
