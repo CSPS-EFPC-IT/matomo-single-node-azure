@@ -218,7 +218,7 @@ function main() {
 
   logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
   # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
-  runuser -u www-data -- php "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files
+  logger::info "$(runuser -u www-data -- php "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files)"
 
   logger::action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
