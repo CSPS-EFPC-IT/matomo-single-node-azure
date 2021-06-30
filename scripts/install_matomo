@@ -6,18 +6,18 @@
 
 # Parameters: all manadatory and must be prefix with "--" on command line.
 declare -A parameters=( \
-  [data_disk_size]= \
-  [data_disk_mount_point_path]= \
-  [db_server_admin_password]= \
-  [db_server_admin_username]= \
-  [db_server_fqdn]= \
-  [db_server_matomo_database]= \
-  [db_server_matomo_password]= \
-  [db_server_matomo_username]= \
-  [php_max_execution_time]= \
-  [smtp_server_fqdn]= \
-  [smtp_server_private_ip]= \
-  [web_server_fqdn]= \
+  [data_disk_size]=\
+  [data_disk_mount_point_path]=\
+  [db_server_admin_password]=\
+  [db_server_admin_username]=\
+  [db_server_fqdn]=\
+  [db_server_matomo_database]=\
+  [db_server_matomo_password]=\
+  [db_server_matomo_username]=\
+  [php_max_execution_time]=\
+  [smtp_server_fqdn]=\
+  [smtp_server_private_ip]=\
+  [web_server_fqdn]=\
 )
 
 # Functions
@@ -38,7 +38,7 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-3.11.0.tar.gz"
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.3.1.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
   local matomo_package_file_name
@@ -149,12 +149,16 @@ function main() {
   logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
   # Use the Default site config file as a template.
   cp "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME}" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
-
+ 
   # Updating matomo site config DocumentRoot.
   apache2::update_config_file \
     "DocumentRoot" \
     "${apache2_matomo_site_document_root_dir_path}" \
     "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
+
+  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 1/2)..."
+  # Ref.: https://httpd.apache.org/docs/2.4/mod/core.html#allowoverride
+  sed -i sed "/^[[:space:]]*DocumentRoot .*$/a  \ \n\t<Directory ${apache2_matomo_site_document_root_dir_path}>\n\t\tAllowOverride AuthConfig\n\t<\/Directory>\n" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   logger::action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
   logger::warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
@@ -211,6 +215,10 @@ function main() {
   #############################################################################
 
   logger::title "Matomo Post Installation Process"
+
+  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
+  # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
+  runuser -u www-data -- php "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files
 
   logger::action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
