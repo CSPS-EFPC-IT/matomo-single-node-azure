@@ -14,6 +14,12 @@
                 "description": "The base URL of the Azure Resource Manager template repository."
             }
         },
+        "corporateGatewayIpAddress": {
+            "type": "string",
+            "metadata": {
+                "description": "The Outbound IP address of the corporate network gateway."
+            }
+        },
         "databaseAdminPassword": {
             "type": "securestring",
             "metadata": {
@@ -328,6 +334,12 @@
                                     "locations": [
                                         "[parameters('location')]"
                                     ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "[parameters('location')]"
+                                    ]
                                 }
                             ],
                             "delegations": [],
@@ -395,14 +407,14 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "AllowPublicInternet_Any_80_443_Inbound",
+                        "name": "Allow_PublicInternet_Any_80_443_Inbound",
                         "properties": {
                             "protocol": "*",
                             "sourcePortRange": "*",
                             "sourceAddressPrefix": "Internet",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 100,
+                            "priority": 1000,
                             "direction": "Inbound",
                             "sourcePortRanges": [],
                             "destinationPortRanges": [
@@ -423,7 +435,7 @@
                             "sourceAddressPrefix": "GatewayManager",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 110,
+                            "priority": 1010,
                             "direction": "Inbound",
                             "sourcePortRanges": [],
                             "destinationPortRanges": [],
@@ -441,7 +453,7 @@
                             "sourceAddressPrefix": "AzureLoadBalancer",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 120,
+                            "priority": 1020,
                             "direction": "Inbound",
                             "sourcePortRanges": [],
                             "destinationPortRanges": [],
@@ -718,14 +730,14 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "[concat('Allow', variables('gatewayName'), '_TCP_80_Inbound')]",
+                        "name": "[concat('Allow_', variables('gatewayName'), '_TCP_80_Inbound')]",
                         "properties": {
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "sourceAddressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 100,
+                            "priority": 1000,
                             "direction": "Inbound",
                             "sourcePortRanges": [],
                             "destinationPortRanges": [
@@ -736,7 +748,7 @@
                         }
                     },
                     {
-                        "name": "[concat('Allow', variables('bastionName'), '_TCP_22_Inbound')]",
+                        "name": "[concat('Allow_', variables('bastionName'), '_TCP_22_Inbound')]",
                         "properties": {
                             "protocol": "TCP",
                             "sourcePortRange": "*",
@@ -744,7 +756,7 @@
                             "sourceAddressPrefix": "[variables('bastionSubnetAddressPrefix')]",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 110,
+                            "priority": 1010,
                             "direction": "Inbound",
                             "sourcePortRanges": [],
                             "destinationPortRanges": [],
@@ -944,6 +956,9 @@
             "name": "[variables('diagnosticStorageAccountName')]",
             "tags": "[parameters('resourceTags')]",
             "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+            ],
             "sku": {
                 "name": "Standard_LRS",
                 "tier": "Standard"
@@ -956,9 +971,19 @@
                 // https://docs.microsoft.com/en-ca/azure/azure-monitor/platform/metrics-troubleshoot#cannot-pick-guest-os-namespace-and-metrics
                 "networkAcls": {
                     "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
-                    "defaultAction": "Allow"
+                    "virtualNetworkRules": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
+                            "action": "Allow"
+                        }
+                    ],
+                    "ipRules": [
+                        {
+                            "value": "[parameters('corporateGatewayIpAddress')]",
+                            "action": "allow"
+                        }
+                    ],
+                    "defaultAction": "Deny"
                 },
                 "supportsHttpsTrafficOnly": true,
                 "encryption": {
