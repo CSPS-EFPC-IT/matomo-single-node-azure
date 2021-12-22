@@ -20,7 +20,7 @@
         "csmParametersFileLink": "",
         "csmFile": "$(System.DefaultWorkingDirectory)/_CSPS-EFPC-IT_matomo-single-node-azure/armTemplates/azuredeploy.json",
         "csmParametersFile": "",
-        "overrideParameters": "-applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -corporateGatewayIpAddress \"$(corporateGatewayIpAddress)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -environmentName \"$(environmentName)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -genericShellScriptsPublicRawFilesUrl \"$(genericShellScriptsPublicRawFilesUrl)\" -location \"$(location)\" -projectPublicRawFilesBaseUrl \"$(projectPublicRawFilesBaseUrl)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPort \"$(smtpServerPort)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags $(virtualMachineTags) -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminEmail \"$(webServerAdminEmail)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime) -webServerRebootUtcTime \"$(webServerRebootUtcTime)\" -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
+        "overrideParameters": "-applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -corporateGatewayIpAddress \"$(corporateGatewayIpAddress)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -deniedIpAddresses \"$(deniedIpAddresses)\" -environmentName \"$(environmentName)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -genericShellScriptsPublicRawFilesUrl \"$(genericShellScriptsPublicRawFilesUrl)\" -location \"$(location)\" -projectPublicRawFilesBaseUrl \"$(projectPublicRawFilesBaseUrl)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPort \"$(smtpServerPort)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags $(virtualMachineTags) -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminEmail \"$(webServerAdminEmail)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime) -webServerRebootUtcTime \"$(webServerRebootUtcTime)\" -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
         "deploymentMode": "Incremental",
         "deploymentName": "DeployMatomoSingleNode_TaskGroup",
         "deploymentOutputs": "armOutput1",
@@ -237,6 +237,18 @@
       "defaultValue": "$(dataDiskSizeGB)",
       "required": true,
       "type": "int",
+      "helpMarkDown": "",
+      "groupName": ""
+    },
+    {
+      "aliases": [],
+      "options": {},
+      "properties": {},
+      "name": "deniedIpAddresses",
+      "label": "deniedIpAddresses",
+      "defaultValue": "$(deniedIpAddresses)",
+      "required": true,
+      "type": "securestring",
       "helpMarkDown": "",
       "groupName": ""
     },
