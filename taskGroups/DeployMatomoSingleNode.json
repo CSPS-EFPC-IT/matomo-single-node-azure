@@ -8,6 +8,7 @@
       "condition": "succeeded()",
       "enabled": true,
       "timeoutInMinutes": 0,
+      "retryCountOnTaskFailure": 0,
       "inputs": {
         "deploymentScope": "Resource Group",
         "ConnectedServiceName": "$(serviceConnectionName)",
@@ -20,7 +21,7 @@
         "csmParametersFileLink": "",
         "csmFile": "$(System.DefaultWorkingDirectory)/_CSPS-EFPC-IT_matomo-single-node-azure/armTemplates/azuredeploy.json",
         "csmParametersFile": "",
-        "overrideParameters": "-applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -corporateGatewayIpAddress \"$(corporateGatewayIpAddress)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -deniedIpAddresses \"$(deniedIpAddresses)\" -environmentName \"$(environmentName)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -genericShellScriptsPublicRawFilesUrl \"$(genericShellScriptsPublicRawFilesUrl)\" -location \"$(location)\" -projectPublicRawFilesBaseUrl \"$(projectPublicRawFilesBaseUrl)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPort \"$(smtpServerPort)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags $(virtualMachineTags) -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminEmail \"$(webServerAdminEmail)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime) -webServerRebootUtcTime \"$(webServerRebootUtcTime)\" -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
+        "overrideParameters": "-applicationCustomFqdn \"$(applicationCustomFqdn)\" -armTemplateRepoBaseUrl \"$(armTemplateRepoBaseUrl)\" -corporateGatewayIpAddress \"$(corporateGatewayIpAddress)\" -databaseAdminPassword \"$(databaseAdminPassword)\" -databaseAdminUsername \"$(databaseAdminUsername)\" -databaseApplicationPassword \"$(databaseApplicationPassword)\" -databaseApplicationUsername \"$(databaseApplicationUsername)\" -databaseBackupRetentionDays $(databaseBackupRetentionDays) -databaseCapacity $(databaseCapacity) -databaseStorageMb $(databaseStorageMb) -dataDiskSizeGB $(dataDiskSizeGB) -deniedIpAddressList \"$(deniedIpAddressList)\" -environmentName \"$(environmentName)\" -gatewaySslCertificateUri \"$(gatewaySslCertificateUri)\" -gatewayUserAssignedIdentity $(gatewayUserAssignedIdentity) -genericShellScriptsPublicRawFilesUrl \"$(genericShellScriptsPublicRawFilesUrl)\" -location \"$(location)\" -projectPublicRawFilesBaseUrl \"$(projectPublicRawFilesBaseUrl)\" -projectShortName \"$(projectShortName)\" -resourceTags $(resourceTags) -smtpServerFqdn \"$(smtpServerFqdn)\" -smtpServerPort \"$(smtpServerPort)\" -smtpServerPrivateIp \"$(smtpServerPrivateIp)\" -virtualMachineTags $(virtualMachineTags) -virtualNetworkAddressBase \"$(virtualNetworkAddressBase)\" -webServerAdminEmail \"$(webServerAdminEmail)\" -webServerAdminPassword \"$(webServerAdminPassword)\" -webServerAdminUsername \"$(webServerAdminUsername)\" -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime) -webServerRebootUtcTime \"$(webServerRebootUtcTime)\" -webServerVirtualMachineSize \"$(webServerVirtualMachineSize)\"",
         "deploymentMode": "Incremental",
         "deploymentName": "DeployMatomoSingleNode_TaskGroup",
         "deploymentOutputs": "armOutput1",
@@ -40,6 +41,7 @@
       "condition": "succeeded()",
       "enabled": true,
       "timeoutInMinutes": 0,
+      "retryCountOnTaskFailure": 0,
       "inputs": {
         "armDeploymentOutputs": "$(armOutput1)"
       },
@@ -57,6 +59,7 @@
       "condition": "succeededOrFailed()",
       "enabled": true,
       "timeoutInMinutes": 0,
+      "retryCountOnTaskFailure": 0,
       "inputs": {
         "Vnet1_Name": "$(virtualNetworkName)",
         "Vnet1_RGName": "$(resourceGroupName)",
@@ -84,15 +87,15 @@
     "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
     "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
   },
-  "createdOn": "2021-02-05T16:57:22.237Z",
+  "createdOn": "2022-12-12T14:01:16.833Z",
   "modifiedBy": {
     "displayName": "Patrick Messier",
     "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
     "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
   },
-  "modifiedOn": "2021-02-05T16:57:22.237Z",
-  "id": "a2efbcf5-5e16-4c58-9138-c0768ee7ebb8",
-  "name": "Deploy Matomo Single Node - New",
+  "modifiedOn": "2022-12-12T14:01:16.833Z",
+  "id": "7c9e8cc0-2d6b-4f55-8e61-a4aedd65f162",
+  "name": "Deploy Matomo Single Node - 2022-12-12",
   "version": {
     "major": 1,
     "minor": 0,
@@ -100,7 +103,7 @@
     "isTest": false
   },
   "iconUrl": "https://cdn.vsassets.io/v/M176_20201022.3/_content/icon-meta-task.png",
-  "friendlyName": "Deploy Matomo Single Node - New",
+  "friendlyName": "Deploy Matomo Single Node - 2022-12-12",
   "description": "",
   "category": "Deploy",
   "definitionType": "metaTask",
@@ -244,9 +247,9 @@
       "aliases": [],
       "options": {},
       "properties": {},
-      "name": "deniedIpAddresses",
-      "label": "deniedIpAddresses",
-      "defaultValue": "$(deniedIpAddresses)",
+      "name": "deniedIpAddressList",
+      "label": "deniedIpAddressList",
+      "defaultValue": "$(deniedIpAddressList)",
       "required": true,
       "type": "securestring",
       "helpMarkDown": "",
@@ -300,7 +303,6 @@
       "helpMarkDown": "",
       "groupName": ""
     },
-
     {
       "aliases": [],
       "options": {},
@@ -573,7 +575,7 @@
   "satisfies": [],
   "sourceDefinitions": [],
   "dataSourceBindings": [],
-  "instanceNameFormat": "Task group: Deploy Matomo Single Node - New",
+  "instanceNameFormat": "Task group: Deploy Matomo Single Node - 2022-12-12",
   "preJobExecution": {},
   "execution": {},
   "postJobExecution": {}

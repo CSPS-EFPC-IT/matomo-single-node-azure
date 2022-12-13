@@ -35,7 +35,7 @@
         "dataDiskSizeGB" : {
             "value": 50
         },
-        "deniedIpAddresses" : {
+        "deniedIpAddressList" : {
             "value": "10.12.13.14/32,11.12.13.14/32"
         },
         "environmentName": {
