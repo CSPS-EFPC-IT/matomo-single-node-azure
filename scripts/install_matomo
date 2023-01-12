@@ -38,7 +38,7 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.4.1.tar.gz"
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.11.0.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
   local matomo_package_file_name
@@ -149,7 +149,7 @@ function main() {
   logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
   # Use the Default site config file as a template.
   cp "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME}" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
- 
+
   # Updating matomo site config DocumentRoot.
   apache2::update_config_file \
     "DocumentRoot" \
@@ -218,9 +218,9 @@ function main() {
 
   logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
   # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
-  # The command below will complain about the configuration file not being 
+  # The command below will complain about the configuration file not being
   # found. This is the expected behaviour as Matomo's configuration file will
-  # only be created once the initial set up procedure is completed through 
+  # only be created once the initial set up procedure is completed through
   # the application Web portal.
   logger::info "$(runuser -u www-data -- php "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files)"
 
