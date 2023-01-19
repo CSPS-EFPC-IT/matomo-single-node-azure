@@ -1095,7 +1095,7 @@
             "name": "[variables('databaseName')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseSubnetName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
             ],
             "location": "[parameters('location')]",
             "tags": "[parameters('resourceTags')]",
