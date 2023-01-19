@@ -332,7 +332,7 @@
         "databaseSkuTier": "GeneralPurpose",
         "databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
         "databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
-        "databaseName": "[concat(variables('resourceNamePrefix'), '-DB')]",
+        "databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
         "databaseVersion": "8.0.21",
         "diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
         "diagnosticStorageAccountSasProperties": {
