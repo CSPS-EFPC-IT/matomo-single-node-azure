@@ -1,1554 +1,1554 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "applicationCustomFqdn": {
-            "type": "string",
-            "metadata": {
-                "description": "The custom fully qualified domain name for this matomo instance."
-            }
-        },
-        "armTemplateRepoBaseUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "The base URL of the Azure Resource Manager template repository."
-            }
-        },
-        "configurationAuditLogEnabled": {
-            "type": "string",
-            "defaultValue": "On",
-            "allowedValues": [
-                "Off",
-                "On"
-            ],
-            "metadata": {
-                "description": "The value of the database server's parameter \"audit_log_enabled\"."
-            }
-        },
-        "configurationAuditLogEvents": {
-            "type": "string",
-            "defaultValue": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS",
-            "metadata": {
-                "description": "The value of the database server's parameter \"audit_log_events\"."
-            }
-        },
-        "configurationCharacterSetServer": {
-            "type": "string",
-            "defaultValue": "utf8mb4",
-            "metadata": {
-                "description": "The value of the database server's parameter \"character_set_server\"."
-            }
-        },
-        "configurationCollationServer": {
-            "type": "string",
-            "defaultValue": "utf8mb4_0900_ai_ci",
-            "metadata": {
-                "description": "The value of the database server's parameter \"collation_server\"."
-            }
-        },
-        "corporateGatewayIpAddress": {
-            "type": "string",
-            "metadata": {
-                "description": "The Outbound IP address of the corporate network gateway."
-            }
-        },
-        "databaseAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The password to use in order to manage the database server."
-            }
-        },
-        "databaseAdminUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "The username to use in order to manage the database server."
-            }
-        },
-        "databaseApplicationPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The Matomo application database account password."
-            }
-        },
-        "databaseApplicationUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "The Matomo application database account username."
-            }
-        },
-        "databaseBackupRetentionDays": {
-            "type": "int",
-            "minValue": 7,
-            "maxValue": 35,
-            "metadata": {
-                "description": "The database backup retention period in days."
-            }
-        },
-        "databaseIops": {
-            "type": "int",
-            "defaultValue": 1000,
-            "minValue": 360,
-            "maxValue": 3200,
-            "metadata": {
-                "description": "The maximum IOPS allocated to the database."
-            }
-        },
-        "databaseIopsAutoGrow": {
-            "type": "string",
-            "defaultValue": "Enabled",
-            "allowedValues": [
-                "Enabled",
-                "Disabled"
-            ],
-            "metadata": {
-                "description": "Whether or not the Database IOPS should autogrow."
-            }
-        },
-        "databaseStorageGb": {
-            "type": "int",
-            "minValue": 20,
-            "maxValue": 16384,
-            "metadata": {
-                "description": "The size of data storage allocated to the database in GB."
-            }
-        },
-        "dataDiskSizeGB": {
-            "type": "int",
-            "allowedValues": [ 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
-            "metadata": {
-                "description": "The size of the Matomo Data Disk in giga bytes."
-            }
-        },
-        "deniedIpAddressList": {
-            "type": "securestring",
-            "defaultValue": "0.0.0.0/32", // An unusable IP address.
-            "metadata": {
-                "description": "A comma separated list of source IP addresses (in CIDR notation) that must NOT access to the solution."
-            }
-        },
-        "deploymentTimestamp": {
-            "type": "int",
-            "defaultValue": "[int(utcNow('ddHHmmss'))]",
-            "metadata": {
-                "description": "The deployment timestamp. Determines whether the Virtual Machine Custom Script extension is rerun. Default value will have the Virtual Machine Custom Script extension rerun at each ARM template deployment. Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-linux#property-value-details"
-            }
-        },
-        "environmentName": {
-            "type": "string",
-            "defaultValue": "dev",
-            "allowedValues": [
-                "dev",
-                "staging",
-                "prod"
-            ],
-            "metadata": {
-                "description": "The name of the provisioned environment. Used to build resource names."
-            }
-        },
-        "gatewaySslCertificateUri": {
-            "type": "string",
-            "metadata": {
-                "description": "The URI of the SSL Certificate Secret used by the Application Gateway."
-            }
-        },
-        "gatewayUserAssignedIdentity": {
-            "type": "object",
-            "metadata": {
-                "description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
-            }
-        },
-        "genericShellScriptsPublicRawFilesUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "The public base URL of the generic-shell-scripts repository's raw files."
-            }
-        },
-        "geoRedundantBackup": {
-            "type": "string",
-            "defaultValue": "Disabled",
-            "allowedValues": [
-                "Disabled",
-                "Enabled"
-            ],
-            "metadata": {
-                "description": "Whether or not geo redundant backup is enabled."
-            }
-        },
-        "highAvailabilityMode": {
-            "type": "string",
-            "defaultValue": "Disabled",
-            "allowedValues": [
-                "Disabled",
-                "SameZone",
-                "ZoneRedundant"
-            ],
-            "metadata": {
-                "description": "The high availability mode for the database server."
-            }
-        },
-        "logAnalyticsWorkspaceRetentionDays": {
-            "type": "int",
-            "minValue": 30,
-            "maxValue": 730,
-            "defaultValue": 365,
-            "metadata": {
-                "description": "The log retention period in days of the Log Analytics Workspace resource."
-            }
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
-            "metadata": {
-                "description": "The name of the Azure Location where resources will be created."
-            }
-        },
-        "projectPublicRawFilesBaseUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "The public base URL of this project's repository's raw files."
-            }
-        },
-        "projectShortName": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 13,
-            "metadata": {
-                "description": "The short name of the project. This string will be used to name all resources required. It must only contain letters (a-z,A-Z), hyphens (-) and underscore (_) characters, and must not exceed 13 characters in lenght."
-            }
-        },
-        "resourceTags": {
-            "type": "object",
-            "defaultValue": {},
-            "metadata": {
-                "description": "Generic tags for any resources."
-            }
-        },
-        "smtpServerFqdn": {
-            "type": "string",
-            "metadata": {
-                "description": "The fully qualified domain name of the email server to use."
-            }
-        },
-        "smtpServerPort": {
-            "type": "int",
-            "metadata": {
-                "description": "The port number of the email server to use."
-            }
-        },
-        "smtpServerPrivateIp": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The private IP address of the email server to use."
-            }
-        },
-        "standbyAvailabilityZone": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The availability zone of the standby database server."
-            }
-        },
-        "virtualMachineTags": {
-            "type": "object",
-            "defaultValue": {},
-            "metadata": {
-                "description": "Optional tags specific to Virtual Machines."
-            }
-        },
-        "virtualNetworkAddressBase": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The virtual network IP address prefix. Format is '255.255.255'."
-            }
-        },
-        "webServerAdminEmail": {
-            "type": "string",
-            "metadata": {
-                "description": "The Web server administrator's email address."
-            }
-        },
-        "webServerAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The Web server administrator's password."
-            }
-        },
-        "webServerAdminUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "The Web server administrator's username."
-            }
-        },
-        "webServerBackendMaxExecutionTime": {
-            "type": "int",
-            "metadata": {
-                "description": "The time (in seconds) allowed to the Web server backend to fullfil a request."
-            }
-        },
-        "webServerRebootUtcTime": {
-            "type": "string",
-            "metadata": {
-                "description": "The time, in UTC, when the Web server may automatically reboot if required following an unattended upgrade. Format is 'HH:MM'."
-            }
-        },
-        "webServerVirtualMachineSize": {
-            "type": "string",
-            "metadata": {
-                "description": "The size of the virtual machine used as webserver. See https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-sizes-specs for allowed values."
-            }
-        }
-    },
-    "functions": [
-        {
-            "namespace": "custom",
-            "members": {
-                "cleanName": {
-                    "parameters": [
-                        {
-                            "name": "dirtyName",
-                            "type": "string"
-                        }
-                    ],
-                    "output": {
-                        "type": "string",
-                        "value": "[replace(replace(replace(parameters('dirtyName'), '-', ''), '_', ''), ' ', '')]"
-                    }
-                }
-            }
-        }
-    ],
-    "variables": {
-        "apiVersion": "2017-12-01",
-        "applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
-        "applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
-        "applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
-        "bastionName": "[concat(variables('resourceNamePrefix'), '-BH')]",
-        "bastionPublicIpName": "[concat(variables('bastionName'), '-PublicIP')]",
-        "bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
-        "bastionSubnetName": "AzureBastionSubnet",
-        "databaseApplicationDatabaseName": "[tolower(custom.cleanName(parameters('databaseApplicationUsername')))]",
-        "databaseNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
-        "databaseSkuName": "Standard_D2ds_v4",
-        "databaseSkuTier": "GeneralPurpose",
-        "databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
-        "databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
-        "databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
-        "databaseVersion": "8.0.21",
-        "diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
-        "diagnosticStorageAccountSasProperties": {
-            "signedServices": "bt",
-            "signedPermission": "acluw",
-            "signedExpiry": "2100-01-01T00:00:00Z", // Basically, forever.
-            "signedResourceTypes": "co"
-        },
-        "gatewayBackendAddressPoolName": "matomo-web-server",
-        "gatewayBackendHttpSettingsCollectionName": "[concat(parameters('projectShortName'), '-HTTP-Settings')]",
-        "gatewayBackendHttpSettingsCollectionRequestTimeout": "[add(parameters('webServerBackendMaxExecutionTime'),1)]",
-        "gatewayFrontendIPConfigurationsName": "appGwPublicFrontendIp",
-        "gatewayFrontendPortHttpName": "HTTP-Port",
-        "gatewayFrontendPortHttpsName": "HTTPS-Port",
-        "gatewayGatewayIPConfigurationsName": "appGatewayIpConfig",
-        "gatewayHttpListenersHttpName": "HTTP-Listener",
-        "gatewayHttpListenersHttpsName": "HTTPS-Listener",
-        "gatewayName": "[concat(variables('resourceNamePrefix'), '-AG')]",
-        "gatewayNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-NSG')]",
-        "gatewayPublicIpDomainNameLabel": "[tolower(concat(variables('resourceNamePrefix')))]",
-        "gatewayPublicIpName": "[concat(variables('gatewayName'), '-PublicIP')]",
-        "gatewayRedirectConfigurationsName": "HTTP-Redirect",
-        "gatewayRequestRoutingRuleHttpName": "HTTP-Rule",
-        "gatewayRequestRoutingRuleHttpsName": "HTTPS-Rule",
-        "gatewayRewriteRuleSetsName": "Custom-Rewrite-Rules",
-        "gatewaySslCertificateHttpsName": "HTTPS-Certificate",
-        "gatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
-        "gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
-        "logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
-        "privateDnsZoneName": "[concat(variables('databaseName'), '.private.mysql.database.azure.com')]",
-        "recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
-        "recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
-        "recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultProtectedItems'), 64)]",
-        "resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
-        "storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
-        "virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
-        "virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
-        "webServerComputerName": "webserver",
-        "webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
-        "webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-        "webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
-        "webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
-        "webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
-        "webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
-        "webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
-        "webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
-        "virtualNetworkLinksName": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkName'))]"
-    },
-    "resources": [
-        {
-            "type": "microsoft.operationalinsights/workspaces",
-            "apiVersion": "2021-06-01",
-            "name": "[variables('logAnalyticsWorkspaceName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "sku": {
-                    "name": "pergb2018"
-                },
-                "retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionDays')]",
-                "features": {
-                    "enableLogAccessUsingOnlyResourcePermissions": true
-                },
-                "workspaceCapping": {
-                    "dailyQuotaGb": -1
-                },
-                "publicNetworkAccessForIngestion": "Enabled",
-                "publicNetworkAccessForQuery": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('virtualNetworkName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
-            ],
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[variables('virtualNetworkAddressPrefix')]"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "[variables('bastionSubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('bastionSubnetAddressPrefix')]",
-                            "serviceEndpoints": [],
-                            "delegations": [],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "[variables('gatewaySubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]"
-                            },
-                            "serviceEndpoints": [],
-                            "delegations": [],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "[variables('applicationSubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('applicationSubnetAddressPrefix')]",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]"
-                            },
-                            "serviceEndpoints": [
-                                {
-                                    "service": "Microsoft.Sql",
-                                    "locations": [
-                                        "[parameters('location')]"
-                                    ]
-                                },
-                                {
-                                    "service": "Microsoft.Storage",
-                                    "locations": [
-                                        "[parameters('location')]"
-                                    ]
-                                }
-                            ],
-                            "delegations": [],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "[variables('databaseSubnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('databaseSubnetAddressPrefix')]",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
-                            },
-                            "serviceEndpoints": [],
-                            "delegations": [
-                                {
-                                    "name": "Microsoft.DBforMySQL.flexibleServers",
-                                    "properties": {
-                                        "serviceName": "Microsoft.DBforMySQL/flexibleServers"
-                                    }
-                                }
-                            ],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    }
-                ],
-                "virtualNetworkPeerings": [],
-                "enableDdosProtection": false,
-                "enableVmProtection": false
-            }
-        },
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('bastionPublicIpName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "Standard"
-            },
-            "properties": {
-                "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Static",
-                "idleTimeoutInMinutes": 4,
-                "ipTags": []
-            }
-        },
-        {
-            "type": "Microsoft.Network/bastionHosts",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('bastionName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "IpConf",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpName'))]"
-                            },
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('bastionSubnetName'))]"
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('gatewayNetworkSecurityGroupName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "Deny_CustomExclusion_Any_Any_Inbound",
-                        "properties": {
-                            "access": "Deny",
-                            "description": "Custom security rule.",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "*",
-                            "direction": "Inbound",
-                            "priority": 500,
-                            "protocol": "*",
-                            "sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "Allow_PublicInternet_Any_80_443_Inbound",
-                        "properties": {
-                            "access": "Allow",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRanges": [
-                                "80",
-                                "443"
-                            ],
-                            "direction": "Inbound",
-                            "priority": 1000,
-                            "protocol": "*",
-                            "sourceAddressPrefix": "Internet",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "Allow_GatewayManager_TCP_65200-65535_Inbound",
-                        "properties": {
-                            "access": "Allow",
-                            "description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "65200-65535",
-                            "direction": "Inbound",
-                            "priority": 1010,
-                            "protocol": "TCP",
-                            "sourceAddressPrefix": "GatewayManager",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "Allow_AzureLoadBalancer_Any_Any_Inbound",
-                        "properties": {
-                            "access": "Allow",
-                            "description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "*",
-                            "direction": "Inbound",
-                            "priority": 1020,
-                            "protocol": "*",
-                            "sourceAddressPrefix": "AzureLoadBalancer",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "Deny_AllOther_Inbound",
-                        "properties": {
-                            "access": "Deny",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "*",
-                            "direction": "Inbound",
-                            "priority": 4096,
-                            "protocol": "*",
-                            "sourceAddressPrefix": "*",
-                            "sourcePortRange": "*"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/privateDnsZones",
-            "apiVersion": "2018-09-01",
-            "name": "[variables('privateDnsZoneName')]",
-            "location": "global",
-            "properties": {
-                "maxNumberOfRecordSets": 25000,
-                "maxNumberOfVirtualNetworkLinks": 1000,
-                "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
-                "numberOfRecordSets": 2,
-                "numberOfVirtualNetworkLinks": 1,
-                "numberOfVirtualNetworkLinksWithRegistration": 0,
-                "provisioningState": "Succeeded"
-            }
-        },
-        {
-            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-            "apiVersion": "2018-09-01",
-            "name": "[variables('virtualNetworkLinksName')]",
-            "location": "global",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-            ],
-            "properties": {
-                "registrationEnabled": false,
-                "virtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('gatewayPublicIpName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "Standard"
-            },
-            "properties": {
-                "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Static",
-                "idleTimeoutInMinutes": 4,
-                "dnsSettings": {
-                    "domainNameLabel": "[variables('gatewayPublicIpDomainNameLabel')]"
-                },
-                "ipTags": []
-            }
-        },
-        {
-            "type": "Microsoft.Network/applicationGateways",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('gatewayName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
-            ],
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": "[parameters('gatewayUserAssignedIdentity')]"
-            },
-            "properties": {
-                "sku": {
-                    "name": "Standard_v2",
-                    "tier": "Standard_v2"
-                },
-                "gatewayIPConfigurations": [
-                    {
-                        "name": "[variables('gatewayGatewayIPConfigurationsName')]",
-                        "properties": {
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('gatewaySubnetName'))]"
-                            }
-                        }
-                    }
-                ],
-                "frontendIPConfigurations": [
-                    {
-                        "name": "[variables('gatewayFrontendIPConfigurationsName')]",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
-                            }
-                        }
-                    }
-                ],
-                "frontendPorts": [
-                    {
-                        "name": "[variables('gatewayFrontendPortHttpName')]",
-                        "properties": {
-                            "port": 80
-                        }
-                    },
-                    {
-                        "name": "[variables('gatewayFrontendPortHttpsName')]",
-                        "properties": {
-                            "port": 443
-                        }
-                    }
-                ],
-                "backendAddressPools": [
-                    {
-                        "name": "[variables('gatewayBackendAddressPoolName')]",
-                        "properties": {
-                            "backendAddresses": []
-                        }
-                    }
-                ],
-                "backendHttpSettingsCollection": [
-                    {
-                        "name": "[variables('gatewayBackendHttpSettingsCollectionName')]",
-                        "properties": {
-                            "port": 80,
-                            "protocol": "Http",
-                            "cookieBasedAffinity": "Disabled",
-                            "pickHostNameFromBackendAddress": false,
-                            "requestTimeout": "[variables('gatewayBackendHttpSettingsCollectionRequestTimeout')]"
-                        }
-                    }
-                ],
-                "sslCertificates": [
-                    {
-                        "name": "[variables('gatewaySslCertificateHttpsName')]",
-                        "properties": {
-                            "keyVaultSecretId": "[parameters('gatewaySslCertificateUri')]"
-                        }
-                    }
-                ],
-                "httpListeners": [
-                    {
-                        "name": "[variables('gatewayHttpListenersHttpsName')]",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendIPConfigurations/', variables('gatewayFrontendIPConfigurationsName'))]"
-                            },
-                            "frontendPort": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendPorts/', variables('gatewayFrontendPortHttpsName'))]"
-                            },
-                            "protocol": "Https",
-                            "sslCertificate": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/sslCertificates/', variables('gatewaySslCertificateHttpsName'))]"
-                            },
-                            "hostNames": [],
-                            "requireServerNameIndication": false
-                        }
-                    },
-                    {
-                        "name": "[variables('gatewayHttpListenersHttpName')]",
-                        "properties": {
-                            "frontendIPConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendIPConfigurations/', variables('gatewayFrontendIPConfigurationsName'))]"
-                            },
-                            "frontendPort": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendPorts/', variables('gatewayFrontendPortHttpName'))]"
-                            },
-                            "protocol": "Http",
-                            "hostNames": [],
-                            "requireServerNameIndication": false
-                        }
-                    }
-                ],
-                "urlPathMaps": [],
-                "requestRoutingRules": [
-                    {
-                        "name": "[variables('gatewayRequestRoutingRuleHttpsName')]",
-                        "properties": {
-                            "ruleType": "Basic",
-                            "httpListener": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpsName'))]"
-                            },
-                            "backendAddressPool": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
-                            },
-                            "backendHttpSettings": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendHttpSettingsCollection/', variables('gatewayBackendHttpSettingsCollectionName'))]"
-                            },
-                            "rewriteRuleSet": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/rewriteRuleSets/', variables('gatewayRewriteRuleSetsName'))]"
-                            }
-                        }
-                    },
-                    {
-                        "name": "[variables('gatewayRequestRoutingRuleHttpName')]",
-                        "properties": {
-                            "ruleType": "Basic",
-                            "httpListener": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpName'))]"
-                            },
-                            "redirectConfiguration": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/redirectConfigurations/', variables('gatewayRedirectConfigurationsName'))]"
-                            }
-                        }
-                    }
-                ],
-                "probes": [],
-                "rewriteRuleSets": [
-                    {
-                        "name": "[variables('gatewayRewriteRuleSetsName')]",
-                        "properties": {
-                            "rewriteRules": [
-                                {
-                                    "ruleSequence": 100,
-                                    "conditions": [],
-                                    "name": "StrictTransportSecurity",
-                                    "actionSet": {
-                                        "requestHeaderConfigurations": [],
-                                        "responseHeaderConfigurations": [
-                                            {
-                                                "headerName": "Strict-Transport-Security",
-                                                "headerValue": "max-age=63072000"
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "redirectConfigurations": [
-                    {
-                        "name": "[variables('gatewayRedirectConfigurationsName')]",
-                        "properties": {
-                            "redirectType": "Permanent",
-                            "targetListener": {
-                                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpsName'))]"
-                            },
-                            "includePath": true,
-                            "includeQueryString": true,
-                            "requestRoutingRules": [
-                                {
-                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/requestRoutingRules/', variables('gatewayRequestRoutingRuleHttpName'))]"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "sslPolicy": {
-                    "policyType": "Custom",
-                    "minProtocolVersion": "TLSv1_2",
-                    "cipherSuites": [
-                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-                        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
-                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                        "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                        "TLS_RSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_RSA_WITH_AES_128_CBC_SHA256"
-                    ]
-                },
-                "enableHttp2": false,
-                "autoscaleConfiguration": {
-                    "minCapacity": 1,
-                    "maxCapacity": 10
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-11-01",
-            "name": "[variables('applicationNetworkSecurityGroupName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "Deny_CustomExclusion_Any_Any_Inbound",
-                        "properties": {
-                            "access": "Deny",
-                            "description": "Custom security rule.",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "*",
-                            "direction": "Inbound",
-                            "priority": 500,
-                            "protocol": "*",
-                            "sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "[concat('Allow_', variables('gatewayName'), '_TCP_80_Inbound')]",
-                        "properties": {
-                            "access": "Allow",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "80",
-                            "direction": "Inbound",
-                            "priority": 1000,
-                            "protocol": "TCP",
-                            "sourceAddressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "[concat('Allow_', variables('bastionName'), '_TCP_22_Inbound')]",
-                        "properties": {
-                            "access": "Allow",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "22",
-                            "direction": "Inbound",
-                            "priority": 1010,
-                            "protocol": "TCP",
-                            "sourceAddressPrefix": "[variables('bastionSubnetAddressPrefix')]",
-                            "sourcePortRange": "*"
-                        }
-                    },
-                    {
-                        "name": "Deny_AllOther_Inbound",
-                        "properties": {
-                            "access": "Deny",
-                            "destinationAddressPrefix": "*",
-                            "destinationPortRange": "*",
-                            "direction": "Inbound",
-                            "priority": 4096,
-                            "protocol": "*",
-                            "sourceAddressPrefix": "*",
-                            "sourcePortRange": "*"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2022-05-01",
-            "name": "[variables('databaseNetworkSecurityGroupName')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [],
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "AllowCidrBlockMySQLInbound",
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
-                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-                        "properties": {
-                            "protocol": "TCP",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "3306",
-                            "sourceAddressPrefix": "[variables('applicationSubnetAddressPrefix')]",
-                            "destinationAddressPrefix": "[variables('databaseSubnetAddressPrefix')]",
-                            "access": "Allow",
-                            "priority": 1000,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [],
-                            "destinationPortRanges": [],
-                            "sourceAddressPrefixes": [],
-                            "destinationAddressPrefixes": []
-                        }
-                    },
-                    {
-                        "name": "DenyAnyCustomAnyInbound",
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
-                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-                        "properties": {
-                            "protocol": "*",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "*",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Deny",
-                            "priority": 4096,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [],
-                            "destinationPortRanges": [],
-                            "sourceAddressPrefixes": [],
-                            "destinationAddressPrefixes": []
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[variables('recoveryServiceVaultDeploymentName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
-                },
-                "parameters": {
-                    "projectName": {
-                        "value": "[parameters('projectShortName')]"
-                    },
-                    "environmentName": {
-                        "value": "[parameters('environmentName')]"
-                    },
-                    "resourceTags": {
-                        "value": "[parameters('resourceTags')]"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[variables('recoveryServiceVaultBackupPoliciesDeploymentName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultDeploymentName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
-                },
-                "parameters": {
-                    "vaultName": {
-                        "value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
-                    },
-                    "dailyBackupsRetention": {
-                        "value": 90
-                    },
-                    "instantRpRetentionRangeInDays": {
-                        "value": 5
-                    },
-                    "backupTime": {
-                        "value": "02:00"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[variables('recoveryServiceVaultProtectedItemsDeploymentName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultBackupPoliciesDeploymentName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
-                },
-                "parameters": {
-                    "vaultName": {
-                        "value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
-                    },
-                    "policyName": {
-                        "value": "[reference(variables('recoveryServiceVaultBackupPoliciesDeploymentName')).outputs.policyName.value]"
-                    },
-                    "vmName": {
-                        "value": "[variables('webServerVirtualMachineName')]"
-                    },
-                    "vmRGName": {
-                        "value": "[resourceGroup().name]"
-                    },
-                    "vmSubID": {
-                        "value": "[subscription().subscriptionId]"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.DBforMySQL/flexibleServers",
-            "apiVersion": "2021-12-01-preview",
-            "name": "[variables('databaseName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-            ],
-            "location": "[parameters('location')]",
-            "tags": "[parameters('resourceTags')]",
-            "sku": {
-                "name": "[variables('databaseSkuName')]",
-                "tier": "[variables('databaseSkuTier')]"
-            },
-            "properties": {
-                "version": "[variables('databaseVersion')]",
-                "administratorLogin": "[parameters('databaseAdminUsername')]",
-                "administratorLoginPassword": "[parameters('databaseAdminPassword')]",
-                "Network": {
-                    "DelegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseSubnetName'))]",
-                    "PrivateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
-                },
-                "Storage": {
-                    "StorageSizeGB": "[parameters('databaseStorageGb')]",
-                    "Iops": "[parameters('databaseIops')]",
-                    "Autogrow": "[parameters('databaseIopsAutoGrow')]"
-                },
-                "Backup": {
-                    "backupRetentionDays": "[parameters('databaseBackupRetentionDays')]",
-                    "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
-                },
-                "highAvailability": {
-                    "mode": "[parameters('highAvailabilityMode')]",
-                    "standbyAvailabilityZone": "[parameters('standbyAvailabilityZone')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-            "apiVersion": "[variables('apiVersion')]",
-            "name": "[concat(variables('databaseName'), '/audit_log_enabled')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "value": "[parameters('configurationAuditLogEnabled')]",
-                "source": "user-override"
-            }
-        },
-        {
-            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-            "apiVersion": "[variables('apiVersion')]",
-            "name": "[concat(variables('databaseName'), '/audit_log_events')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "value": "[parameters('configurationAuditLogEvents')]",
-                "source": "user-override"
-            }
-        },
-        {
-            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-            "apiVersion": "[variables('apiVersion')]",
-            "name": "[concat(variables('databaseName'), '/character_set_server')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "value": "[parameters('configurationCharacterSetServer')]",
-                "source": "user-override"
-            }
-        },
-        {
-            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-            "apiVersion": "[variables('apiVersion')]",
-            "name": "[concat(variables('databaseName'), '/collation_server')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "value": "[parameters('configurationCollationServer')]",
-                "source": "user-override"
-            }
-        },
-        {
-            "type": "Microsoft.Insights/diagnosticSettings",
-            "apiVersion": "2021-05-01-preview",
-            "name": "local-mysql-logging",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
-            ],
-            "scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
-            "properties": {
-                "logs": [
-                    {
-                        "category": "MySqlAuditLogs",
-                        "enabled": true,
-                        "retentionPolicy": {
-                            "days": 0,
-                            "enabled": false
-                        }
-                    }
-                ],
-                "workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
-            "name": "[variables('diagnosticStorageAccountName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "kind": "StorageV2",
-            "properties": {
-                "minimumTlsVersion": "TLS1_2",
-                "allowBlobPublicAccess": true,
-                // Storage Account firewall must be turned off for Guest Metrics to work as per the following reference:
-                // https://docs.microsoft.com/en-ca/azure/azure-monitor/platform/metrics-troubleshoot#cannot-pick-guest-os-namespace-and-metrics
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "virtualNetworkRules": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
-                            "action": "Allow"
-                        }
-                    ],
-                    "ipRules": [
-                        {
-                            "value": "[parameters('corporateGatewayIpAddress')]",
-                            "action": "allow"
-                        }
-                    ],
-                    "defaultAction": "Deny"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "blob": {
-                            "keyType": "Account",
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                },
-                "accessTier": "Hot"
-            }
-        },
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"applicationCustomFqdn": {
+			"type": "string",
+			"metadata": {
+				"description": "The custom fully qualified domain name for this matomo instance."
+			}
+		},
+		"armTemplateRepoBaseUrl": {
+			"type": "string",
+			"metadata": {
+				"description": "The base URL of the Azure Resource Manager template repository."
+			}
+		},
+		"configurationAuditLogEnabled": {
+			"type": "string",
+			"defaultValue": "On",
+			"allowedValues": [
+				"Off",
+				"On"
+			],
+			"metadata": {
+				"description": "The value of the database server's parameter \"audit_log_enabled\"."
+			}
+		},
+		"configurationAuditLogEvents": {
+			"type": "string",
+			"defaultValue": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS",
+			"metadata": {
+				"description": "The value of the database server's parameter \"audit_log_events\"."
+			}
+		},
+		"configurationCharacterSetServer": {
+			"type": "string",
+			"defaultValue": "utf8mb4",
+			"metadata": {
+				"description": "The value of the database server's parameter \"character_set_server\"."
+			}
+		},
+		"configurationCollationServer": {
+			"type": "string",
+			"defaultValue": "utf8mb4_0900_ai_ci",
+			"metadata": {
+				"description": "The value of the database server's parameter \"collation_server\"."
+			}
+		},
+		"corporateGatewayIpAddress": {
+			"type": "string",
+			"metadata": {
+				"description": "The Outbound IP address of the corporate network gateway."
+			}
+		},
+		"databaseAdminPassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The password to use in order to manage the database server."
+			}
+		},
+		"databaseAdminUsername": {
+			"type": "string",
+			"metadata": {
+				"description": "The username to use in order to manage the database server."
+			}
+		},
+		"databaseApplicationPassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The Matomo application database account password."
+			}
+		},
+		"databaseApplicationUsername": {
+			"type": "string",
+			"metadata": {
+				"description": "The Matomo application database account username."
+			}
+		},
+		"databaseBackupRetentionDays": {
+			"type": "int",
+			"minValue": 7,
+			"maxValue": 35,
+			"metadata": {
+				"description": "The database backup retention period in days."
+			}
+		},
+		"databaseIops": {
+			"type": "int",
+			"defaultValue": 1000,
+			"minValue": 360,
+			"maxValue": 3200,
+			"metadata": {
+				"description": "The maximum IOPS allocated to the database."
+			}
+		},
+		"databaseIopsAutoGrow": {
+			"type": "string",
+			"defaultValue": "Enabled",
+			"allowedValues": [
+				"Enabled",
+				"Disabled"
+			],
+			"metadata": {
+				"description": "Whether or not the Database IOPS should autogrow."
+			}
+		},
+		"databaseStorageGb": {
+			"type": "int",
+			"minValue": 20,
+			"maxValue": 16384,
+			"metadata": {
+				"description": "The size of data storage allocated to the database in GB."
+			}
+		},
+		"dataDiskSizeGB": {
+			"type": "int",
+			"allowedValues": [ 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+			"metadata": {
+				"description": "The size of the Matomo Data Disk in giga bytes."
+			}
+		},
+		"deniedIpAddressList": {
+			"type": "securestring",
+			"defaultValue": "0.0.0.0/32", // An unusable IP address.
+			"metadata": {
+				"description": "A comma separated list of source IP addresses (in CIDR notation) that must NOT access to the solution."
+			}
+		},
+		"deploymentTimestamp": {
+			"type": "int",
+			"defaultValue": "[int(utcNow('ddHHmmss'))]",
+			"metadata": {
+				"description": "The deployment timestamp. Determines whether the Virtual Machine Custom Script extension is rerun. Default value will have the Virtual Machine Custom Script extension rerun at each ARM template deployment. Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-linux#property-value-details"
+			}
+		},
+		"environmentName": {
+			"type": "string",
+			"defaultValue": "dev",
+			"allowedValues": [
+				"dev",
+				"staging",
+				"prod"
+			],
+			"metadata": {
+				"description": "The name of the provisioned environment. Used to build resource names."
+			}
+		},
+		"gatewaySslCertificateUri": {
+			"type": "string",
+			"metadata": {
+				"description": "The URI of the SSL Certificate Secret used by the Application Gateway."
+			}
+		},
+		"gatewayUserAssignedIdentity": {
+			"type": "object",
+			"metadata": {
+				"description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
+			}
+		},
+		"genericShellScriptsPublicRawFilesUrl": {
+			"type": "string",
+			"metadata": {
+				"description": "The public base URL of the generic-shell-scripts repository's raw files."
+			}
+		},
+		"geoRedundantBackup": {
+			"type": "string",
+			"defaultValue": "Disabled",
+			"allowedValues": [
+				"Disabled",
+				"Enabled"
+			],
+			"metadata": {
+				"description": "Whether or not geo redundant backup is enabled."
+			}
+		},
+		"highAvailabilityMode": {
+			"type": "string",
+			"defaultValue": "Disabled",
+			"allowedValues": [
+				"Disabled",
+				"SameZone",
+				"ZoneRedundant"
+			],
+			"metadata": {
+				"description": "The high availability mode for the database server."
+			}
+		},
+		"logAnalyticsWorkspaceRetentionDays": {
+			"type": "int",
+			"minValue": 30,
+			"maxValue": 730,
+			"defaultValue": 365,
+			"metadata": {
+				"description": "The log retention period in days of the Log Analytics Workspace resource."
+			}
+		},
+		"location": {
+			"type": "string",
+			"defaultValue": "[resourceGroup().location]",
+			"metadata": {
+				"description": "The name of the Azure Location where resources will be created."
+			}
+		},
+		"projectPublicRawFilesBaseUrl": {
+			"type": "string",
+			"metadata": {
+				"description": "The public base URL of this project's repository's raw files."
+			}
+		},
+		"projectShortName": {
+			"type": "string",
+			"minLength": 1,
+			"maxLength": 13,
+			"metadata": {
+				"description": "The short name of the project. This string will be used to name all resources required. It must only contain letters (a-z,A-Z), hyphens (-) and underscore (_) characters, and must not exceed 13 characters in lenght."
+			}
+		},
+		"resourceTags": {
+			"type": "object",
+			"defaultValue": {},
+			"metadata": {
+				"description": "Generic tags for any resources."
+			}
+		},
+		"smtpServerFqdn": {
+			"type": "string",
+			"metadata": {
+				"description": "The fully qualified domain name of the email server to use."
+			}
+		},
+		"smtpServerPort": {
+			"type": "int",
+			"metadata": {
+				"description": "The port number of the email server to use."
+			}
+		},
+		"smtpServerPrivateIp": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The private IP address of the email server to use."
+			}
+		},
+		"standbyAvailabilityZone": {
+			"type": "string",
+			"defaultValue": "",
+			"metadata": {
+				"description": "The availability zone of the standby database server."
+			}
+		},
+		"virtualMachineTags": {
+			"type": "object",
+			"defaultValue": {},
+			"metadata": {
+				"description": "Optional tags specific to Virtual Machines."
+			}
+		},
+		"virtualNetworkAddressBase": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The virtual network IP address prefix. Format is '255.255.255'."
+			}
+		},
+		"webServerAdminEmail": {
+			"type": "string",
+			"metadata": {
+				"description": "The Web server administrator's email address."
+			}
+		},
+		"webServerAdminPassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The Web server administrator's password."
+			}
+		},
+		"webServerAdminUsername": {
+			"type": "string",
+			"metadata": {
+				"description": "The Web server administrator's username."
+			}
+		},
+		"webServerBackendMaxExecutionTime": {
+			"type": "int",
+			"metadata": {
+				"description": "The time (in seconds) allowed to the Web server backend to fullfil a request."
+			}
+		},
+		"webServerRebootUtcTime": {
+			"type": "string",
+			"metadata": {
+				"description": "The time, in UTC, when the Web server may automatically reboot if required following an unattended upgrade. Format is 'HH:MM'."
+			}
+		},
+		"webServerVirtualMachineSize": {
+			"type": "string",
+			"metadata": {
+				"description": "The size of the virtual machine used as webserver. See https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-sizes-specs for allowed values."
+			}
+		}
+	},
+	"functions": [
+		{
+			"namespace": "custom",
+			"members": {
+				"cleanName": {
+					"parameters": [
+						{
+							"name": "dirtyName",
+							"type": "string"
+						}
+					],
+					"output": {
+						"type": "string",
+						"value": "[replace(replace(replace(parameters('dirtyName'), '-', ''), '_', ''), ' ', '')]"
+					}
+				}
+			}
+		}
+	],
+	"variables": {
+		"apiVersion": "2021-12-01-preview",
+		"applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
+		"applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
+		"applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
+		"bastionName": "[concat(variables('resourceNamePrefix'), '-BH')]",
+		"bastionPublicIpName": "[concat(variables('bastionName'), '-PublicIP')]",
+		"bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
+		"bastionSubnetName": "AzureBastionSubnet",
+		"databaseApplicationDatabaseName": "[tolower(custom.cleanName(parameters('databaseApplicationUsername')))]",
+		"databaseNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
+		"databaseSkuName": "Standard_D2ds_v4",
+		"databaseSkuTier": "GeneralPurpose",
+		"databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
+		"databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
+		"databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
+		"databaseVersion": "8.0.21",
+		"diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
+		"diagnosticStorageAccountSasProperties": {
+			"signedServices": "bt",
+			"signedPermission": "acluw",
+			"signedExpiry": "2100-01-01T00:00:00Z", // Basically, forever.
+			"signedResourceTypes": "co"
+		},
+		"gatewayBackendAddressPoolName": "matomo-web-server",
+		"gatewayBackendHttpSettingsCollectionName": "[concat(parameters('projectShortName'), '-HTTP-Settings')]",
+		"gatewayBackendHttpSettingsCollectionRequestTimeout": "[add(parameters('webServerBackendMaxExecutionTime'),1)]",
+		"gatewayFrontendIPConfigurationsName": "appGwPublicFrontendIp",
+		"gatewayFrontendPortHttpName": "HTTP-Port",
+		"gatewayFrontendPortHttpsName": "HTTPS-Port",
+		"gatewayGatewayIPConfigurationsName": "appGatewayIpConfig",
+		"gatewayHttpListenersHttpName": "HTTP-Listener",
+		"gatewayHttpListenersHttpsName": "HTTPS-Listener",
+		"gatewayName": "[concat(variables('resourceNamePrefix'), '-AG')]",
+		"gatewayNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-NSG')]",
+		"gatewayPublicIpDomainNameLabel": "[tolower(concat(variables('resourceNamePrefix')))]",
+		"gatewayPublicIpName": "[concat(variables('gatewayName'), '-PublicIP')]",
+		"gatewayRedirectConfigurationsName": "HTTP-Redirect",
+		"gatewayRequestRoutingRuleHttpName": "HTTP-Rule",
+		"gatewayRequestRoutingRuleHttpsName": "HTTPS-Rule",
+		"gatewayRewriteRuleSetsName": "Custom-Rewrite-Rules",
+		"gatewaySslCertificateHttpsName": "HTTPS-Certificate",
+		"gatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
+		"gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
+		"logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
+		"privateDnsZoneName": "[concat(variables('databaseName'), '.private.mysql.database.azure.com')]",
+		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
+		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
+		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultProtectedItems'), 64)]",
+		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
+		"storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
+		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
+		"virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
+		"webServerComputerName": "webserver",
+		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
+		"webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
+		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
+		"webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
+		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
+		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
+		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
+		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
+		"virtualNetworkLinksName": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkName'))]"
+	},
+	"resources": [
+		{
+			"type": "microsoft.operationalinsights/workspaces",
+			"apiVersion": "2021-06-01",
+			"name": "[variables('logAnalyticsWorkspaceName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"sku": {
+					"name": "pergb2018"
+				},
+				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionDays')]",
+				"features": {
+					"enableLogAccessUsingOnlyResourcePermissions": true
+				},
+				"workspaceCapping": {
+					"dailyQuotaGb": -1
+				},
+				"publicNetworkAccessForIngestion": "Enabled",
+				"publicNetworkAccessForQuery": "Enabled"
+			}
+		},
+		{
+			"type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('virtualNetworkName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]",
+				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]",
+				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
+			],
+			"properties": {
+				"addressSpace": {
+					"addressPrefixes": [
+						"[variables('virtualNetworkAddressPrefix')]"
+					]
+				},
+				"subnets": [
+					{
+						"name": "[variables('bastionSubnetName')]",
+						"properties": {
+							"addressPrefix": "[variables('bastionSubnetAddressPrefix')]",
+							"serviceEndpoints": [],
+							"delegations": [],
+							"privateEndpointNetworkPolicies": "Enabled",
+							"privateLinkServiceNetworkPolicies": "Enabled"
+						}
+					},
+					{
+						"name": "[variables('gatewaySubnetName')]",
+						"properties": {
+							"addressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
+							"networkSecurityGroup": {
+								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]"
+							},
+							"serviceEndpoints": [],
+							"delegations": [],
+							"privateEndpointNetworkPolicies": "Enabled",
+							"privateLinkServiceNetworkPolicies": "Enabled"
+						}
+					},
+					{
+						"name": "[variables('applicationSubnetName')]",
+						"properties": {
+							"addressPrefix": "[variables('applicationSubnetAddressPrefix')]",
+							"networkSecurityGroup": {
+								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]"
+							},
+							"serviceEndpoints": [
+								{
+									"service": "Microsoft.Sql",
+									"locations": [
+										"[parameters('location')]"
+									]
+								},
+								{
+									"service": "Microsoft.Storage",
+									"locations": [
+										"[parameters('location')]"
+									]
+								}
+							],
+							"delegations": [],
+							"privateEndpointNetworkPolicies": "Enabled",
+							"privateLinkServiceNetworkPolicies": "Enabled"
+						}
+					},
+					{
+						"name": "[variables('databaseSubnetName')]",
+						"properties": {
+							"addressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+							"networkSecurityGroup": {
+								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
+							},
+							"serviceEndpoints": [],
+							"delegations": [
+								{
+									"name": "Microsoft.DBforMySQL.flexibleServers",
+									"properties": {
+										"serviceName": "Microsoft.DBforMySQL/flexibleServers"
+									}
+								}
+							],
+							"privateEndpointNetworkPolicies": "Enabled",
+							"privateLinkServiceNetworkPolicies": "Enabled"
+						}
+					}
+				],
+				"virtualNetworkPeerings": [],
+				"enableDdosProtection": false,
+				"enableVmProtection": false
+			}
+		},
+		{
+			"type": "Microsoft.Network/publicIPAddresses",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('bastionPublicIpName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"sku": {
+				"name": "Standard"
+			},
+			"properties": {
+				"publicIPAddressVersion": "IPv4",
+				"publicIPAllocationMethod": "Static",
+				"idleTimeoutInMinutes": 4,
+				"ipTags": []
+			}
+		},
+		{
+			"type": "Microsoft.Network/bastionHosts",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('bastionName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpName'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+			],
+			"properties": {
+				"ipConfigurations": [
+					{
+						"name": "IpConf",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"publicIPAddress": {
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpName'))]"
+							},
+							"subnet": {
+								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('bastionSubnetName'))]"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('gatewayNetworkSecurityGroupName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "Deny_CustomExclusion_Any_Any_Inbound",
+						"properties": {
+							"access": "Deny",
+							"description": "Custom security rule.",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 500,
+							"protocol": "*",
+							"sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Allow_PublicInternet_Any_80_443_Inbound",
+						"properties": {
+							"access": "Allow",
+							"destinationAddressPrefix": "*",
+							"destinationPortRanges": [
+								"80",
+								"443"
+							],
+							"direction": "Inbound",
+							"priority": 1000,
+							"protocol": "*",
+							"sourceAddressPrefix": "Internet",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Allow_GatewayManager_TCP_65200-65535_Inbound",
+						"properties": {
+							"access": "Allow",
+							"description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "65200-65535",
+							"direction": "Inbound",
+							"priority": 1010,
+							"protocol": "TCP",
+							"sourceAddressPrefix": "GatewayManager",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Allow_AzureLoadBalancer_Any_Any_Inbound",
+						"properties": {
+							"access": "Allow",
+							"description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 1020,
+							"protocol": "*",
+							"sourceAddressPrefix": "AzureLoadBalancer",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Deny_AllOther_Inbound",
+						"properties": {
+							"access": "Deny",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 4096,
+							"protocol": "*",
+							"sourceAddressPrefix": "*",
+							"sourcePortRange": "*"
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Network/privateDnsZones",
+			"apiVersion": "2018-09-01",
+			"name": "[variables('privateDnsZoneName')]",
+			"location": "global",
+			"properties": {
+				"maxNumberOfRecordSets": 25000,
+				"maxNumberOfVirtualNetworkLinks": 1000,
+				"maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+				"numberOfRecordSets": 2,
+				"numberOfVirtualNetworkLinks": 1,
+				"numberOfVirtualNetworkLinksWithRegistration": 0,
+				"provisioningState": "Succeeded"
+			}
+		},
+		{
+			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+			"apiVersion": "2018-09-01",
+			"name": "[variables('virtualNetworkLinksName')]",
+			"location": "global",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+			],
+			"properties": {
+				"registrationEnabled": false,
+				"virtualNetwork": {
+					"id": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Network/publicIPAddresses",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('gatewayPublicIpName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"sku": {
+				"name": "Standard"
+			},
+			"properties": {
+				"publicIPAddressVersion": "IPv4",
+				"publicIPAllocationMethod": "Static",
+				"idleTimeoutInMinutes": 4,
+				"dnsSettings": {
+					"domainNameLabel": "[variables('gatewayPublicIpDomainNameLabel')]"
+				},
+				"ipTags": []
+			}
+		},
+		{
+			"type": "Microsoft.Network/applicationGateways",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('gatewayName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+				"[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
+			],
+			"identity": {
+				"type": "UserAssigned",
+				"userAssignedIdentities": "[parameters('gatewayUserAssignedIdentity')]"
+			},
+			"properties": {
+				"sku": {
+					"name": "Standard_v2",
+					"tier": "Standard_v2"
+				},
+				"gatewayIPConfigurations": [
+					{
+						"name": "[variables('gatewayGatewayIPConfigurationsName')]",
+						"properties": {
+							"subnet": {
+								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('gatewaySubnetName'))]"
+							}
+						}
+					}
+				],
+				"frontendIPConfigurations": [
+					{
+						"name": "[variables('gatewayFrontendIPConfigurationsName')]",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"publicIPAddress": {
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
+							}
+						}
+					}
+				],
+				"frontendPorts": [
+					{
+						"name": "[variables('gatewayFrontendPortHttpName')]",
+						"properties": {
+							"port": 80
+						}
+					},
+					{
+						"name": "[variables('gatewayFrontendPortHttpsName')]",
+						"properties": {
+							"port": 443
+						}
+					}
+				],
+				"backendAddressPools": [
+					{
+						"name": "[variables('gatewayBackendAddressPoolName')]",
+						"properties": {
+							"backendAddresses": []
+						}
+					}
+				],
+				"backendHttpSettingsCollection": [
+					{
+						"name": "[variables('gatewayBackendHttpSettingsCollectionName')]",
+						"properties": {
+							"port": 80,
+							"protocol": "Http",
+							"cookieBasedAffinity": "Disabled",
+							"pickHostNameFromBackendAddress": false,
+							"requestTimeout": "[variables('gatewayBackendHttpSettingsCollectionRequestTimeout')]"
+						}
+					}
+				],
+				"sslCertificates": [
+					{
+						"name": "[variables('gatewaySslCertificateHttpsName')]",
+						"properties": {
+							"keyVaultSecretId": "[parameters('gatewaySslCertificateUri')]"
+						}
+					}
+				],
+				"httpListeners": [
+					{
+						"name": "[variables('gatewayHttpListenersHttpsName')]",
+						"properties": {
+							"frontendIPConfiguration": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendIPConfigurations/', variables('gatewayFrontendIPConfigurationsName'))]"
+							},
+							"frontendPort": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendPorts/', variables('gatewayFrontendPortHttpsName'))]"
+							},
+							"protocol": "Https",
+							"sslCertificate": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/sslCertificates/', variables('gatewaySslCertificateHttpsName'))]"
+							},
+							"hostNames": [],
+							"requireServerNameIndication": false
+						}
+					},
+					{
+						"name": "[variables('gatewayHttpListenersHttpName')]",
+						"properties": {
+							"frontendIPConfiguration": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendIPConfigurations/', variables('gatewayFrontendIPConfigurationsName'))]"
+							},
+							"frontendPort": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendPorts/', variables('gatewayFrontendPortHttpName'))]"
+							},
+							"protocol": "Http",
+							"hostNames": [],
+							"requireServerNameIndication": false
+						}
+					}
+				],
+				"urlPathMaps": [],
+				"requestRoutingRules": [
+					{
+						"name": "[variables('gatewayRequestRoutingRuleHttpsName')]",
+						"properties": {
+							"ruleType": "Basic",
+							"httpListener": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpsName'))]"
+							},
+							"backendAddressPool": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
+							},
+							"backendHttpSettings": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendHttpSettingsCollection/', variables('gatewayBackendHttpSettingsCollectionName'))]"
+							},
+							"rewriteRuleSet": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/rewriteRuleSets/', variables('gatewayRewriteRuleSetsName'))]"
+							}
+						}
+					},
+					{
+						"name": "[variables('gatewayRequestRoutingRuleHttpName')]",
+						"properties": {
+							"ruleType": "Basic",
+							"httpListener": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpName'))]"
+							},
+							"redirectConfiguration": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/redirectConfigurations/', variables('gatewayRedirectConfigurationsName'))]"
+							}
+						}
+					}
+				],
+				"probes": [],
+				"rewriteRuleSets": [
+					{
+						"name": "[variables('gatewayRewriteRuleSetsName')]",
+						"properties": {
+							"rewriteRules": [
+								{
+									"ruleSequence": 100,
+									"conditions": [],
+									"name": "StrictTransportSecurity",
+									"actionSet": {
+										"requestHeaderConfigurations": [],
+										"responseHeaderConfigurations": [
+											{
+												"headerName": "Strict-Transport-Security",
+												"headerValue": "max-age=63072000"
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"redirectConfigurations": [
+					{
+						"name": "[variables('gatewayRedirectConfigurationsName')]",
+						"properties": {
+							"redirectType": "Permanent",
+							"targetListener": {
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpsName'))]"
+							},
+							"includePath": true,
+							"includeQueryString": true,
+							"requestRoutingRules": [
+								{
+									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/requestRoutingRules/', variables('gatewayRequestRoutingRuleHttpName'))]"
+								}
+							]
+						}
+					}
+				],
+				"sslPolicy": {
+					"policyType": "Custom",
+					"minProtocolVersion": "TLSv1_2",
+					"cipherSuites": [
+						"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+						"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+						"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+						"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+						"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+						"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+						"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+						"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+						"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+						"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+						"TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+						"TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+						"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+						"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+						"TLS_RSA_WITH_AES_256_CBC_SHA256",
+						"TLS_RSA_WITH_AES_128_GCM_SHA256",
+						"TLS_RSA_WITH_AES_128_CBC_SHA256"
+					]
+				},
+				"enableHttp2": false,
+				"autoscaleConfiguration": {
+					"minCapacity": 1,
+					"maxCapacity": 10
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('applicationNetworkSecurityGroupName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "Deny_CustomExclusion_Any_Any_Inbound",
+						"properties": {
+							"access": "Deny",
+							"description": "Custom security rule.",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 500,
+							"protocol": "*",
+							"sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "[concat('Allow_', variables('gatewayName'), '_TCP_80_Inbound')]",
+						"properties": {
+							"access": "Allow",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "80",
+							"direction": "Inbound",
+							"priority": 1000,
+							"protocol": "TCP",
+							"sourceAddressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "[concat('Allow_', variables('bastionName'), '_TCP_22_Inbound')]",
+						"properties": {
+							"access": "Allow",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "22",
+							"direction": "Inbound",
+							"priority": 1010,
+							"protocol": "TCP",
+							"sourceAddressPrefix": "[variables('bastionSubnetAddressPrefix')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Deny_AllOther_Inbound",
+						"properties": {
+							"access": "Deny",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 4096,
+							"protocol": "*",
+							"sourceAddressPrefix": "*",
+							"sourcePortRange": "*"
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2022-05-01",
+			"name": "[variables('databaseNetworkSecurityGroupName')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [],
+			"properties": {
+				"securityRules": [
+					{
+						"name": "AllowCidrBlockMySQLInbound",
+						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
+						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
+						"properties": {
+							"protocol": "TCP",
+							"sourcePortRange": "*",
+							"destinationPortRange": "3306",
+							"sourceAddressPrefix": "[variables('applicationSubnetAddressPrefix')]",
+							"destinationAddressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+							"access": "Allow",
+							"priority": 1000,
+							"direction": "Inbound",
+							"sourcePortRanges": [],
+							"destinationPortRanges": [],
+							"sourceAddressPrefixes": [],
+							"destinationAddressPrefixes": []
+						}
+					},
+					{
+						"name": "DenyAnyCustomAnyInbound",
+						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
+						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "*",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Deny",
+							"priority": 4096,
+							"direction": "Inbound",
+							"sourcePortRanges": [],
+							"destinationPortRanges": [],
+							"sourceAddressPrefixes": [],
+							"destinationAddressPrefixes": []
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
+				},
+				"parameters": {
+					"projectName": {
+						"value": "[parameters('projectShortName')]"
+					},
+					"environmentName": {
+						"value": "[parameters('environmentName')]"
+					},
+					"resourceTags": {
+						"value": "[parameters('resourceTags')]"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultBackupPoliciesDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultDeploymentName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
+				},
+				"parameters": {
+					"vaultName": {
+						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
+					},
+					"dailyBackupsRetention": {
+						"value": 90
+					},
+					"instantRpRetentionRangeInDays": {
+						"value": 5
+					},
+					"backupTime": {
+						"value": "02:00"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultProtectedItemsDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultBackupPoliciesDeploymentName'))]",
+				"[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
+				},
+				"parameters": {
+					"vaultName": {
+						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
+					},
+					"policyName": {
+						"value": "[reference(variables('recoveryServiceVaultBackupPoliciesDeploymentName')).outputs.policyName.value]"
+					},
+					"vmName": {
+						"value": "[variables('webServerVirtualMachineName')]"
+					},
+					"vmRGName": {
+						"value": "[resourceGroup().name]"
+					},
+					"vmSubID": {
+						"value": "[subscription().subscriptionId]"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers",
+			"apiVersion": "[variables('apiVersion')]",
+			"name": "[variables('databaseName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+			],
+			"location": "[parameters('location')]",
+			"tags": "[parameters('resourceTags')]",
+			"sku": {
+				"name": "[variables('databaseSkuName')]",
+				"tier": "[variables('databaseSkuTier')]"
+			},
+			"properties": {
+				"version": "[variables('databaseVersion')]",
+				"administratorLogin": "[parameters('databaseAdminUsername')]",
+				"administratorLoginPassword": "[parameters('databaseAdminPassword')]",
+				"Network": {
+					"DelegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseSubnetName'))]",
+					"PrivateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+				},
+				"Storage": {
+					"StorageSizeGB": "[parameters('databaseStorageGb')]",
+					"Iops": "[parameters('databaseIops')]",
+					"Autogrow": "[parameters('databaseIopsAutoGrow')]"
+				},
+				"Backup": {
+					"backupRetentionDays": "[parameters('databaseBackupRetentionDays')]",
+					"geoRedundantBackup": "[parameters('geoRedundantBackup')]"
+				},
+				"highAvailability": {
+					"mode": "[parameters('highAvailabilityMode')]",
+					"standbyAvailabilityZone": "[parameters('standbyAvailabilityZone')]"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('apiVersion')]",
+			"name": "[concat(variables('databaseName'), '/audit_log_enabled')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+			],
+			"properties": {
+				"value": "[parameters('configurationAuditLogEnabled')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('apiVersion')]",
+			"name": "[concat(variables('databaseName'), '/audit_log_events')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+			],
+			"properties": {
+				"value": "[parameters('configurationAuditLogEvents')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('apiVersion')]",
+			"name": "[concat(variables('databaseName'), '/character_set_server')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+			],
+			"properties": {
+				"value": "[parameters('configurationCharacterSetServer')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('apiVersion')]",
+			"name": "[concat(variables('databaseName'), '/collation_server')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+			],
+			"properties": {
+				"value": "[parameters('configurationCollationServer')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.Insights/diagnosticSettings",
+			"apiVersion": "2021-05-01-preview",
+			"name": "local-mysql-logging",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+			],
+			"scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
+			"properties": {
+				"logs": [
+					{
+						"category": "MySqlAuditLogs",
+						"enabled": true,
+						"retentionPolicy": {
+							"days": 0,
+							"enabled": false
+						}
+					}
+				],
+				"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+			}
+		},
+		{
+			"type": "Microsoft.Storage/storageAccounts",
+			"apiVersion": "2019-06-01",
+			"name": "[variables('diagnosticStorageAccountName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+			],
+			"sku": {
+				"name": "Standard_LRS",
+				"tier": "Standard"
+			},
+			"kind": "StorageV2",
+			"properties": {
+				"minimumTlsVersion": "TLS1_2",
+				"allowBlobPublicAccess": true,
+				// Storage Account firewall must be turned off for Guest Metrics to work as per the following reference:
+				// https://docs.microsoft.com/en-ca/azure/azure-monitor/platform/metrics-troubleshoot#cannot-pick-guest-os-namespace-and-metrics
+				"networkAcls": {
+					"bypass": "AzureServices",
+					"virtualNetworkRules": [
+						{
+							"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
+							"action": "Allow"
+						}
+					],
+					"ipRules": [
+						{
+							"value": "[parameters('corporateGatewayIpAddress')]",
+							"action": "allow"
+						}
+					],
+					"defaultAction": "Deny"
+				},
+				"supportsHttpsTrafficOnly": true,
+				"encryption": {
+					"services": {
+						"blob": {
+							"keyType": "Account",
+							"enabled": true
+						}
+					},
+					"keySource": "Microsoft.Storage"
+				},
+				"accessTier": "Hot"
+			}
+		},
 
-        {
-            "type": "Microsoft.Compute/disks",
-            "apiVersion": "2019-07-01",
-            "name": "[variables('webServerVirtualMachineDataDiskName')]",
-            "tags": "[parameters('resourceTags')]",
-            "location": "[parameters('location')]",
-            "sku": {
-                "name": "Premium_LRS",
-                "tier": "Premium"
-            },
-            "properties": {
-                "creationData": {
-                    "createOption": "Empty"
-                },
-                "diskSizeGB": "[parameters('dataDiskSizeGB')]",
-                "encryption": {
-                    "type": "EncryptionAtRestWithPlatformKey"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2020-05-01",
-            "name": "[variables('webServerVirtualMachineNetworkInterfaceCardName')]",
-            "tags": "[parameters('resourceTags')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-                "[resourceId('Microsoft.Network/applicationGateways', variables('gatewayName'))]"
-            ],
-            "location": "[parameters('location')]",
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]"
-                            },
-                            "primary": true,
-                            "privateIPAddressVersion": "IPv4",
-                            "applicationGatewayBackendAddressPools": [
-                                {
-                                    "id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "dnsSettings": {
-                    "dnsServers": []
-                },
-                "enableAcceleratedNetworking": true,
-                "enableIPForwarding": false
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2020-06-01",
-            "name": "[variables('webServerVirtualMachineName')]",
-            "tags": "[union(parameters('resourceTags'), parameters('virtualMachineTags'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('webServerVirtualMachineNetworkInterfaceCardName'))]"
-            ],
-            "location": "[parameters('location')]",
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[parameters('webServerVirtualMachineSize')]"
-                },
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "Canonical",
-                        "offer": "UbuntuServer",
-                        "sku": "18.04-LTS",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "osType": "Linux",
-                        "name": "[variables('webServerVirtualMachineOsDiskName')]",
-                        "createOption": "FromImage",
-                        "caching": "ReadWrite"
-                    },
-                    "dataDisks": [
-                        {
-                            "lun": 0,
-                            "name": "[variables('webServerVirtualMachineDataDiskName')]",
-                            "createOption": "Attach",
-                            "caching": "ReadOnly",
-                            "writeAcceleratorEnabled": false,
-                            "managedDisk": {
-                                "id": "[resourceId('Microsoft.Compute/disks', concat(variables('webServerVirtualMachineDataDiskName')))]"
-                            },
-                            "toBeDetached": false
-                        }
-                    ]
-                },
-                "osProfile": {
-                    "computerName": "[variables('webServerComputerName')]",
-                    "adminUsername": "[parameters('webServerAdminUsername')]",
-                    "adminPassword": "[parameters('webServerAdminPassword')]",
-                    "linuxConfiguration": {
-                        "disablePasswordAuthentication": false,
-                        "provisionVMAgent": true
-                    },
-                    "secrets": [],
-                    "allowExtensionOperations": true
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('webServerVirtualMachineNetworkInterfaceCardName'))]"
-                        }
-                    ]
-                },
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": true
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2020-06-01",
-            "name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Azure.Extensions",
-                "type": "CustomScript",
-                "typeHandlerVersion": "2.1",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "timestamp": "[parameters('deploymentTimestamp')]"
-                },
-                "protectedSettings": {
-                    "fileUris": [
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/apache2.sh')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/install_unattended_upgrade_tools')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/logger.sh')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/mysql.sh')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/os.sh')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/php.sh')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/upgrade_server')]",
-                        "[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/utils.sh')]",
-                        "[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
-                        "[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
-                    ],
-                    "commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_mount_point_path ', variables('webServerVirtualMachineDataDiskMountPoint'), ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseAdminPassword'), ' --db_server_admin_username ', parameters('databaseAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' --db_server_matomo_database ', variables('databaseApplicationDatabaseName'), ' --db_server_matomo_password ', parameters('databaseApplicationPassword'), ' --db_server_matomo_username ', parameters('databaseApplicationUsername'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_private_ip ', parameters('smtpServerPrivateIp'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
-                }
-            }
-        },
-        // Metrics collected by the Linux Diagnostic Extension and sent to an Azure Storage Account are kept for 14 days
-        // as per https://docs.microsoft.com/en-us/azure/azure-monitor/platform/data-platform-metrics#retention-of-metrics.
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2020-06-01",
-            "name": "[concat(variables('webServerVirtualMachineName'), '/', variables('webServerVirtualMachineLinuxDiagnosticExtensionName'))]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineSetUpExtensionName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Azure.Diagnostics",
-                "type": "LinuxDiagnostic",
-                "typeHandlerVersion": "3.0",
-                "autoUpgradeMinorVersion": true,
-                "protectedSettings": {
-                    "storageAccountName": "[variables('diagnosticStorageAccountName')]",
-                    "storageAccountSasToken": "[listAccountSas(variables('diagnosticStorageAccountName'), '2019-06-01', variables('diagnosticStorageAccountSasProperties')).accountSasToken]"
-                },
-                "settings": {
-                    "StorageAccount": "[variables('diagnosticStorageAccountName')]",
-                    "ladCfg": {
-                        "diagnosticMonitorConfiguration": {
-                            "eventVolume": "Medium",
-                            "metrics": {
-                                "metricAggregation": [
-                                    {
-                                        "scheduledTransferPeriod": "PT1M"
-                                    },
-                                    {
-                                        "scheduledTransferPeriod": "PT1H"
-                                    }
-                                ],
-                                "resourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
-                            },
-                            "performanceCounters": {
-                                "performanceCounterConfiguration": [
-                                    {
-                                        "class": "memory",
-                                        "annotation": [
-                                            {
-                                                "displayName": "Swap percent used",
-                                                "locale": "en-us"
-                                            }
-                                        ],
-                                        "counter": "percentusedswap",
-                                        "counterSpecifier": "/builtin/memory/percentusedswap",
-                                        "type": "builtin",
-                                        "unit": "Percent",
-                                        "sampleRate": "PT15S"
-                                    },
-                                    {
-                                        "class": "memory",
-                                        "annotation": [
-                                            {
-                                                "displayName": "Memory percentage",
-                                                "locale": "en-us"
-                                            }
-                                        ],
-                                        "counter": "percentusedmemory",
-                                        "counterSpecifier": "/builtin/memory/percentusedmemory",
-                                        "type": "builtin",
-                                        "unit": "Percent",
-                                        "sampleRate": "PT15S"
-                                    },
-                                    {
-                                        "class": "disk",
-                                        "annotation": [
-                                            {
-                                                "displayName": "Disk queue length",
-                                                "locale": "en-us"
-                                            }
-                                        ],
-                                        "condition": "IsAggregate=TRUE",
-                                        "counter": "averagediskqueuelength",
-                                        "counterSpecifier": "/builtin/disk/averagediskqueuelength",
-                                        "type": "builtin",
-                                        "unit": "Count",
-                                        "sampleRate": "PT15S"
-                                    },
-                                    {
-                                        "class": "filesystem",
-                                        "annotation": [
-                                            {
-                                                "displayName": "OS disk filesystem % used space",
-                                                "locale": "en-us"
-                                            }
-                                        ],
-                                        "condition": "Name=\"/\"",
-                                        "counter": "percentusedspace",
-                                        "counterSpecifier": "/builtin/filesystem/osusedspace",
-                                        "type": "builtin",
-                                        "unit": "percent",
-                                        "sampleRate": "PT15S"
-                                    },
-                                    {
-                                        "class": "filesystem",
-                                        "annotation": [
-                                            {
-                                                "displayName": "Data disk filesystem % used space",
-                                                "locale": "en-us"
-                                            }
-                                        ],
-                                        "condition": "[concat('Name=\"', variables('webServerVirtualMachineDataDiskMountPoint'), '\"')]",
-                                        "counter": "percentusedspace",
-                                        "counterSpecifier": "/builtin/filesystem/datausedspace",
-                                        "type": "builtin",
-                                        "unit": "percent",
-                                        "sampleRate": "PT15S"
-                                    }
-                                ]
-                            },
-                            "syslogEvents": {
-                                "syslogEventConfiguration": {
-                                    "LOG_AUTH": "LOG_DEBUG",
-                                    "LOG_AUTHPRIV": "LOG_DEBUG",
-                                    "LOG_CRON": "LOG_DEBUG",
-                                    "LOG_DAEMON": "LOG_DEBUG",
-                                    "LOG_FTP": "LOG_DEBUG",
-                                    "LOG_KERN": "LOG_DEBUG",
-                                    "LOG_LOCAL0": "LOG_DEBUG",
-                                    "LOG_LOCAL1": "LOG_DEBUG",
-                                    "LOG_LOCAL2": "LOG_DEBUG",
-                                    "LOG_LOCAL3": "LOG_DEBUG",
-                                    "LOG_LOCAL4": "LOG_DEBUG",
-                                    "LOG_LOCAL5": "LOG_DEBUG",
-                                    "LOG_LOCAL6": "LOG_DEBUG",
-                                    "LOG_LOCAL7": "LOG_DEBUG",
-                                    "LOG_LPR": "LOG_DEBUG",
-                                    "LOG_MAIL": "LOG_DEBUG",
-                                    "LOG_NEWS": "LOG_DEBUG",
-                                    "LOG_SYSLOG": "LOG_DEBUG",
-                                    "LOG_USER": "LOG_DEBUG",
-                                    "LOG_UUCP": "LOG_DEBUG"
-                                }
-                            }
-                        },
-                        "sampleRateInSeconds": 15
-                    }
-                }
-            }
-        }
-    ],
-    "outputs": {
-        "virtualNetworkName": {
-            "type": "string",
-            "value": "[variables('virtualNetworkName')]"
-        }
-    }
+		{
+			"type": "Microsoft.Compute/disks",
+			"apiVersion": "2019-07-01",
+			"name": "[variables('webServerVirtualMachineDataDiskName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('location')]",
+			"sku": {
+				"name": "Premium_LRS",
+				"tier": "Premium"
+			},
+			"properties": {
+				"creationData": {
+					"createOption": "Empty"
+				},
+				"diskSizeGB": "[parameters('dataDiskSizeGB')]",
+				"encryption": {
+					"type": "EncryptionAtRestWithPlatformKey"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkInterfaces",
+			"apiVersion": "2020-05-01",
+			"name": "[variables('webServerVirtualMachineNetworkInterfaceCardName')]",
+			"tags": "[parameters('resourceTags')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+				"[resourceId('Microsoft.Network/applicationGateways', variables('gatewayName'))]"
+			],
+			"location": "[parameters('location')]",
+			"properties": {
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]"
+							},
+							"primary": true,
+							"privateIPAddressVersion": "IPv4",
+							"applicationGatewayBackendAddressPools": [
+								{
+									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
+								}
+							]
+						}
+					}
+				],
+				"dnsSettings": {
+					"dnsServers": []
+				},
+				"enableAcceleratedNetworking": true,
+				"enableIPForwarding": false
+			}
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines",
+			"apiVersion": "2020-06-01",
+			"name": "[variables('webServerVirtualMachineName')]",
+			"tags": "[union(parameters('resourceTags'), parameters('virtualMachineTags'))]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]",
+				"[resourceId('Microsoft.Network/networkInterfaces', variables('webServerVirtualMachineNetworkInterfaceCardName'))]"
+			],
+			"location": "[parameters('location')]",
+			"properties": {
+				"hardwareProfile": {
+					"vmSize": "[parameters('webServerVirtualMachineSize')]"
+				},
+				"storageProfile": {
+					"imageReference": {
+						"publisher": "Canonical",
+						"offer": "UbuntuServer",
+						"sku": "18.04-LTS",
+						"version": "latest"
+					},
+					"osDisk": {
+						"osType": "Linux",
+						"name": "[variables('webServerVirtualMachineOsDiskName')]",
+						"createOption": "FromImage",
+						"caching": "ReadWrite"
+					},
+					"dataDisks": [
+						{
+							"lun": 0,
+							"name": "[variables('webServerVirtualMachineDataDiskName')]",
+							"createOption": "Attach",
+							"caching": "ReadOnly",
+							"writeAcceleratorEnabled": false,
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks', concat(variables('webServerVirtualMachineDataDiskName')))]"
+							},
+							"toBeDetached": false
+						}
+					]
+				},
+				"osProfile": {
+					"computerName": "[variables('webServerComputerName')]",
+					"adminUsername": "[parameters('webServerAdminUsername')]",
+					"adminPassword": "[parameters('webServerAdminPassword')]",
+					"linuxConfiguration": {
+						"disablePasswordAuthentication": false,
+						"provisionVMAgent": true
+					},
+					"secrets": [],
+					"allowExtensionOperations": true
+				},
+				"networkProfile": {
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('webServerVirtualMachineNetworkInterfaceCardName'))]"
+						}
+					]
+				},
+				"diagnosticsProfile": {
+					"bootDiagnostics": {
+						"enabled": true
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"apiVersion": "2020-06-01",
+			"name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+			],
+			"properties": {
+				"publisher": "Microsoft.Azure.Extensions",
+				"type": "CustomScript",
+				"typeHandlerVersion": "2.1",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"timestamp": "[parameters('deploymentTimestamp')]"
+				},
+				"protectedSettings": {
+					"fileUris": [
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/apache2.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/install_unattended_upgrade_tools')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/logger.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/mysql.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/os.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/php.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/upgrade_server')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/utils.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
+					],
+					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_mount_point_path ', variables('webServerVirtualMachineDataDiskMountPoint'), ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseAdminPassword'), ' --db_server_admin_username ', parameters('databaseAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' --db_server_matomo_database ', variables('databaseApplicationDatabaseName'), ' --db_server_matomo_password ', parameters('databaseApplicationPassword'), ' --db_server_matomo_username ', parameters('databaseApplicationUsername'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_private_ip ', parameters('smtpServerPrivateIp'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
+				}
+			}
+		},
+		// Metrics collected by the Linux Diagnostic Extension and sent to an Azure Storage Account are kept for 14 days
+		// as per https://docs.microsoft.com/en-us/azure/azure-monitor/platform/data-platform-metrics#retention-of-metrics.
+		{
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"apiVersion": "2020-06-01",
+			"name": "[concat(variables('webServerVirtualMachineName'), '/', variables('webServerVirtualMachineLinuxDiagnosticExtensionName'))]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]",
+				"[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineSetUpExtensionName'))]"
+			],
+			"properties": {
+				"publisher": "Microsoft.Azure.Diagnostics",
+				"type": "LinuxDiagnostic",
+				"typeHandlerVersion": "3.0",
+				"autoUpgradeMinorVersion": true,
+				"protectedSettings": {
+					"storageAccountName": "[variables('diagnosticStorageAccountName')]",
+					"storageAccountSasToken": "[listAccountSas(variables('diagnosticStorageAccountName'), '2019-06-01', variables('diagnosticStorageAccountSasProperties')).accountSasToken]"
+				},
+				"settings": {
+					"StorageAccount": "[variables('diagnosticStorageAccountName')]",
+					"ladCfg": {
+						"diagnosticMonitorConfiguration": {
+							"eventVolume": "Medium",
+							"metrics": {
+								"metricAggregation": [
+									{
+										"scheduledTransferPeriod": "PT1M"
+									},
+									{
+										"scheduledTransferPeriod": "PT1H"
+									}
+								],
+								"resourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
+							},
+							"performanceCounters": {
+								"performanceCounterConfiguration": [
+									{
+										"class": "memory",
+										"annotation": [
+											{
+												"displayName": "Swap percent used",
+												"locale": "en-us"
+											}
+										],
+										"counter": "percentusedswap",
+										"counterSpecifier": "/builtin/memory/percentusedswap",
+										"type": "builtin",
+										"unit": "Percent",
+										"sampleRate": "PT15S"
+									},
+									{
+										"class": "memory",
+										"annotation": [
+											{
+												"displayName": "Memory percentage",
+												"locale": "en-us"
+											}
+										],
+										"counter": "percentusedmemory",
+										"counterSpecifier": "/builtin/memory/percentusedmemory",
+										"type": "builtin",
+										"unit": "Percent",
+										"sampleRate": "PT15S"
+									},
+									{
+										"class": "disk",
+										"annotation": [
+											{
+												"displayName": "Disk queue length",
+												"locale": "en-us"
+											}
+										],
+										"condition": "IsAggregate=TRUE",
+										"counter": "averagediskqueuelength",
+										"counterSpecifier": "/builtin/disk/averagediskqueuelength",
+										"type": "builtin",
+										"unit": "Count",
+										"sampleRate": "PT15S"
+									},
+									{
+										"class": "filesystem",
+										"annotation": [
+											{
+												"displayName": "OS disk filesystem % used space",
+												"locale": "en-us"
+											}
+										],
+										"condition": "Name=\"/\"",
+										"counter": "percentusedspace",
+										"counterSpecifier": "/builtin/filesystem/osusedspace",
+										"type": "builtin",
+										"unit": "percent",
+										"sampleRate": "PT15S"
+									},
+									{
+										"class": "filesystem",
+										"annotation": [
+											{
+												"displayName": "Data disk filesystem % used space",
+												"locale": "en-us"
+											}
+										],
+										"condition": "[concat('Name=\"', variables('webServerVirtualMachineDataDiskMountPoint'), '\"')]",
+										"counter": "percentusedspace",
+										"counterSpecifier": "/builtin/filesystem/datausedspace",
+										"type": "builtin",
+										"unit": "percent",
+										"sampleRate": "PT15S"
+									}
+								]
+							},
+							"syslogEvents": {
+								"syslogEventConfiguration": {
+									"LOG_AUTH": "LOG_DEBUG",
+									"LOG_AUTHPRIV": "LOG_DEBUG",
+									"LOG_CRON": "LOG_DEBUG",
+									"LOG_DAEMON": "LOG_DEBUG",
+									"LOG_FTP": "LOG_DEBUG",
+									"LOG_KERN": "LOG_DEBUG",
+									"LOG_LOCAL0": "LOG_DEBUG",
+									"LOG_LOCAL1": "LOG_DEBUG",
+									"LOG_LOCAL2": "LOG_DEBUG",
+									"LOG_LOCAL3": "LOG_DEBUG",
+									"LOG_LOCAL4": "LOG_DEBUG",
+									"LOG_LOCAL5": "LOG_DEBUG",
+									"LOG_LOCAL6": "LOG_DEBUG",
+									"LOG_LOCAL7": "LOG_DEBUG",
+									"LOG_LPR": "LOG_DEBUG",
+									"LOG_MAIL": "LOG_DEBUG",
+									"LOG_NEWS": "LOG_DEBUG",
+									"LOG_SYSLOG": "LOG_DEBUG",
+									"LOG_USER": "LOG_DEBUG",
+									"LOG_UUCP": "LOG_DEBUG"
+								}
+							}
+						},
+						"sampleRateInSeconds": 15
+					}
+				}
+			}
+		}
+	],
+	"outputs": {
+		"virtualNetworkName": {
+			"type": "string",
+			"value": "[variables('virtualNetworkName')]"
+		}
+	}
 }
