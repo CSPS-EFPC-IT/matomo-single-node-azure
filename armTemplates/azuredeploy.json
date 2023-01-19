@@ -14,6 +14,45 @@
                 "description": "The base URL of the Azure Resource Manager template repository."
             }
         },
+        "configurationAuditLogEnabled": {
+            "type": "string",
+            "defaultValue": "On",
+            "allowedValues": [
+                "Off",
+                "On"
+            ],
+            "metadata": {
+                "description": "The value of the database server's parameter \"audit_log_enabled\"."
+            }
+        },
+        "configurationAuditLogEvents": {
+            "type": "string",
+            "defaultValue": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS",
+            "metadata": {
+                "description": "The value of the database server's parameter \"audit_log_events\"."
+            }
+        },
+        "configurationCharacterSetServer": {
+            "type": "string",
+            "defaultValue": "utf8mb4",
+            "metadata": {
+                "description": "The value of the database server's parameter \"character_set_server\"."
+            }
+        },
+        "configurationCollationServer": {
+            "type": "string",
+            "defaultValue": "utf8mb4_0900_ai_ci",
+            "metadata": {
+                "description": "The value of the database server's parameter \"collation_server\"."
+            }
+        },
+        "configurationWaitTimeout": {
+            "type": "int",
+            "defaultValue": 1800,
+            "metadata": {
+                "description": "The value of the database server's parameter \"wait_timeout\"."
+            }
+        },
         "corporateGatewayIpAddress": {
             "type": "string",
             "metadata": {
@@ -52,24 +91,37 @@
                 "description": "The database backup retention period in days."
             }
         },
-        "databaseCapacity": {
+        "databaseIops": {
             "type": "int",
-            "allowedValues": [2, 4, 8, 16, 32, 64],
+            "defaultValue": 1000,
+            "minValue": 360,
+            "maxValue": 3200,
             "metadata": {
-                "description": "The number of vCPUs allocated to the database."
+                "description": "The maximum IOPS allocated to the database."
             }
         },
-        "databaseStorageMb": {
-            "type": "int",
-            "minValue": 102400,
-            "maxValue": 16777216,
+        "databaseIopsAutoGrow": {
+            "type": "string",
+            "defaultValue": "Enabled",
+            "allowedValues": [
+                "Enabled",
+                "Disabled"
+            ],
             "metadata": {
-                "description": "The size of data storage allocated to the database in MB."
+                "description": "Whether or not the Database IOPS should autogrow."
             }
         },
-        "dataDiskSizeGB" : {
+        "databaseStorageGb": {
             "type": "int",
-            "allowedValues": [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767],
+            "minValue": 20,
+            "maxValue": 16384,
+            "metadata": {
+                "description": "The size of data storage allocated to the database in GB."
+            }
+        },
+        "dataDiskSizeGB": {
+            "type": "int",
+            "allowedValues": [ 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
             "metadata": {
                 "description": "The size of the Matomo Data Disk in giga bytes."
             }
@@ -77,12 +129,11 @@
         "deniedIpAddressList": {
             "type": "securestring",
             "defaultValue": "0.0.0.0/32", // An unusable IP address.
-            "metadata":
-            {
+            "metadata": {
                 "description": "A comma separated list of source IP addresses (in CIDR notation) that must NOT access to the solution."
             }
         },
-        "deploymentTimestamp" : {
+        "deploymentTimestamp": {
             "type": "int",
             "defaultValue": "[int(utcNow('ddHHmmss'))]",
             "metadata": {
@@ -117,6 +168,29 @@
             "type": "string",
             "metadata": {
                 "description": "The public base URL of the generic-shell-scripts repository's raw files."
+            }
+        },
+        "geoRedundantBackup": {
+            "type": "string",
+            "defaultValue": "Disabled",
+            "allowedValues": [
+                "Disabled",
+                "Enabled"
+            ],
+            "metadata": {
+                "description": "Whether or not geo redundant backup is enabled."
+            }
+        },
+        "highAvailabilityMode": {
+            "type": "string",
+            "defaultValue": "Disabled",
+            "allowedValues": [
+                "Disabled",
+                "SameZone",
+                "ZoneRedundant"
+            ],
+            "metadata": {
+                "description": "The high availability mode for the database server."
             }
         },
         "location": {
@@ -163,6 +237,13 @@
             "type": "securestring",
             "metadata": {
                 "description": "The private IP address of the email server to use."
+            }
+        },
+        "standbyAvailabilityZone": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The availability zone of the standby database server."
             }
         },
         "virtualMachineTags": {
@@ -235,6 +316,7 @@
         }
     ],
     "variables": {
+        "apiVersion": "2017-12-01",
         "applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
         "applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
         "applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
@@ -243,12 +325,18 @@
         "bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
         "bastionSubnetName": "AzureBastionSubnet",
         "databaseApplicationDatabaseName": "[tolower(custom.cleanName(parameters('databaseApplicationUsername')))]",
+        "databaseNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
+        "databaseSkuName": "Standard_D2ds_v4",
+        "databaseSkuTier": "GeneralPurpose",
+        "databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
+        "databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
         "databaseName": "[concat(variables('resourceNamePrefix'), '-DB')]",
+        "databaseVersion": "8.0.21",
         "diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
         "diagnosticStorageAccountSasProperties": {
             "signedServices": "bt",
             "signedPermission": "acluw",
-            "signedExpiry": "2100-01-01T00:00:00Z",  // Basically, forever.
+            "signedExpiry": "2100-01-01T00:00:00Z", // Basically, forever.
             "signedResourceTypes": "co"
         },
         "gatewayBackendAddressPoolName": "matomo-web-server",
@@ -271,6 +359,7 @@
         "gatewaySslCertificateHttpsName": "HTTPS-Certificate",
         "gatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
         "gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
+        "privateDnsZoneName": "[concat(variables('databaseName'), '.private.mysql.database.azure.com')]",
         "recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
         "recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
         "recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultProtectedItems'), 64)]",
@@ -286,7 +375,8 @@
         "webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
         "webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
         "webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
-        "webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]"
+        "webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
+        "virtualNetworkLinksName": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkName'))]"
     },
     "resources": [
         {
@@ -354,6 +444,26 @@
                             "privateEndpointNetworkPolicies": "Enabled",
                             "privateLinkServiceNetworkPolicies": "Enabled"
                         }
+                    },
+                    {
+                        "name": "[variables('databaseSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
+                            },
+                            "serviceEndpoints": [],
+                            "delegations": [
+                                {
+                                    "name": "Microsoft.DBforMySQL.flexibleServers",
+                                    "properties": {
+                                        "serviceName": "Microsoft.DBforMySQL/flexibleServers"
+                                    }
+                                }
+                            ],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
                     }
                 ],
                 "virtualNetworkPeerings": [],
@@ -361,7 +471,6 @@
                 "enableVmProtection": false
             }
         },
-
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
@@ -405,7 +514,6 @@
                 ]
             }
         },
-
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
@@ -414,7 +522,7 @@
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
-                     {
+                    {
                         "name": "Deny_CustomExclusion_Any_Any_Inbound",
                         "properties": {
                             "access": "Deny",
@@ -486,6 +594,37 @@
                         }
                     }
                 ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2018-09-01",
+            "name": "[variables('privateDnsZoneName')]",
+            "location": "global",
+            "properties": {
+                "maxNumberOfRecordSets": 25000,
+                "maxNumberOfVirtualNetworkLinks": 1000,
+                "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+                "numberOfRecordSets": 2,
+                "numberOfVirtualNetworkLinks": 1,
+                "numberOfVirtualNetworkLinksWithRegistration": 0,
+                "provisioningState": "Succeeded"
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2018-09-01",
+            "name": "[variables('virtualNetworkLinksName')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+                }
             }
         },
         {
@@ -727,7 +866,6 @@
                 }
             }
         },
-
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
@@ -792,7 +930,58 @@
                 ]
             }
         },
-
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2022-05-01",
+            "name": "[variables('databaseNetworkSecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]"
+            ],
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowCidrBlockMySQLInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3306",
+                            "sourceAddressPrefix": "[variables('applicationSubnetAddressPrefix')]",
+                            "destinationAddressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "DenyAnyCustomAnyInbound",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 4096,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
@@ -878,78 +1067,109 @@
                 }
             }
         },
-
         {
-            "type": "Microsoft.DBforMySQL/servers",
-            "apiVersion": "2017-12-01",
+            "type": "Microsoft.DBforMySQL/flexibleServers",
+            "apiVersion": "[variables('apiVersion')]",
             "name": "[variables('databaseName')]",
-            "tags": "[parameters('resourceTags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+                "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('virtualNetworkLinksName'))]"
+            ],
             "location": "[parameters('location')]",
+            "tags": "[parameters('resourceTags')]",
             "sku": {
-                "name": "[concat('GP_Gen5_', parameters('databaseCapacity'))]",
-                "tier": "GeneralPurpose",
-                "family": "Gen5",
-                "capacity": "[parameters('databaseCapacity')]"
+                "name": "[variables('databaseSkuName')]",
+                "tier": "[variables('databaseSkuTier')]"
             },
             "properties": {
-                "storageProfile": {
-                    "storageMB": "[parameters('databaseStorageMb')]",
-                    "backupRetentionDays": "[parameters('databaseBackupRetentionDays')]",
-                    "geoRedundantBackup": "Disabled",
-                    "storageAutogrow": "Enabled"
-                },
-                "version": "5.7",
-                "sslEnforcement": "Enabled",
-                "minimalTlsVersion": "TLS1_2",
-                "infrastructureEncryption": "Disabled",
-                "publicNetworkAccess": "Enabled",
-                "createMode": "Default",
+                "version": "[variables('databaseVersion')]",
                 "administratorLogin": "[parameters('databaseAdminUsername')]",
-                "administratorLoginPassword": "[parameters('databaseAdminPassword')]"
+                "administratorLoginPassword": "[parameters('databaseAdminPassword')]",
+                "Network": {
+                    "DelegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseSubnetName'))]",
+                    "PrivateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+                },
+                "Storage": {
+                    "StorageSizeGB": "[parameters('databaseStorageGb')]",
+                    "Iops": "[parameters('databaseIops')]",
+                    "Autogrow": "[parameters('databaseIopsAutoGrow')]"
+                },
+                "Backup": {
+                    "backupRetentionDays": "[parameters('databaseBackupRetentionDays')]",
+                    "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
+                },
+                "highAvailability": {
+                    "mode": "[parameters('highAvailabilityMode')]",
+                    "standbyAvailabilityZone": "[parameters('standbyAvailabilityZone')]"
+                }
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/servers/configurations",
-            "apiVersion": "2017-12-01",
+            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+            "apiVersion": "[variables('apiVersion')]",
+            "name": "[concat(variables('databaseName'), '/audit_log_enabled')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+            ],
+            "properties": {
+                "value": "[parameters('configurationAuditLogEnabled')]",
+                "source": "user-override"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+            "apiVersion": "[variables('apiVersion')]",
+            "name": "[concat(variables('databaseName'), '/audit_log_events')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+            ],
+            "properties": {
+                "value": "[parameters('configurationAuditLogEvents')]",
+                "source": "user-override"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+            "apiVersion": "[variables('apiVersion')]",
             "name": "[concat(variables('databaseName'), '/character_set_server')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
             ],
             "properties": {
-                "value": "utf8",
+                "value": "[parameters('configurationCharacterSetServer')]",
                 "source": "user-override"
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/servers/configurations",
-            "apiVersion": "2017-12-01",
+            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+            "apiVersion": "[variables('apiVersion')]",
             "name": "[concat(variables('databaseName'), '/collation_server')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
             ],
             "properties": {
-                "value": "utf8_general_ci",
+                "value": "[parameters('configurationCollationServer')]",
                 "source": "user-override"
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/servers/configurations",
-            "apiVersion": "2017-12-01",
+            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+            "apiVersion": "[variables('apiVersion')]",
             "name": "[concat(variables('databaseName'), '/wait_timeout')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
             ],
             "properties": {
-                "value": "1800",
+                "value": "[parameters('configurationWaitTimeout')]",
                 "source": "user-override"
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
+            "type": "Microsoft.DBforMySQL/flexibleServers/virtualNetworkRules",
             "apiVersion": "2017-12-01",
             "name": "[concat(variables('databaseName'), '/', variables('applicationSubnetName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]",
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
             ],
             "properties": {
@@ -1136,7 +1356,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-                "[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseName'), variables('applicationSubnetName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers/virtualNetworkRules', variables('databaseName'), variables('applicationSubnetName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Azure.Extensions",

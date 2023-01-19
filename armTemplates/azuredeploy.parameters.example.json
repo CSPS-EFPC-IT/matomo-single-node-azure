@@ -8,6 +8,21 @@
         "armTemplateRepoBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
         },
+        "configurationAuditLogEnabled": {
+            "value": "On"
+        },
+        "configurationAuditLogEvents": {
+            "value": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS"
+        },
+        "configurationCharacterSetServer": {
+            "value": "utf8mb4"
+        },
+        "configurationCollationServer": {
+            "value": "utf8mb4_0900_ai_ci"
+        },
+        "configurationWaitTimeout": {
+            "value": 1800
+        },
         "corporateGatewayIpAddress": {
             "value": "255.255.255.255"
         },
@@ -29,8 +44,14 @@
         "databaseCapacity": {
             "value": 2
         },
-        "databaseStorageMb": {
-            "value": 102400
+        "databaseIops": {
+            "value": 1000
+        },
+        "databaseIopsAutoGrow": {
+            "value": "Enabled"
+        },
+        "databaseStorageGb": {
+            "value": 256
         },
         "dataDiskSizeGB" : {
             "value": 50
@@ -51,6 +72,12 @@
         },
         "genericShellScriptsPublicRawFilesUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
+        },
+        "geoRedundantBackup": {
+            "value": "Disabled"
+        },
+        "highAvailabilityMode": {
+            "value": "Disabled"
         },
         "location": {
             "value": "Canada Central"
@@ -75,6 +102,9 @@
         },
         "smtpServerPrivateIp": {
             "value": "255.255.255.255"
+        },
+        "standbyAvailabilityZone": {
+            "value": "zone"
         },
         "virtualMachineTags": {
             "value": {
