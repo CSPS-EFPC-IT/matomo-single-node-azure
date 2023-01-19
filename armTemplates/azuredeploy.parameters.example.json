@@ -41,9 +41,6 @@
         "databaseBackupRetentionDays": {
             "value": 7
         },
-        "databaseCapacity": {
-            "value": 2
-        },
         "databaseIops": {
             "value": 1000
         },
