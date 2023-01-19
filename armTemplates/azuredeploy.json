@@ -411,7 +411,8 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
             ],
             "properties": {
                 "addressSpace": {
@@ -1097,7 +1098,7 @@
             "name": "[variables('databaseName')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
-                "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('virtualNetworkLinksName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseSubnetName'))]"
             ],
             "location": "[parameters('location')]",
             "tags": "[parameters('resourceTags')]",
