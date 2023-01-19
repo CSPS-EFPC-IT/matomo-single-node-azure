@@ -13,7 +13,7 @@ This project deploys the following Azure resources:
 
 And installs the following software (up to their latest available patch level for the linux distro) on the virtual machine:
 - Ubuntu 18.04
-- Mysql client 5.7
+- Mysql client 8.0
 - Apache 2.4
 - PHP-CLI 7.2
 - PHP 7.2 modules
