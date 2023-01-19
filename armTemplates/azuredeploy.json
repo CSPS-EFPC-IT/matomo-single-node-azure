@@ -248,6 +248,17 @@
 				"description": "The availability zone of the standby database server."
 			}
 		},
+		"storageAutoGrow": {
+			"type": "string",
+			"defaultValue": "Enabled",
+			"allowedValues": [
+				"Disabled",
+				"Enabled"
+			],
+			"metadata": {
+				"description": "Wheter or not the DB storage should autogrow."
+			}
+		},
 		"virtualMachineTags": {
 			"type": "object",
 			"defaultValue": {},
@@ -1114,7 +1125,8 @@
 				"Storage": {
 					"StorageSizeGB": "[parameters('databaseStorageGb')]",
 					"Iops": "[parameters('databaseIops')]",
-					"Autogrow": "[parameters('databaseIopsAutoGrow')]"
+					"autoIoScaling": "[parameters('databaseIopsAutoGrow')]",
+					"Autogrow": "[parameters('storageAutoGrow')]"
 				},
 				"Backup": {
 					"backupRetentionDays": "[parameters('databaseBackupRetentionDays')]",
