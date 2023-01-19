@@ -20,9 +20,6 @@
         "configurationCollationServer": {
             "value": "utf8mb4_0900_ai_ci"
         },
-        "configurationWaitTimeout": {
-            "value": 1800
-        },
         "corporateGatewayIpAddress": {
             "value": "255.255.255.255"
         },
@@ -51,7 +48,7 @@
             "value": 256
         },
         "dataDiskSizeGB" : {
-            "value": 50
+            "value": 64
         },
         "deniedIpAddressList" : {
             "value": "10.12.13.14/32,11.12.13.14/32"

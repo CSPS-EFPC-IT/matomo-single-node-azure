@@ -46,13 +46,6 @@
                 "description": "The value of the database server's parameter \"collation_server\"."
             }
         },
-        "configurationWaitTimeout": {
-            "type": "int",
-            "defaultValue": 1800,
-            "metadata": {
-                "description": "The value of the database server's parameter \"wait_timeout\"."
-            }
-        },
         "corporateGatewayIpAddress": {
             "type": "string",
             "metadata": {
@@ -191,6 +184,15 @@
             ],
             "metadata": {
                 "description": "The high availability mode for the database server."
+            }
+        },
+        "logAnalyticsWorkspaceRetentionDays": {
+            "type": "int",
+            "minValue": 30,
+            "maxValue": 730,
+            "defaultValue": 365,
+            "metadata": {
+                "description": "The log retention period in days of the Log Analytics Workspace resource."
             }
         },
         "location": {
@@ -359,6 +361,7 @@
         "gatewaySslCertificateHttpsName": "HTTPS-Certificate",
         "gatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
         "gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
+        "logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
         "privateDnsZoneName": "[concat(variables('databaseName'), '.private.mysql.database.azure.com')]",
         "recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
         "recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
@@ -379,6 +382,27 @@
         "virtualNetworkLinksName": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkName'))]"
     },
     "resources": [
+        {
+            "type": "microsoft.operationalinsights/workspaces",
+            "apiVersion": "2021-06-01",
+            "name": "[variables('logAnalyticsWorkspaceName')]",
+            "tags": "[parameters('resourceTags')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                },
+                "retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionDays')]",
+                "features": {
+                    "enableLogAccessUsingOnlyResourcePermissions": true
+                },
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-11-01",
@@ -1153,31 +1177,27 @@
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-            "apiVersion": "[variables('apiVersion')]",
-            "name": "[concat(variables('databaseName'), '/wait_timeout')]",
+            "type": "Microsoft.Insights/diagnosticSettings",
+            "apiVersion": "2021-05-01-preview",
+            "name": "local-mysql-logging",
             "dependsOn": [
                 "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
             ],
+            "scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
             "properties": {
-                "value": "[parameters('configurationWaitTimeout')]",
-                "source": "user-override"
+                "logs": [
+                    {
+                        "category": "MySqlAuditLogs",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "days": 0,
+                            "enabled": false
+                        }
+                    }
+                ],
+                "workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
             }
         },
-        {
-            "type": "Microsoft.DBforMySQL/flexibleServers/virtualNetworkRules",
-            "apiVersion": "2017-12-01",
-            "name": "[concat(variables('databaseName'), '/', variables('applicationSubnetName'))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-            ],
-            "properties": {
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
-                "ignoreMissingVnetServiceEndpoint": false
-            }
-        },
-
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
@@ -1356,7 +1376,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers/virtualNetworkRules', variables('databaseName'), variables('applicationSubnetName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Azure.Extensions",
