@@ -1091,7 +1091,7 @@
         },
         {
             "type": "Microsoft.DBforMySQL/flexibleServers",
-            "apiVersion": "[variables('apiVersion')]",
+            "apiVersion": "2021-12-01-preview",
             "name": "[variables('databaseName')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
