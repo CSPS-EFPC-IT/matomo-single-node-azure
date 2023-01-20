@@ -59,7 +59,7 @@
 			}
 		},
 		"databaseAdminUsername": {
-			"type": "string",
+			"type": "securestring",
 			"metadata": {
 				"description": "The username to use in order to manage the database server."
 			}
@@ -71,7 +71,7 @@
 			}
 		},
 		"databaseApplicationUsername": {
-			"type": "string",
+			"type": "securestring",
 			"metadata": {
 				"description": "The Matomo application database account username."
 			}
@@ -285,7 +285,7 @@
 			}
 		},
 		"webServerAdminUsername": {
-			"type": "string",
+			"type": "securestring",
 			"metadata": {
 				"description": "The Web server administrator's username."
 			}
@@ -464,12 +464,6 @@
 							},
 							"serviceEndpoints": [
 								{
-									"service": "Microsoft.Sql",
-									"locations": [
-										"[parameters('location')]"
-									]
-								},
-								{
 									"service": "Microsoft.Storage",
 									"locations": [
 										"[parameters('location')]"
@@ -637,15 +631,7 @@
 			"apiVersion": "2018-09-01",
 			"name": "[variables('privateDnsZoneName')]",
 			"location": "global",
-			"properties": {
-				"maxNumberOfRecordSets": 25000,
-				"maxNumberOfVirtualNetworkLinks": 1000,
-				"maxNumberOfVirtualNetworkLinksWithRegistration": 100,
-				"numberOfRecordSets": 2,
-				"numberOfVirtualNetworkLinks": 1,
-				"numberOfVirtualNetworkLinksWithRegistration": 0,
-				"provisioningState": "Succeeded"
-			}
+			"properties": {}
 		},
 		{
 			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
