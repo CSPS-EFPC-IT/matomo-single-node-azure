@@ -8,6 +8,18 @@
         "armTemplateRepoBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
         },
+        "configurationAuditLogEnabled": {
+            "value": "On"
+        },
+        "configurationAuditLogEvents": {
+            "value": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS"
+        },
+        "configurationCharacterSetServer": {
+            "value": "utf8mb4"
+        },
+        "configurationCollationServer": {
+            "value": "utf8mb4_0900_ai_ci"
+        },
         "corporateGatewayIpAddress": {
             "value": "255.255.255.255"
         },
@@ -26,14 +38,17 @@
         "databaseBackupRetentionDays": {
             "value": 7
         },
-        "databaseCapacity": {
-            "value": 2
+        "databaseIops": {
+            "value": 1000
         },
-        "databaseStorageMb": {
-            "value": 102400
+        "databaseIopsAutoGrow": {
+            "value": "Enabled"
+        },
+        "databaseStorageGb": {
+            "value": 256
         },
         "dataDiskSizeGB" : {
-            "value": 50
+            "value": 64
         },
         "deniedIpAddressList" : {
             "value": "10.12.13.14/32,11.12.13.14/32"
@@ -51,6 +66,12 @@
         },
         "genericShellScriptsPublicRawFilesUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
+        },
+        "geoRedundantBackup": {
+            "value": "Disabled"
+        },
+        "highAvailabilityMode": {
+            "value": "Disabled"
         },
         "location": {
             "value": "Canada Central"
@@ -76,6 +97,9 @@
         "smtpServerPrivateIp": {
             "value": "255.255.255.255"
         },
+        "standbyAvailabilityZone": {
+            "value": "zone"
+        },
         "virtualMachineTags": {
             "value": {
                 "tag1": "value1",
@@ -95,7 +119,7 @@
             "value": "myWebServerAdminUsername"
         },
         "webServerBackendMaxExecutionTime": {
-            "value": "60"
+            "value": 60
         },
         "webServerRebootUtcTime": {
             "value": "05:00"

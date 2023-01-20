@@ -193,7 +193,7 @@ function main() {
   logger::title "Setup MySQL Database"
 
   mysql::create_user_options_file \
-    "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
+    "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
     "3306" \
