@@ -380,6 +380,7 @@
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
 		"storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
 		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
+		"virtualNetworkLinksName": "[variables('virtualNetworkName')]",
 		"virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
 		"webServerComputerName": "webserver",
 		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
@@ -389,8 +390,7 @@
 		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
-		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
-		"virtualNetworkLinksName": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkName'))]"
+		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]"
 	},
 	"resources": [
 		{
@@ -636,7 +636,7 @@
 		{
 			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
 			"apiVersion": "2018-09-01",
-			"name": "[variables('virtualNetworkLinksName')]",
+			"name": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkLinksName'))]",
 			"location": "global",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
