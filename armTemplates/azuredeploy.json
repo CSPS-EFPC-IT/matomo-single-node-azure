@@ -1091,7 +1091,7 @@
 			"apiVersion": "[variables('apiVersion')]",
 			"name": "[variables('databaseName')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+				"[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), variables('virtualNetworkLinksName'))]",
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
 			],
 			"location": "[parameters('location')]",
