@@ -70,14 +70,14 @@
         "highAvailabilityMode": {
             "value": "Disabled"
         },
-        "location": {
-            "value": "Canada Central"
-        },
         "projectPublicRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
         },
         "projectShortName": {
             "value": "myProShoName"
+        },
+        "resourceLocation": {
+            "value": "Canada Central"
         },
         "resourceTags": {
             "value": {

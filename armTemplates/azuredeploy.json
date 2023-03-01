@@ -180,13 +180,6 @@
 				"description": "The high availability mode for the database server."
 			}
 		},
-		"location": {
-			"type": "string",
-			"defaultValue": "[resourceGroup().location]",
-			"metadata": {
-				"description": "The name of the Azure Location where resources will be created."
-			}
-		},
 		"logAnalyticsWorkspaceRetentionDays": {
 			"type": "int",
 			"minValue": 30,
@@ -208,6 +201,13 @@
 			"maxLength": 13,
 			"metadata": {
 				"description": "The short name of the project. This string will be used to name all resources required. It must only contain letters (a-z,A-Z), hyphens (-) and underscore (_) characters, and must not exceed 13 characters in lenght."
+			}
+		},
+		"resourceLocation": {
+			"type": "string",
+			"defaultValue": "[resourceGroup().location]",
+			"metadata": {
+				"description": "The name of the Azure location where resources will be created."
 			}
 		},
 		"resourceTags": {
@@ -410,7 +410,7 @@
 			"apiVersion": "2021-06-01",
 			"name": "[variables('logAnalyticsWorkspaceName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"properties": {
 				"sku": {
 					"name": "pergb2018"
@@ -431,7 +431,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('virtualNetworkName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]",
 				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]",
@@ -478,7 +478,7 @@
 								{
 									"service": "Microsoft.Storage",
 									"locations": [
-										"[parameters('location')]"
+										"[parameters('resourceLocation')]"
 									]
 								}
 							],
@@ -518,7 +518,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('bastionPublicIpName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"sku": {
 				"name": "Standard"
 			},
@@ -534,7 +534,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('bastionName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpName'))]",
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
@@ -561,7 +561,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('gatewayNetworkSecurityGroupName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"properties": {
 				"securityRules": [
 					{
@@ -666,7 +666,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('gatewayPublicIpName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"sku": {
 				"name": "Standard"
 			},
@@ -685,7 +685,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('gatewayName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
 				"[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
@@ -905,7 +905,7 @@
 			"apiVersion": "2019-11-01",
 			"name": "[variables('applicationNetworkSecurityGroupName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"properties": {
 				"securityRules": [
 					{
@@ -968,7 +968,7 @@
 			"type": "Microsoft.Network/networkSecurityGroups",
 			"apiVersion": "2022-05-01",
 			"name": "[variables('databaseNetworkSecurityGroupName')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [],
 			"properties": {
 				"securityRules": [
@@ -1106,7 +1106,7 @@
 				"[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), variables('virtualNetworkLinksName'))]",
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
 			],
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"tags": "[parameters('resourceTags')]",
 			"sku": {
 				"name": "[variables('databaseSkuName')]",
@@ -1211,7 +1211,7 @@
 			"apiVersion": "2019-06-01",
 			"name": "[variables('diagnosticStorageAccountName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
 			],
@@ -1255,7 +1255,7 @@
 			"apiVersion": "2019-07-01",
 			"name": "[variables('webServerVirtualMachineDataDiskName')]",
 			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"sku": {
 				"name": "Premium_LRS",
 				"tier": "Premium"
@@ -1279,7 +1279,7 @@
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
 				"[resourceId('Microsoft.Network/applicationGateways', variables('gatewayName'))]"
 			],
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"properties": {
 				"ipConfigurations": [
 					{
@@ -1315,7 +1315,7 @@
 				"[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]",
 				"[resourceId('Microsoft.Network/networkInterfaces', variables('webServerVirtualMachineNetworkInterfaceCardName'))]"
 			],
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"properties": {
 				"hardwareProfile": {
 					"vmSize": "[parameters('webServerVirtualMachineSize')]"
@@ -1376,7 +1376,7 @@
 			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"apiVersion": "2020-06-01",
 			"name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
 				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
@@ -1412,7 +1412,7 @@
 			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"apiVersion": "2020-06-01",
 			"name": "[concat(variables('webServerVirtualMachineName'), '/', variables('webServerVirtualMachineLinuxDiagnosticExtensionName'))]",
-			"location": "[parameters('location')]",
+			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]",
 				"[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineSetUpExtensionName'))]"
