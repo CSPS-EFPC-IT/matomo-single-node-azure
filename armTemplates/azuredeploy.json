@@ -399,7 +399,7 @@
                 "count": "[length(variables('storageAccountAllowedIpAddressArray'))]",
                 "input": {
                     "action": "Allow",
-					"value": "[variables('storageAccountAllowedIpAddressArray')[copyIndex('storageAccountIpRuleArray')]]"
+					"value": "[variables('storageAccountAllowedIpAddressArray')[copyIndex('storageAccountAllowedIpRuleArray')]]"
 				}
             }
 		]
