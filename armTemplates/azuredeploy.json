@@ -394,16 +394,16 @@
 		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
 		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
 		"copy": [
-            {
-                "name": "storageAccountAllowedIpRuleArray",
-                "count": "[length(variables('storageAccountAllowedIpAddressArray'))]",
-                "input": {
-                    "action": "Allow",
-                    "value": "[variables('storageAccountAllowedIpAddressArray')[copyIndex('storageAccountAllowedIpRuleArray')]]"
-                }
-            }
-        ]
-    },
+			{
+				"name": "storageAccountAllowedIpRuleArray",
+				"count": "[length(variables('storageAccountAllowedIpAddressArray'))]",
+				"input": {
+					"action": "Allow",
+					"value": "[variables('storageAccountAllowedIpAddressArray')[copyIndex('storageAccountAllowedIpRuleArray')]]"
+				}
+			}
+		]
+	},
 	"resources": [
 		{
 			"type": "microsoft.operationalinsights/workspaces",
