@@ -20,9 +20,6 @@
         "configurationCollationServer": {
             "value": "utf8mb4_0900_ai_ci"
         },
-        "corporateGatewayIpAddress": {
-            "value": "255.255.255.255"
-        },
         "databaseAdminPassword": {
             "value": "mySecret"
         },
@@ -99,6 +96,9 @@
         },
         "standbyAvailabilityZone": {
             "value": "zone"
+        },
+        "storageAccountAllowedIpAddressList": {
+            "value": "255.255.255.255,10.10.10.0/24"
         },
         "virtualMachineTags": {
             "value": {

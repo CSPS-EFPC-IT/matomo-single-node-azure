@@ -46,12 +46,6 @@
 				"description": "The value of the database server's parameter \"collation_server\"."
 			}
 		},
-		"corporateGatewayIpAddress": {
-			"type": "string",
-			"metadata": {
-				"description": "The Outbound IP address of the corporate network gateway."
-			}
-		},
 		"databaseAdminPassword": {
 			"type": "securestring",
 			"metadata": {
@@ -186,6 +180,13 @@
 				"description": "The high availability mode for the database server."
 			}
 		},
+		"location": {
+			"type": "string",
+			"defaultValue": "[resourceGroup().location]",
+			"metadata": {
+				"description": "The name of the Azure Location where resources will be created."
+			}
+		},
 		"logAnalyticsWorkspaceRetentionDays": {
 			"type": "int",
 			"minValue": 30,
@@ -193,13 +194,6 @@
 			"defaultValue": 365,
 			"metadata": {
 				"description": "The log retention period in days of the Log Analytics Workspace resource."
-			}
-		},
-		"location": {
-			"type": "string",
-			"defaultValue": "[resourceGroup().location]",
-			"metadata": {
-				"description": "The name of the Azure Location where resources will be created."
 			}
 		},
 		"projectPublicRawFilesBaseUrl": {
@@ -246,6 +240,13 @@
 			"defaultValue": "",
 			"metadata": {
 				"description": "The availability zone of the standby database server."
+			}
+		},
+		"storageAccountAllowedIpAddressList": {
+			"type": "securestring",
+			"defaultValue": "",
+			"metadata": {
+				"description": "Optional - A comma separated list of IP addresses (CIDR notation) ALLOWED to access the storage account. Some restrictions apply. See https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#grant-access-from-an-internet-ip-range for details."
 			}
 		},
 		"storageAutoGrow": {
@@ -338,12 +339,12 @@
 		"bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
 		"bastionSubnetName": "AzureBastionSubnet",
 		"databaseApplicationDatabaseName": "[tolower(custom.cleanName(parameters('databaseApplicationUsername')))]",
+		"databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
 		"databaseNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
 		"databaseSkuName": "Standard_D2ds_v4",
 		"databaseSkuTier": "GeneralPurpose",
 		"databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
 		"databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
-		"databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
 		"databaseVersion": "8.0.21",
 		"diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
 		"diagnosticStorageAccountSasProperties": {
@@ -378,6 +379,7 @@
 		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
 		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultProtectedItems'), 64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
+		"storageAccountAllowedIpAddressArray": "[if(empty(parameters('storageAccountAllowedIpAddressList')), createArray(), split(parameters('storageAccountAllowedIpAddressList'), ','))]",
 		"storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
 		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
 		"virtualNetworkLinksName": "[variables('virtualNetworkName')]",
@@ -385,12 +387,22 @@
 		"webServerComputerName": "webserver",
 		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
 		"webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
 		"webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
 		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
-		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]"
+		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
+		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
+		"copy": [
+			{
+				"name": "storageAccountAllowedIpRuleArray",
+				"count": "[length(variables('storageAccountAllowedIpAddressArray'))]",
+				"input": {
+					"action": "Allow",
+					"value": "[variables('storageAccountAllowedIpAddressArray')[copyIndex('storageAccountAllowedIpRuleArray')]]"
+				}
+			}
+		]
 	},
 	"resources": [
 		{
@@ -1221,12 +1233,7 @@
 							"action": "Allow"
 						}
 					],
-					"ipRules": [
-						{
-							"value": "[parameters('corporateGatewayIpAddress')]",
-							"action": "allow"
-						}
-					],
+					"ipRules": "[variables('storageAccountAllowedIpRuleArray')]",
 					"defaultAction": "Deny"
 				},
 				"supportsHttpsTrafficOnly": true,
