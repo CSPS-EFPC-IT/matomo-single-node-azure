@@ -73,7 +73,6 @@ function main() {
     echo "Input parameter value: ${key} = \"${parameters[${key}]}\"."
   done
 
-
   echo "Installing az cli extensions..."
   az extension add \
     --name bastion \
