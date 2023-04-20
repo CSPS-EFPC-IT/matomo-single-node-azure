@@ -8,7 +8,8 @@
 # Globals:
 #   None.
 # Arguments:
-#   The Resource Group name containing the resources, a string.
+#   The resource group name containing the resources to delete, a string.
+#   A resource name search token used to match the name of the resources to delete, a string.
 # Outputs:
 #   Writes error messages to stderr.
 #   Writes trace messages to stdout.
