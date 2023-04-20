@@ -6,7 +6,7 @@
 # Resource Group. This is typically run against non-production resource groups
 # to save on infrastructure costs when an environment is no longer needed.
 # Globals:
-#   LIBRARY_PATH - location of the sourced libraries.
+#   None.
 # Arguments:
 #   The Resource Group name containing the resources, a string.
 # Outputs:
