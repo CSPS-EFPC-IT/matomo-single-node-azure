@@ -1,61 +1,63 @@
 {
   "tasks": [
-    {
-      "environment": {},
-      "displayName": "Azure CLI ",
-      "alwaysRun": false,
-      "continueOnError": false,
-      "condition": "succeeded()",
-      "enabled": true,
-      "timeoutInMinutes": 0,
-      "inputs": {
-        "connectedServiceNameARM": "$(serviceConnectionName)",
-        "scriptType": "bash",
-        "scriptLocation": "inlineScript",
-        "scriptPath": "",
-        "inlineScript": "echo \"Deleting all resources except the KeyVault, the User Assigned Managed Identity and the Application Gateway Public IP.\"\n\nvmIds=$(az vm list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$vmIds\" ]; then\n   echo \"Deleting Virtual Machine...\"\n   az vm delete --yes --ids $vmIds\nelse\n   echo\"No Virtual Machine Found.\"\nfi\n\ndiskIds=$(az disk  list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$diskIds\" ]; then\n   echo \"Deleting Disks...\"\n   az disk delete --yes --ids $diskIds\nelse\n   echo \"No Disk Found.\"\nfi\n\nnetworkInterfaceCardIds=$(az network nic list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$networkInterfaceCardIds\" ]; then\n   echo \"Deleting Network Interface Card...\"\n   az network nic delete --ids $networkInterfaceCardIds\nelse\n   echo \"No Network Interface Card Found.\"\nfi\n\nstorageAccountIds=$(az storage account list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$storageAccountIds\" ]; then\n   echo \"Deleting Storage Account...\" \n   az storage account delete --yes --ids $storageAccountIds\nelse\n   echo \"No Storage Account found.\"\nfi\n\nmysqlServerIds=$(az mysql server list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$mysqlServerIds\" ]; then\n   echo \"Deleting MySQL Server...\"\n   az mysql server delete --yes --ids $mysqlServerIds\nelse\n   echo \"No MySQL Server Found.\"\nfi\n\nbastionName=$(az network bastion list --subscription $(subscriptionId) --resource-group $(resourceGroupName) --query \"[].name\" --output tsv)\nif [ ! -z \"$bastionName\" ]; then\n   echo \"Deleting Bastion...\"\n   az network bastion delete --subscription $(subscriptionId) --resource-group $(resourceGroupName)  --name $bastionName\nelse\n   echo \"No Bastion Found.\"\nfi\n\napplicationGatewayIds=$(az network application-gateway list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$applicationGatewayIds\" ]; then\n   echo \"Deleting Application Gateway...\"\n   az network application-gateway delete --ids $applicationGatewayIds\nelse\n   echo \"No Application Gateway Found.\"\nfi\n\nvirtualNetworkIds=$(az network vnet list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$virtualNetworkIds\" ]; then\n   echo \"Deleting Virtual Network...\"\n   az network vnet delete --ids $virtualNetworkIds\nelse\n   echo \"No Virtual Network found.\"\nfi\n\nnetworkSecurityGroupIds=$(az network nsg list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$networkSecurityGroupIds\" ]; then\n   echo \"Deleting Network Security Group...\"\n   az network nsg delete --ids $networkSecurityGroupIds\nelse\n   echo \"No Network Security Group Found.\"\nfi\n\npublicIpIds=$(az network public-ip list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[?contains(name,'-BH-')].id\" --output tsv)\nif [ ! -z \"$publicIpIds\" ]; then\n   echo \"Deleting Public IP...\"\n   az network public-ip delete --ids $publicIpIds\nelse\n   echo \"No Public Ip Found.\"\nfi\n\nrecoveryServiceVaultIds=$(az backup vault list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$recoveryServiceVaultIds\" ]; then\n   echo \"Disabling Recovery Service Vault Soft Delete feature...\"\n   az backup vault backup-properties set --soft-delete-feature-state Disable --ids $recoveryServiceVaultIds\n\n   echo \"Deleting backup item...\"\n   recoveryServiceVaultName=$(az backup vault list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].name\" --output tsv)\n   containerName=$(az backup container list --backup-management-type AzureIaasVM --resource-group $(resourceGroupName) --vault-name $recoveryServiceVaultName --query \"[].name\" --output tsv)\n   itemName=$(az backup container list --backup-management-typ AzureIaasVM --resource-group $(resourceGroupName) --vault-name $recoveryServiceVaultName --query \"[].properties.friendlyName\" --output tsv)\n   az backup protection disable --yes --container-name $containerName --item-name $itemName --delete-backup-data true --ids $recoveryServiceVaultIds\n\n   echo \"Deleting Recovery Service Vault...\"\n   az backup vault delete --force --yes --ids $recoveryServiceVaultIds\nelse\n   echo \"No Recovery Service Vault Found.\"\nfi",
-        "scriptArguments": "",
-        "powerShellErrorActionPreference": "stop",
-        "addSpnToEnvironment": "false",
-        "useGlobalConfig": "false",
-        "cwd": "",
-        "failOnStandardError": "false",
-        "powerShellIgnoreLASTEXITCODE": "false"
-      },
-      "task": {
-        "id": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
-        "versionSpec": "2.*",
-        "definitionType": "task"
+      {
+          "environment": {},
+          "displayName": "Azure CLI - matomo-single-node-azure/scripts/tear_down_environment.sh",
+          "alwaysRun": false,
+          "continueOnError": false,
+          "condition": "succeeded()",
+          "enabled": true,
+          "timeoutInMinutes": 0,
+          "retryCountOnTaskFailure": 0,
+          "inputs": {
+              "connectedServiceNameARM": "$(serviceConnectionName)",
+              "scriptType": "bash",
+              "scriptLocation": "scriptPath",
+              "scriptPath": "matomo-single-node-azure/scripts/tear_down_environment.sh",
+              "inlineScript": "echo \"Deleting all resources except the KeyVault, the User Assigned Managed Identity and the Application Gateway Public IP.\"\n\necho \"Installing az cli extensions...\"\naz extension add \\\n  --name bastion \\\n  --only-show-errors \\\n  --upgrade\n\nvmIds=$(az vm list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$vmIds\" ]; then\n   echo \"Deleting Virtual Machine...\"\n   az vm delete --yes --ids $vmIds\nelse\n   echo \"No Virtual Machine Found.\"\nfi\n\ndiskIds=$(az disk  list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$diskIds\" ]; then\n   echo \"Deleting Disks...\"\n   az disk delete --yes --ids $diskIds\nelse\n   echo \"No Disk Found.\"\nfi\n\nnetworkInterfaceCardIds=$(az network nic list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$networkInterfaceCardIds\" ]; then\n   echo \"Deleting Network Interface Card...\"\n   az network nic delete --ids $networkInterfaceCardIds\nelse\n   echo \"No Network Interface Card Found.\"\nfi\n\nstorageAccountIds=$(az storage account list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$storageAccountIds\" ]; then\n   echo \"Deleting Storage Account...\" \n   az storage account delete --yes --ids $storageAccountIds\nelse\n   echo \"No Storage Account found.\"\nfi\n\nmysqlServerIds=$(az mysql server list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$mysqlServerIds\" ]; then\n   echo \"Deleting MySQL Server...\"\n   az mysql server delete --yes --ids $mysqlServerIds\nelse\n   echo \"No MySQL Server Found.\"\nfi\n\nbastionName=$(az network bastion list --subscription $(subscriptionId) --resource-group $(resourceGroupName) --query \"[].name\" --output tsv)\nif [ ! -z \"$bastionName\" ]; then\n   echo \"Deleting Bastion...\"\n   az network bastion delete --subscription $(subscriptionId) --resource-group $(resourceGroupName)  --name $bastionName\nelse\n   echo \"No Bastion Found.\"\nfi\n\napplicationGatewayIds=$(az network application-gateway list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$applicationGatewayIds\" ]; then\n   echo \"Deleting Application Gateway...\"\n   az network application-gateway delete --ids $applicationGatewayIds\nelse\n   echo \"No Application Gateway Found.\"\nfi\n\nvirtualNetworkIds=$(az network vnet list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$virtualNetworkIds\" ]; then\n   echo \"Deleting Virtual Network...\"\n   az network vnet delete --ids $virtualNetworkIds\nelse\n   echo \"No Virtual Network found.\"\nfi\n\nnetworkSecurityGroupIds=$(az network nsg list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"$networkSecurityGroupIds\" ]; then\n   echo \"Deleting Network Security Group...\"\n   az network nsg delete --ids $networkSecurityGroupIds\nelse\n   echo \"No Network Security Group Found.\"\nfi\n\npublicIpIds=$(az network public-ip list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[?contains(name,'-BH-')].id\" --output tsv)\nif [ ! -z \"$publicIpIds\" ]; then\n   echo \"Deleting Public IP...\"\n   az network public-ip delete --ids $publicIpIds\nelse\n   echo \"No Public Ip Found.\"\nfi\n\nrecoveryServiceVaultIds=$(az backup vault list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].id\" --output tsv)\nif [ ! -z \"${recoveryServiceVaultIds}\" ]; then\n   echo \"Disabling Recovery Service Vault Soft Delete feature...\"\n   az backup vault backup-properties set --soft-delete-feature-state Disable --ids ${recoveryServiceVaultIds}\n\n   echo \"Deleting backup item...\"\n   recoveryServiceVaultName=$(az backup vault list --resource-group $(resourceGroupName) --subscription $(subscriptionId) --query \"[].name\" --output tsv)\n   backupItemIds=$(az backup item list --resource-group \"$(resourceGroupName)\" --vault-name \"${recoveryServiceVaultName}\" --query \"[].id\" --output tsv;)\n   az backup protection disable --delete-backup-data true --ids ${backupItemIds} --yes ;   \n\n   echo \"Deleting Recovery Service Vault...\"\n   az backup vault delete --force --yes --ids ${recoveryServiceVaultIds}\nelse\n   echo \"No Recovery Service Vault Found.\"\nfi",
+              "scriptArguments": "--resource-group-name \"$(resourceGroupName)\" --resource-name-search-token \"nalytics\"",
+              "powerShellErrorActionPreference": "stop",
+              "addSpnToEnvironment": "false",
+              "useGlobalConfig": "false",
+              "cwd": "",
+              "failOnStandardError": "true",
+              "powerShellIgnoreLASTEXITCODE": "false"
+          },
+          "task": {
+              "id": "46e4be58-730b-4389-8a2f-ea10b3e5e815",
+              "versionSpec": "2.*",
+              "definitionType": "task"
+          }
       }
-    }
   ],
   "runsOn": [
-    "Agent",
-    "DeploymentGroup"
+      "Agent",
+      "DeploymentGroup"
   ],
-  "revision": 1,
+  "revision": 7,
   "createdBy": {
-    "displayName": "Patrick Messier",
-    "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
-    "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
+      "displayName": "Patrick Messier",
+      "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
+      "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
   },
   "createdOn": "2020-11-06T19:08:40.877Z",
   "modifiedBy": {
-    "displayName": "Patrick Messier",
-    "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
-    "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
+      "displayName": "Patrick Messier",
+      "id": "9d7984b5-5f92-6bd6-bfea-23da0d70f9a6",
+      "uniqueName": "Patrick.Messier@csps-efpc.gc.ca"
   },
-  "modifiedOn": "2020-11-06T19:08:40.877Z",
+  "modifiedOn": "2023-04-20T17:32:37.183Z",
+  "comment": "Fix script parameter name",
   "id": "024b779c-7c13-48e1-ab75-bc8e052ead45",
-  "name": "Tear Down Matomo Single Node - New",
+  "name": "Tear Down Matomo Single Node",
   "version": {
-    "major": 1,
-    "minor": 0,
-    "patch": 0,
-    "isTest": false
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "isTest": false
   },
   "iconUrl": "https://cdn.vsassets.io/v/M176_20201022.3/_content/icon-meta-task.png",
-  "friendlyName": "Tear Down Matomo Single Node - New",
+  "friendlyName": "Tear Down Matomo Single Node",
   "description": "",
   "category": "Deploy",
   "definitionType": "metaTask",
@@ -63,50 +65,39 @@
   "demands": [],
   "groups": [],
   "inputs": [
-    {
-      "aliases": [],
-      "options": {},
-      "properties": {},
-      "name": "resourceGroupName",
-      "label": "resourceGroupName",
-      "defaultValue": "$(resourceGroupName)",
-      "required": true,
-      "type": "string",
-      "helpMarkDown": "",
-      "groupName": ""
-    },
-    {
-      "aliases": [],
-      "options": {},
-      "properties": {
-        "EndpointFilterRule": ""
+      {
+          "aliases": [],
+          "options": {},
+          "properties": {},
+          "name": "resourceGroupName",
+          "label": "resourceGroupName",
+          "defaultValue": "",
+          "required": true,
+          "type": "string",
+          "helpMarkDown": "",
+          "groupName": ""
       },
-      "name": "serviceConnectionName",
-      "label": "serviceConnectionName",
-      "defaultValue": "$(serviceConnectionName)",
-      "required": true,
-      "type": "connectedService:AzureRM",
-      "helpMarkDown": "Select an Azure Resource Manager service connection for the deployment",
-      "groupName": ""
-    },
-    {
-      "aliases": [],
-      "options": {},
-      "properties": {},
-      "name": "subscriptionId",
-      "label": "subscriptionId",
-      "defaultValue": "$(subscriptionId)",
-      "required": true,
-      "type": "string",
-      "helpMarkDown": "",
-      "groupName": ""
-    }
+      {
+          "aliases": [],
+          "options": {},
+          "properties": {
+              "EndpointFilterRule": ""
+          },
+          "name": "serviceConnectionName",
+          "label": "serviceConnectionName",
+          "defaultValue": "$(serviceConnectionName)",
+          "required": true,
+          "type": "connectedService:AzureRM",
+          "helpMarkDown": "Select an Azure Resource Manager service connection for the deployment",
+          "groupName": ""
+      }
   ],
   "satisfies": [],
   "sourceDefinitions": [],
   "dataSourceBindings": [],
-  "instanceNameFormat": "Task group: Tear Down Matomo Single Node - New",
+  "instanceNameFormat": "Task group: Tear Down Matomo Single Node $(resourceGroupName)",
   "preJobExecution": {},
   "execution": {},
-  "postJobExecution": {}
+  "postJobExecution": {},
+  "_buildConfigMapping": {}
 }
