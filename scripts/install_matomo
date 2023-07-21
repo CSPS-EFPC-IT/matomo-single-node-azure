@@ -178,7 +178,7 @@ function main() {
   # Values required to run report on 12 months of data.
   php::update_config_file \
     "memory_limit" \
-    "2048M" \
+    "4096M" \
     "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file \
     "max_execution_time" \
