@@ -12,7 +12,7 @@ This project deploys the following Azure resources:
 - Bastion and its Public IP
 
 And installs the following software (up to their latest available patch level for the linux distro) on the virtual machine:
-- Ubuntu 20.04
+- Ubuntu 18.04
 - Mysql client 5.7
 - Apache 2.4
 - PHP-CLI 7.2
