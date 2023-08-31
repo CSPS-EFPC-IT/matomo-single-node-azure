@@ -392,7 +392,6 @@
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
 		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
-		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
 		"copy": [
 			{
 				"name": "storageAccountAllowedIpRuleArray",
