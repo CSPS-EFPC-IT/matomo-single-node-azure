@@ -392,7 +392,7 @@
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
 		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
-		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
+		"webServerVirtualMachineSetUpExtensionName": "SetupWebServer",
 		"copy": [
 			{
 				"name": "storageAccountAllowedIpRuleArray",
@@ -1324,7 +1324,7 @@
 					"imageReference": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
-						"sku": "18.04-LTS",
+						"sku": "20.04.2-LTS",
 						"version": "latest"
 					},
 					"osDisk": {
@@ -1391,14 +1391,14 @@
 				},
 				"protectedSettings": {
 					"fileUris": [
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/apache2.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/install_unattended_upgrade_tools')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/logger.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/mysql.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/os.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/php.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-18.04/utils.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/apache2.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/install_unattended_upgrade_tools')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/logger.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/mysql.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/os.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/php.sh')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/upgrade_server')]",
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04.2/utils.sh')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
