@@ -387,13 +387,12 @@
 		"webServerComputerName": "webserver",
 		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
 		"webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-		"webServerVirtualMachineSetUpExtensionName": "SetupWebServer",
 		"webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
 		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
 		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
-
+		"webServerVirtualMachineSetUpExtensionName": "SetupWebServer",
 		"copy": [
 			{
 				"name": "storageAccountAllowedIpRuleArray",
