@@ -8,7 +8,7 @@
 				"description": "The custom fully qualified domain name for this matomo instance."
 			}
 		},
-		"armTemplateRepoBaseUrl": {
+		"armTemplateRepoRawFilesBaseUrl": {
 			"type": "string",
 			"metadata": {
 				"description": "The base URL of the Azure Resource Manager template repository."
@@ -151,7 +151,7 @@
 				"description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
 			}
 		},
-		"genericShellScriptsPublicRawFilesUrl": {
+		"genericShellScriptsRepoRawFilesBaseUrl": {
 			"type": "string",
 			"metadata": {
 				"description": "The public base URL of the generic-shell-scripts repository's raw files."
@@ -189,7 +189,7 @@
 				"description": "The log retention period in days of the Log Analytics Workspace resource."
 			}
 		},
-		"projectPublicRawFilesBaseUrl": {
+		"currentProjectRepoRawFilesBaseUrl": {
 			"type": "string",
 			"metadata": {
 				"description": "The public base URL of this project's repository's raw files."
@@ -1023,7 +1023,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
 				},
 				"parameters": {
 					"projectName": {
@@ -1048,7 +1048,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
 				},
 				"parameters": {
 					"vaultName": {
@@ -1077,7 +1077,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
 				},
 				"parameters": {
 					"vaultName": {
@@ -1391,16 +1391,16 @@
 				},
 				"protectedSettings": {
 					"fileUris": [
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/apache2.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/install_unattended_upgrade_tools')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/logger.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/mysql.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/os.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/php.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/utils.sh')]",
-						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
-						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/apache2.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/install_unattended_upgrade_tools')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/logger.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/mysql.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/os.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/php.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/upgrade_server')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/utils.sh')]",
+						"[concat(parameters('currentProjectRepoRawFilesBaseUrl'),'/scripts/install_matomo')]",
+						"[concat(parameters('currentProjectRepoRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
 					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_mount_point_path ', variables('webServerVirtualMachineDataDiskMountPoint'), ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseAdminPassword'), ' --db_server_admin_username ', parameters('databaseAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' --db_server_matomo_database ', variables('databaseApplicationDatabaseName'), ' --db_server_matomo_password ', parameters('databaseApplicationPassword'), ' --db_server_matomo_username ', parameters('databaseApplicationUsername'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_private_ip ', parameters('smtpServerPrivateIp'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
 				}
