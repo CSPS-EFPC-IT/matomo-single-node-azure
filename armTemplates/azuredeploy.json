@@ -387,7 +387,7 @@
 		"webServerComputerName": "webserver",
 		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
 		"webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-		"webServerVirtualMachineSetUpExtensionName": "ServerSetUp",
+		"webServerVirtualMachineSetUpExtensionName": "SetupWebServer",
 		"webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
 		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
