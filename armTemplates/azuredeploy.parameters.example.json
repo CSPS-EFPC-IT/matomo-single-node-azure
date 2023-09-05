@@ -5,7 +5,7 @@
         "applicationCustomFqdn": {
             "value": "myapp.domain.com"
         },
-        "armTemplateRepoRawFilesBaseUrl": {
+        "armTemplateRepoBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
         },
         "configurationAuditLogEnabled": {
@@ -61,7 +61,7 @@
                 "/subscriptions/my-subscription-id/resourceGroups/my-resource-group-name/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myUAMI": {}
             }
         },
-        "genericShellScriptsRepoRawFilesBaseUrl": {
+        "genericShellScriptsPublicRawFilesUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
         },
         "geoRedundantBackup": {
@@ -70,7 +70,7 @@
         "highAvailabilityMode": {
             "value": "Disabled"
         },
-        "currentProjectRepoRawFilesBaseUrl": {
+        "projectPublicRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
         },
         "projectShortName": {
