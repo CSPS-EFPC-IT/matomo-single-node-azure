@@ -88,8 +88,17 @@
         "smtpServerFqdn": {
             "value": "my.smtp.domain.com"
         },
+        "smtpServerFromAddress": {
+            "value": "my-from-addresse@my.domain"
+        },
+        "smtpServerPassword": {
+            "value": "mySmtpServerPassword"
+        },
         "smtpServerPort": {
             "value": 25
+        },
+        "smtpServerUsername": {
+            "value": "mySmtpServerUsername"
         },
         "smtpServerPrivateIp": {
             "value": "255.255.255.255"
