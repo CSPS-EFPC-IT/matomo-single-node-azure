@@ -1398,7 +1398,8 @@
 						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/os.sh')]",
 						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/php.sh')]",
 						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/utils.sh')]"
+						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/utils.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
 					"commandToExecute": "[]"
 				}
