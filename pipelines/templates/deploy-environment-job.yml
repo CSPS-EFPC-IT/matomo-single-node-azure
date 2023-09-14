@@ -1,0 +1,82 @@
+parameters:
+- name: env
+  type: string
+  values:
+  - dev
+  - staging
+  - prod
+- name: site
+  type: string
+
+variables:
+- group: common-${{ parameters.env }}-secret
+- group: ${{ parameters.site }}-public
+- group: ${{ parameters.site }}-${{ parameters.env }}-public
+- group: ${{ parameters.site }}-${{ parameters.env }}-secret
+
+jobs:
+- deployment: deployResourcesJob
+  displayName: 'Deploy Environment Job'
+  pool:
+    vmImage: ubuntu-20.04
+  environment: '$(resourceGroupName)'
+  strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - checkout: self # To force checkout since project resides in github repo.
+
+          - task: AzureResourceManagerTemplateDeployment@3
+            displayName: 'Deploy Resources'
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: '$(serviceConnectionName)'
+              subscriptionId: '$(subscriptionId)'
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: '$(resourceGroupName)'
+              location: '$(resourceLocation)'
+              templateLocation: 'Linked artifact'
+              csmFile: 'azure/arm-templates/deploy-resources.json'
+              overrideParameters: >-
+                -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
+                -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
+                -currentProjectRepoRawFilesBaseUrl "$(currentProjectRepoRawFilesBaseUrl)"
+                -configurationAuditLogEvents "$(configurationAuditLogEvents)"
+                -configurationCharacterSetServer "$(utf8mb4)"
+                -configurationCollationServer "$(utf8mb4_0900_ai_ci)"
+                -customApplicationFqdn "$(customApplicationFqdn)"
+                -databaseCapacity $(databaseCapacity)
+                -databaseIops $(databaseIops)
+                -databaseIopsAutoGrow "$(databaseIopsAutoGrow)"
+                -databaseAdminUsername "$(databaseAdminUsername)"
+                -databaseAdminPassword "$(databaseAdminPassword)"
+                -databaseServerBackupRetentionDays $(databaseServerBackupRetentionDays)
+                -databaseServerStorageSizeGB "$(databaseServerStorageSizeGB)"
+                -dataDiskSizeGB $(dataDiskSizeGB)
+                -deniedIpAddressList "$(deniedIpAddressList)"
+                -environmentName "$(environmentName)"
+                -gatewaySslCertificateUri "$(gatewaySslCertificateUri)"
+                -gatewayUserAssignedIdentity "$(gatewayUserAssignedIdentity)"
+                -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"
+                -geoRedundantBackup "$(geoRedundantBackup)"
+                -highAvailabilityMode "$(highAvailabilityMode)"
+                -resourceLocation "$(resourceLocation)"
+                -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
+                -projectShortName "$(projectShortName)"
+                -resourceTags $(resourceTags)
+                -smtpServerFqdn "$(smtpServerFqdn)"
+                -smtpServerFromAddress "$(smtpServerFromAddress)"
+                -smtpServerPassword "$(smtpServerPassword)"
+                -smtpServerPort $(smtpServerPort)
+                -smtpServerUsername "$(smtpServerUsername)"
+                -storageAccountAllowedIpAddressList "$(corporateGatewayIpAddressList)"
+                -virtualMachineTags $(virtualMachineTags)
+                -virtualNetworkAddressBase "$(virtualNetworkAddressBase)"
+                -webServerAdminEmail "$(webServerAdminEmail)"
+                -webServerAdminPassword "$(webServerAdminPassword)"
+                -webServerAdminUsername "$(webServerAdminUsername)"
+                -webServerRebootUtcTime "$(webServerRebootUtcTime)"
+                -webServerVirtualMachineSize "$(webServerVirtualMachineSize)"
+              deploymentMode: 'Incremental'
+              deploymentName: '$(projectShortName)_deploy-environment_$(Build.BuildNumber)'
