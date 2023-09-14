@@ -37,7 +37,7 @@ jobs:
               resourceGroupName: '$(resourceGroupName)'
               location: '$(resourceLocation)'
               templateLocation: 'Linked artifact'
-              csmFile: 'azure/arm-templates/deploy-resources.json'
+              csmFile: 'armTemplates/azuredeploy.json'
               overrideParameters: >-
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
