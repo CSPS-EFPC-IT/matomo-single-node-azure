@@ -2,16 +2,16 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"applicationCustomFqdn": {
-			"type": "string",
-			"metadata": {
-				"description": "The custom fully qualified domain name for this matomo instance."
-			}
-		},
 		"armTemplateRepoBaseUrl": {
 			"type": "string",
 			"metadata": {
 				"description": "The base URL of the Azure Resource Manager template repository."
+			}
+		},
+        	"armTemplateRepoRawFilesBaseUrl": {
+            		"type": "string",
+            		"metadata": {
+               	 		"description": "The base URL of the Azure Resource Manager template repository raw files."
 			}
 		},
 		"configurationAuditLogEnabled": {
@@ -46,6 +46,18 @@
 				"description": "The value of the database server's parameter \"collation_server\"."
 			}
 		},
+		"currentProjectRepoRawFilesBaseUrl": {
+            		"type": "string",
+            		"metadata": {
+                		"description": "The base URL of the current project repository raw files."
+            		}
+        	},
+        	"customApplicationFqdn": {
+            		"type": "string",
+            		"metadata": {
+                		"description": "The custom fully qualified domain name for this moodle instance."
+            		}
+		},
 		"databaseAdminPassword": {
 			"type": "securestring",
 			"metadata": {
@@ -76,6 +88,13 @@
 			"maxValue": 35,
 			"metadata": {
 				"description": "The database backup retention period in days."
+			}
+		},
+		"databaseCapacity": {
+			"type": "int",
+			"defaultValue": 2,
+			"metadata": {
+				"description": "Allowed database capacity."
 			}
 		},
 		"databaseIops": {
@@ -151,7 +170,7 @@
 				"description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
 			}
 		},
-		"genericShellScriptsPublicRawFilesUrl": {
+		"genericShellScriptsRepoRawFilesBaseUrl": {
 			"type": "string",
 			"metadata": {
 				"description": "The public base URL of the generic-shell-scripts repository's raw files."
@@ -180,7 +199,7 @@
 				"description": "The high availability mode for the database server."
 			}
 		},
-		"logAnalyticsWorkspaceRetentionDays": {
+		"logAnalyticsWorkspaceRetentionPeriod": {
 			"type": "int",
 			"minValue": 30,
 			"maxValue": 730,
