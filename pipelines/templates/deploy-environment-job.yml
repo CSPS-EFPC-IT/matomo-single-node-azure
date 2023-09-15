@@ -52,7 +52,7 @@ jobs:
                 -databaseAdminUsername "$(databaseAdminUsername)"
                 -databaseAdminPassword "$(databaseAdminPassword)"
                 -databaseBackupRetentionDays $(databaseBackupRetentionDays)
-                -databaseServerStorageSizeGB "$(databaseServerStorageSizeGB)"
+                -databaseStorageGb "$(databaseStorageGb)"
                 -dataDiskSizeGB $(dataDiskSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
