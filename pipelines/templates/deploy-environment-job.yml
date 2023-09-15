@@ -18,7 +18,7 @@ jobs:
 - deployment: deployResourcesJob
   displayName: 'Deploy Environment Job'
   pool:
-    vmImage: ubuntu-18.04
+    vmImage: ubuntu-20.04
   environment: '$(resourceGroupName)'
   strategy:
       runOnce:
