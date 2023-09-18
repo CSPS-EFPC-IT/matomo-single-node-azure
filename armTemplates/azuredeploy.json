@@ -1165,8 +1165,7 @@
 			"apiVersion": "2021-05-01-preview",
 			"name": "local-mysql-logging",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
-        			"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
 			],
 			"scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
 			"properties": {
