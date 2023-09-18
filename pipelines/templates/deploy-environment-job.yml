@@ -54,7 +54,7 @@ jobs:
                 -databaseApplicationPassword "$(databaseApplicationPassword)"
                 -databaseApplicationUsername "$(databaseApplicationUsername)"
                 -databaseBackupRetentionDays $(databaseBackupRetentionDays)
-                -databaseStorageGb "$(databaseStorageGb)"
+                -databaseStorageGb $(databaseStorageGb)
                 -dataDiskSizeGB $(dataDiskSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
