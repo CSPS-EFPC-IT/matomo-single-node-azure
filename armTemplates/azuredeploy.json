@@ -40,12 +40,6 @@
 				"description": "The value of the database server's parameter \"collation_server\"."
 			}
 		},
-		"currentProjectRepoRawFilesBaseUrl": {
-            		"type": "string",
-            		"metadata": {
-                		"description": "The base URL of the current project repository raw files."
-            		}
-        	},
         	"customApplicationFqdn": {
             		"type": "string",
             		"metadata": {
