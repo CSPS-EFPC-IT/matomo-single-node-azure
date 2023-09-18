@@ -79,6 +79,7 @@ jobs:
                 -webServerAdminEmail "$(webServerAdminEmail)"
                 -webServerAdminPassword "$(webServerAdminPassword)"
                 -webServerAdminUsername "$(webServerAdminUsername)"
+                -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime)
                 -webServerRebootUtcTime "$(webServerRebootUtcTime)"
                 -webServerVirtualMachineSize "$(webServerVirtualMachineSize)"
               deploymentMode: 'Incremental'
