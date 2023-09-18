@@ -51,6 +51,8 @@ jobs:
                 -databaseIopsAutoGrow "$(databaseIopsAutoGrow)"
                 -databaseAdminUsername "$(databaseAdminUsername)"
                 -databaseAdminPassword "$(databaseAdminPassword)"
+                -databaseApplicationPassword "$(databaseApplicationPassword)"
+                -databaseApplicationUsername "$(databaseApplicationUsername)"
                 -databaseBackupRetentionDays $(databaseBackupRetentionDays)
                 -databaseStorageGb "$(databaseStorageGb)"
                 -dataDiskSizeGB $(dataDiskSizeGB)
