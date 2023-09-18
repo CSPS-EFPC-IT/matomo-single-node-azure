@@ -41,7 +41,6 @@ jobs:
               overrideParameters: >-
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
-                -currentProjectRepoRawFilesBaseUrl "$(currentProjectRepoRawFilesBaseUrl)"
                 -configurationAuditLogEvents "$(configurationAuditLogEvents)"
                 -configurationCharacterSetServer "$(utf8mb4)"
                 -configurationCollationServer "$(utf8mb4_0900_ai_ci)"
@@ -65,6 +64,7 @@ jobs:
                 -highAvailabilityMode "$(highAvailabilityMode)"
                 -resourceLocation "$(resourceLocation)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
+                -projectPublicRawFilesBaseUrl "$(projectPublicRawFilesBaseUrl)"
                 -projectShortName "$(projectShortName)"
                 -resourceTags $(resourceTags)
                 -smtpServerFqdn "$(smtpServerFqdn)"
