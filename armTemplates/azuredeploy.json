@@ -431,27 +431,6 @@
 	},
 	"resources": [
 		{
-			"type": "microsoft.operationalinsights/workspaces",
-			"apiVersion": "2021-06-01",
-			"name": "[variables('logAnalyticsWorkspaceName')]",
-			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('resourceLocation')]",
-			"properties": {
-				"sku": {
-					"name": "pergb2018"
-				},
-				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionDays')]",
-				"features": {
-					"enableLogAccessUsingOnlyResourcePermissions": true
-				},
-				"workspaceCapping": {
-					"dailyQuotaGb": -1
-				},
-				"publicNetworkAccessForIngestion": "Enabled",
-				"publicNetworkAccessForQuery": "Enabled"
-			}
-		},
-		{
 			"type": "Microsoft.Network/virtualNetworks",
 			"apiVersion": "2019-11-01",
 			"name": "[variables('virtualNetworkName')]",
@@ -1121,6 +1100,27 @@
 						"value": "[subscription().subscriptionId]"
 					}
 				}
+			}
+		},
+		{
+			"type": "microsoft.operationalinsights/workspaces",
+			"apiVersion": "2021-06-01",
+			"name": "[variables('logAnalyticsWorkspaceName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"properties": {
+				"sku": {
+					"name": "pergb2018"
+				},
+				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionDays')]",
+				"features": {
+					"enableLogAccessUsingOnlyResourcePermissions": true
+				},
+				"workspaceCapping": {
+					"dailyQuotaGb": -1
+				},
+				"publicNetworkAccessForIngestion": "Enabled",
+				"publicNetworkAccessForQuery": "Enabled"
 			}
 		},
 		{
