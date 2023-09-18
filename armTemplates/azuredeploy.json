@@ -431,6 +431,201 @@
 	},
 	"resources": [
 		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('gatewayNetworkSecurityGroupName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "Deny_CustomExclusion_Any_Any_Inbound",
+						"properties": {
+							"access": "Deny",
+							"description": "Custom security rule.",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 500,
+							"protocol": "*",
+							"sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Allow_PublicInternet_Any_80_443_Inbound",
+						"properties": {
+							"access": "Allow",
+							"destinationAddressPrefix": "*",
+							"destinationPortRanges": [
+								"80",
+								"443"
+							],
+							"direction": "Inbound",
+							"priority": 1000,
+							"protocol": "*",
+							"sourceAddressPrefix": "Internet",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Allow_GatewayManager_TCP_65200-65535_Inbound",
+						"properties": {
+							"access": "Allow",
+							"description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "65200-65535",
+							"direction": "Inbound",
+							"priority": 1010,
+							"protocol": "TCP",
+							"sourceAddressPrefix": "GatewayManager",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Allow_AzureLoadBalancer_Any_Any_Inbound",
+						"properties": {
+							"access": "Allow",
+							"description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 1020,
+							"protocol": "*",
+							"sourceAddressPrefix": "AzureLoadBalancer",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Deny_AllOther_Inbound",
+						"properties": {
+							"access": "Deny",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 4096,
+							"protocol": "*",
+							"sourceAddressPrefix": "*",
+							"sourcePortRange": "*"
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('applicationNetworkSecurityGroupName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "Deny_CustomExclusion_Any_Any_Inbound",
+						"properties": {
+							"access": "Deny",
+							"description": "Custom security rule.",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 500,
+							"protocol": "*",
+							"sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "[concat('Allow_', variables('gatewayName'), '_TCP_80_Inbound')]",
+						"properties": {
+							"access": "Allow",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "80",
+							"direction": "Inbound",
+							"priority": 1000,
+							"protocol": "TCP",
+							"sourceAddressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "[concat('Allow_', variables('bastionName'), '_TCP_22_Inbound')]",
+						"properties": {
+							"access": "Allow",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "22",
+							"direction": "Inbound",
+							"priority": 1010,
+							"protocol": "TCP",
+							"sourceAddressPrefix": "[variables('bastionSubnetAddressPrefix')]",
+							"sourcePortRange": "*"
+						}
+					},
+					{
+						"name": "Deny_AllOther_Inbound",
+						"properties": {
+							"access": "Deny",
+							"destinationAddressPrefix": "*",
+							"destinationPortRange": "*",
+							"direction": "Inbound",
+							"priority": 4096,
+							"protocol": "*",
+							"sourceAddressPrefix": "*",
+							"sourcePortRange": "*"
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2022-05-01",
+			"name": "[variables('databaseNetworkSecurityGroupName')]",
+			"location": "[parameters('resourceLocation')]",
+			"dependsOn": [],
+			"properties": {
+				"securityRules": [
+					{
+						"name": "AllowCidrBlockMySQLInbound",
+						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
+						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
+						"properties": {
+							"protocol": "TCP",
+							"sourcePortRange": "*",
+							"destinationPortRange": "3306",
+							"sourceAddressPrefix": "[variables('applicationSubnetAddressPrefix')]",
+							"destinationAddressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+							"access": "Allow",
+							"priority": 1000,
+							"direction": "Inbound",
+							"sourcePortRanges": [],
+							"destinationPortRanges": [],
+							"sourceAddressPrefixes": [],
+							"destinationAddressPrefixes": []
+						}
+					},
+					{
+						"name": "DenyAnyCustomAnyInbound",
+						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
+						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
+						"properties": {
+							"protocol": "*",
+							"sourcePortRange": "*",
+							"destinationPortRange": "*",
+							"sourceAddressPrefix": "*",
+							"destinationAddressPrefix": "*",
+							"access": "Deny",
+							"priority": 4096,
+							"direction": "Inbound",
+							"sourcePortRanges": [],
+							"destinationPortRanges": [],
+							"sourceAddressPrefixes": [],
+							"destinationAddressPrefixes": []
+						}
+					}
+				]
+			}
+		},
+		{
 			"type": "Microsoft.Network/virtualNetworks",
 			"apiVersion": "2019-11-01",
 			"name": "[variables('virtualNetworkName')]",
@@ -558,111 +753,6 @@
 						}
 					}
 				]
-			}
-		},
-		{
-			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2019-11-01",
-			"name": "[variables('gatewayNetworkSecurityGroupName')]",
-			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('resourceLocation')]",
-			"properties": {
-				"securityRules": [
-					{
-						"name": "Deny_CustomExclusion_Any_Any_Inbound",
-						"properties": {
-							"access": "Deny",
-							"description": "Custom security rule.",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "*",
-							"direction": "Inbound",
-							"priority": 500,
-							"protocol": "*",
-							"sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "Allow_PublicInternet_Any_80_443_Inbound",
-						"properties": {
-							"access": "Allow",
-							"destinationAddressPrefix": "*",
-							"destinationPortRanges": [
-								"80",
-								"443"
-							],
-							"direction": "Inbound",
-							"priority": 1000,
-							"protocol": "*",
-							"sourceAddressPrefix": "Internet",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "Allow_GatewayManager_TCP_65200-65535_Inbound",
-						"properties": {
-							"access": "Allow",
-							"description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "65200-65535",
-							"direction": "Inbound",
-							"priority": 1010,
-							"protocol": "TCP",
-							"sourceAddressPrefix": "GatewayManager",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "Allow_AzureLoadBalancer_Any_Any_Inbound",
-						"properties": {
-							"access": "Allow",
-							"description": "https://docs.microsoft.com/en-us/azure/application-gateway/configuration-overview#network-security-groups-on-the-application-gateway-subnet",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "*",
-							"direction": "Inbound",
-							"priority": 1020,
-							"protocol": "*",
-							"sourceAddressPrefix": "AzureLoadBalancer",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "Deny_AllOther_Inbound",
-						"properties": {
-							"access": "Deny",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "*",
-							"direction": "Inbound",
-							"priority": 4096,
-							"protocol": "*",
-							"sourceAddressPrefix": "*",
-							"sourcePortRange": "*"
-						}
-					}
-				]
-			}
-		},
-		{
-			"type": "Microsoft.Network/privateDnsZones",
-			"apiVersion": "2018-09-01",
-			"name": "[variables('privateDnsZoneName')]",
-			"location": "global",
-			"properties": {}
-		},
-		{
-			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-			"apiVersion": "2018-09-01",
-			"name": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkLinksName'))]",
-			"location": "global",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
-				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-			],
-			"properties": {
-				"registrationEnabled": false,
-				"virtualNetwork": {
-					"id": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-				}
 			}
 		},
 		{
@@ -905,201 +995,39 @@
 			}
 		},
 		{
-			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2019-11-01",
-			"name": "[variables('applicationNetworkSecurityGroupName')]",
+			"type": "Microsoft.Network/networkInterfaces",
+			"apiVersion": "2020-05-01",
+			"name": "[variables('webServerVirtualMachineNetworkInterfaceCardName')]",
 			"tags": "[parameters('resourceTags')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+				"[resourceId('Microsoft.Network/applicationGateways', variables('gatewayName'))]"
+			],
 			"location": "[parameters('resourceLocation')]",
 			"properties": {
-				"securityRules": [
+				"ipConfigurations": [
 					{
-						"name": "Deny_CustomExclusion_Any_Any_Inbound",
+						"name": "ipconfig1",
 						"properties": {
-							"access": "Deny",
-							"description": "Custom security rule.",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "*",
-							"direction": "Inbound",
-							"priority": 500,
-							"protocol": "*",
-							"sourceAddressPrefixes": "[split(parameters('deniedIpAddressList'),',')]",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "[concat('Allow_', variables('gatewayName'), '_TCP_80_Inbound')]",
-						"properties": {
-							"access": "Allow",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "80",
-							"direction": "Inbound",
-							"priority": 1000,
-							"protocol": "TCP",
-							"sourceAddressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "[concat('Allow_', variables('bastionName'), '_TCP_22_Inbound')]",
-						"properties": {
-							"access": "Allow",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "22",
-							"direction": "Inbound",
-							"priority": 1010,
-							"protocol": "TCP",
-							"sourceAddressPrefix": "[variables('bastionSubnetAddressPrefix')]",
-							"sourcePortRange": "*"
-						}
-					},
-					{
-						"name": "Deny_AllOther_Inbound",
-						"properties": {
-							"access": "Deny",
-							"destinationAddressPrefix": "*",
-							"destinationPortRange": "*",
-							"direction": "Inbound",
-							"priority": 4096,
-							"protocol": "*",
-							"sourceAddressPrefix": "*",
-							"sourcePortRange": "*"
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]"
+							},
+							"primary": true,
+							"privateIPAddressVersion": "IPv4",
+							"applicationGatewayBackendAddressPools": [
+								{
+									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
+								}
+							]
 						}
 					}
-				]
-			}
-		},
-		{
-			"type": "Microsoft.Network/networkSecurityGroups",
-			"apiVersion": "2022-05-01",
-			"name": "[variables('databaseNetworkSecurityGroupName')]",
-			"location": "[parameters('resourceLocation')]",
-			"dependsOn": [],
-			"properties": {
-				"securityRules": [
-					{
-						"name": "AllowCidrBlockMySQLInbound",
-						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
-						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
-						"properties": {
-							"protocol": "TCP",
-							"sourcePortRange": "*",
-							"destinationPortRange": "3306",
-							"sourceAddressPrefix": "[variables('applicationSubnetAddressPrefix')]",
-							"destinationAddressPrefix": "[variables('databaseSubnetAddressPrefix')]",
-							"access": "Allow",
-							"priority": 1000,
-							"direction": "Inbound",
-							"sourcePortRanges": [],
-							"destinationPortRanges": [],
-							"sourceAddressPrefixes": [],
-							"destinationAddressPrefixes": []
-						}
-					},
-					{
-						"name": "DenyAnyCustomAnyInbound",
-						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
-						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
-						"properties": {
-							"protocol": "*",
-							"sourcePortRange": "*",
-							"destinationPortRange": "*",
-							"sourceAddressPrefix": "*",
-							"destinationAddressPrefix": "*",
-							"access": "Deny",
-							"priority": 4096,
-							"direction": "Inbound",
-							"sourcePortRanges": [],
-							"destinationPortRanges": [],
-							"sourceAddressPrefixes": [],
-							"destinationAddressPrefixes": []
-						}
-					}
-				]
-			}
-		},
-		{
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-10-01",
-			"name": "[variables('recoveryServiceVaultDeploymentName')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]"
-			],
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
+				],
+				"dnsSettings": {
+					"dnsServers": []
 				},
-				"parameters": {
-					"projectName": {
-						"value": "[parameters('projectShortName')]"
-					},
-					"environmentName": {
-						"value": "[parameters('environmentName')]"
-					},
-					"resourceTags": {
-						"value": "[parameters('resourceTags')]"
-					}
-				}
-			}
-		},
-		{
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-10-01",
-			"name": "[variables('recoveryServiceVaultBackupPoliciesDeploymentName')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultDeploymentName'))]"
-			],
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
-				},
-				"parameters": {
-					"vaultName": {
-						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
-					},
-					"dailyBackupsRetention": {
-						"value": 90
-					},
-					"instantRpRetentionRangeInDays": {
-						"value": 5
-					},
-					"backupTime": {
-						"value": "02:00"
-					}
-				}
-			}
-		},
-		{
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2019-10-01",
-			"name": "[variables('recoveryServiceVaultProtectedItemsDeploymentName')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultBackupPoliciesDeploymentName'))]",
-				"[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
-			],
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
-				},
-				"parameters": {
-					"vaultName": {
-						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
-					},
-					"policyName": {
-						"value": "[reference(variables('recoveryServiceVaultBackupPoliciesDeploymentName')).outputs.policyName.value]"
-					},
-					"vmName": {
-						"value": "[variables('webServerVirtualMachineName')]"
-					},
-					"vmRGName": {
-						"value": "[resourceGroup().name]"
-					},
-					"vmSubID": {
-						"value": "[subscription().subscriptionId]"
-					}
-				}
+				"enableAcceleratedNetworking": true,
+				"enableIPForwarding": false
 			}
 		},
 		{
@@ -1121,6 +1049,29 @@
 				},
 				"publicNetworkAccessForIngestion": "Enabled",
 				"publicNetworkAccessForQuery": "Enabled"
+			}
+		},
+		{
+			"type": "Microsoft.Network/privateDnsZones",
+			"apiVersion": "2018-09-01",
+			"name": "[variables('privateDnsZoneName')]",
+			"location": "global",
+			"properties": {}
+		},
+		{
+			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+			"apiVersion": "2018-09-01",
+			"name": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkLinksName'))]",
+			"location": "global",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+			],
+			"properties": {
+				"registrationEnabled": false,
+				"virtualNetwork": {
+					"id": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+				}
 			}
 		},
 		{
@@ -1294,42 +1245,6 @@
 				"encryption": {
 					"type": "EncryptionAtRestWithPlatformKey"
 				}
-			}
-		},
-		{
-			"type": "Microsoft.Network/networkInterfaces",
-			"apiVersion": "2020-05-01",
-			"name": "[variables('webServerVirtualMachineNetworkInterfaceCardName')]",
-			"tags": "[parameters('resourceTags')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-				"[resourceId('Microsoft.Network/applicationGateways', variables('gatewayName'))]"
-			],
-			"location": "[parameters('resourceLocation')]",
-			"properties": {
-				"ipConfigurations": [
-					{
-						"name": "ipconfig1",
-						"properties": {
-							"privateIPAllocationMethod": "Dynamic",
-							"subnet": {
-								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]"
-							},
-							"primary": true,
-							"privateIPAddressVersion": "IPv4",
-							"applicationGatewayBackendAddressPools": [
-								{
-									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
-								}
-							]
-						}
-					}
-				],
-				"dnsSettings": {
-					"dnsServers": []
-				},
-				"enableAcceleratedNetworking": true,
-				"enableIPForwarding": false
 			}
 		},
 		{
@@ -1571,6 +1486,91 @@
 							}
 						},
 						"sampleRateInSeconds": 15
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
+				},
+				"parameters": {
+					"projectName": {
+						"value": "[parameters('projectShortName')]"
+					},
+					"environmentName": {
+						"value": "[parameters('environmentName')]"
+					},
+					"resourceTags": {
+						"value": "[parameters('resourceTags')]"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultBackupPoliciesDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultDeploymentName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
+				},
+				"parameters": {
+					"vaultName": {
+						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
+					},
+					"dailyBackupsRetention": {
+						"value": 90
+					},
+					"instantRpRetentionRangeInDays": {
+						"value": 5
+					},
+					"backupTime": {
+						"value": "02:00"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultProtectedItemsDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultBackupPoliciesDeploymentName'))]",
+				"[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
+				},
+				"parameters": {
+					"vaultName": {
+						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
+					},
+					"policyName": {
+						"value": "[reference(variables('recoveryServiceVaultBackupPoliciesDeploymentName')).outputs.policyName.value]"
+					},
+					"vmName": {
+						"value": "[variables('webServerVirtualMachineName')]"
+					},
+					"vmRGName": {
+						"value": "[resourceGroup().name]"
+					},
+					"vmSubID": {
+						"value": "[subscription().subscriptionId]"
 					}
 				}
 			}
