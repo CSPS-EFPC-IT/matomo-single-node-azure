@@ -1027,7 +1027,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
 				},
 				"parameters": {
 					"projectName": {
@@ -1052,7 +1052,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
 				},
 				"parameters": {
 					"vaultName": {
@@ -1081,7 +1081,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('armTemplateRepoBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
 				},
 				"parameters": {
 					"vaultName": {
