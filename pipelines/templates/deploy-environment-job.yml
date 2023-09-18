@@ -71,6 +71,7 @@ jobs:
                 -smtpServerFromAddress "$(smtpServerFromAddress)"
                 -smtpServerPassword "$(smtpServerPassword)"
                 -smtpServerPort $(smtpServerPort)
+                -smtpServerPrivateIp "$(smtpServerPrivateIp)"
                 -smtpServerUsername "$(smtpServerUsername)"
                 -storageAccountAllowedIpAddressList "$(corporateGatewayIpAddressList)"
                 -virtualMachineTags $(virtualMachineTags)
