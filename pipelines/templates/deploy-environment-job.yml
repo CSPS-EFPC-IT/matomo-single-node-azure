@@ -42,8 +42,8 @@ jobs:
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
                 -configurationAuditLogEvents "$(configurationAuditLogEvents)"
-                -configurationCharacterSetServer "$(utf8mb4)"
-                -configurationCollationServer "$(utf8mb4_0900_ai_ci)"
+                -configurationCharacterSetServer "$(configurationCharacterSetServer)"
+                -configurationCollationServer "$(configurationCollationServer)"
                 -customApplicationFqdn "$(customApplicationFqdn)"
                 -databaseCapacity $(databaseCapacity)
                 -databaseIops $(databaseIops)
