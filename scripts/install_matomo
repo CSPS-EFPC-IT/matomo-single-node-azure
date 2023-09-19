@@ -38,7 +38,7 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.11.0.tar.gz"
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.15.1.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
   local matomo_package_file_name
