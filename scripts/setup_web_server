@@ -90,6 +90,13 @@ function main() {
     --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \
     --web_server_fqdn "${parameters[web_server_fqdn]}"
 
+  logger::title "Install Linux Diagnostic Extension Prerequisites"
+  # Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux-v3
+  logger::action "Installing python2..."
+  sudo apt install -y python2
+  logger::action "Updating python link..."
+  sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+
   #############################################################################
 
   logger::title "End of $0"
