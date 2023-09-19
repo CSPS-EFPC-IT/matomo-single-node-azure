@@ -248,6 +248,12 @@
 				"description": "The SMTP server port."
 			}
 		},
+		"smtpServerPrivateIp": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The private IP address of the email server to use."
+			}
+		},
 		"smtpServerUsername": {
 			"type": "securestring",
 			"metadata": {
