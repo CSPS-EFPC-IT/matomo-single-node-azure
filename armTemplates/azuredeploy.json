@@ -400,9 +400,9 @@
 		"gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
 		"logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
 		"privateDnsZoneName": "[concat(variables('databaseName'), '.private.mysql.database.azure.com')]",
-		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultBackupPolicies'), 64)]",
-		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVault'), 64)]",
-		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_', 'recoveryServiceVaultProtectedItems'), 64)]",
+		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_rsv-bp'), 64)]",
+		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_rsv'), 64)]",
+		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
 		"storageAccountAllowedIpAddressArray": "[if(empty(parameters('storageAccountAllowedIpAddressList')), createArray(), split(parameters('storageAccountAllowedIpAddressList'), ','))]",
 		"storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
@@ -1040,7 +1040,7 @@
 				"sku": {
 					"name": "pergb2018"
 				},
-				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionDays')]",
+				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionPeriod')]",
 				"features": {
 					"enableLogAccessUsingOnlyResourcePermissions": true
 				},
@@ -1332,14 +1332,14 @@
 				},
 				"protectedSettings": {
 					"fileUris": [
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/apache2.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/install_unattended_upgrade_tools')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/logger.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/mysql.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/os.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/php.sh')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsPublicRawFilesUrl'),'/ubuntu-20.04/utils.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/apache2.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/install_unattended_upgrade_tools')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/logger.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/mysql.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/os.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/php.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/upgrade_server')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/utils.sh')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
@@ -1484,6 +1484,91 @@
 							}
 						},
 						"sampleRateInSeconds": 15
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Compute/disks', variables('webServerVirtualMachineDataDiskName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VaultDeploy.json')]"
+				},
+				"parameters": {
+					"projectName": {
+						"value": "[parameters('projectShortName')]"
+					},
+					"environmentName": {
+						"value": "[parameters('environmentName')]"
+					},
+					"resourceTags": {
+						"value": "[parameters('resourceTags')]"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultBackupPoliciesDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultDeploymentName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMDailyPolicyDeploy.json')]"
+				},
+				"parameters": {
+					"vaultName": {
+						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
+					},
+					"dailyBackupsRetention": {
+						"value": 90
+					},
+					"instantRpRetentionRangeInDays": {
+						"value": 5
+					},
+					"backupTime": {
+						"value": "02:00"
+					}
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('recoveryServiceVaultProtectedItemsDeploymentName')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', variables('recoveryServiceVaultBackupPoliciesDeploymentName'))]",
+				"[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('armTemplateRepoRawFilesBaseUrl'), '/Recovery%20Services%20Vault/VM%20Backup/VMBackupDeploy.json')]"
+				},
+				"parameters": {
+					"vaultName": {
+						"value": "[reference(variables('recoveryServiceVaultDeploymentName')).outputs.vaultName.value]"
+					},
+					"policyName": {
+						"value": "[reference(variables('recoveryServiceVaultBackupPoliciesDeploymentName')).outputs.policyName.value]"
+					},
+					"vmName": {
+						"value": "[variables('webServerVirtualMachineName')]"
+					},
+					"vmRGName": {
+						"value": "[resourceGroup().name]"
+					},
+					"vmSubID": {
+						"value": "[subscription().subscriptionId]"
 					}
 				}
 			}
