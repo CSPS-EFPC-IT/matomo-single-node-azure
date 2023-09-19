@@ -249,7 +249,7 @@
 			}
 		},
 		"smtpServerPrivateIp": {
-			"type": "securestring",
+			"type": "string",
 			"metadata": {
 				"description": "The private IP address of the email server to use."
 			}
