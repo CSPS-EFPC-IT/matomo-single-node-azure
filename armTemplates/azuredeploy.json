@@ -250,6 +250,7 @@
 		},
 		"smtpServerPrivateIp": {
 			"type": "securestring",
+			"defaultValue": "255.255.255.255",
 			"metadata": {
 				"description": "The private IP address of the email server to use."
 			}
