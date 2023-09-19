@@ -402,7 +402,7 @@
 		"privateDnsZoneName": "[concat(variables('databaseName'), '.private.mysql.database.azure.com')]",
 		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_rsv-bp'), 64)]",
 		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_rsv'), 64)]",
-		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",64)]",
+		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
 		"storageAccountAllowedIpAddressArray": "[if(empty(parameters('storageAccountAllowedIpAddressList')), createArray(), split(parameters('storageAccountAllowedIpAddressList'), ','))]",
 		"storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
