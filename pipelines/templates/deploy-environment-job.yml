@@ -40,11 +40,11 @@ jobs:
               csmFile: 'armTemplates/azuredeploy.json'
               overrideParameters: >-
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
+                -applicationCustomFqdn "$(applicationCustomFqdn)"
                 -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
                 -configurationAuditLogEvents "$(configurationAuditLogEvents)"
                 -configurationCharacterSetServer "$(configurationCharacterSetServer)"
                 -configurationCollationServer "$(configurationCollationServer)"
-                -customApplicationFqdn "$(customApplicationFqdn)"
                 -databaseCapacity $(databaseCapacity)
                 -databaseIops $(databaseIops)
                 -databaseIopsAutoGrow "$(databaseIopsAutoGrow)"
