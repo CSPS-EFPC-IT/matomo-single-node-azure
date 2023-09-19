@@ -8,6 +8,12 @@
                	 		"description": "The base URL of the Azure Resource Manager template repository raw files."
 			}
 		},
+        	"applicationCustomFqdn": {
+            		"type": "string",
+            		"metadata": {
+                		"description": "The custom fully qualified domain name for this moodle instance."
+            		}
+		},
 		"configurationAuditLogEnabled": {
 			"type": "string",
 			"defaultValue": "On",
@@ -39,12 +45,6 @@
 			"metadata": {
 				"description": "The value of the database server's parameter \"collation_server\"."
 			}
-		},
-        	"customApplicationFqdn": {
-            		"type": "string",
-            		"metadata": {
-                		"description": "The custom fully qualified domain name for this moodle instance."
-            		}
 		},
 		"databaseAdminPassword": {
 			"type": "securestring",
