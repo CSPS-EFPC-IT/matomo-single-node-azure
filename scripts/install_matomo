@@ -105,7 +105,7 @@ function main() {
 
   logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
-    mariadb-client-10.3
+    mysql-client
 
   #############################################################################
 
