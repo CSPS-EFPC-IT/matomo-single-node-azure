@@ -406,7 +406,7 @@ function main() {
   log_analytics_workspace_names="$(az monitor log-analytics workspace list \
       --only-show-errors \
       --output tsv \
-      [].name" \
+      --query "[].name" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${log_analytics_workspace_names}" ]; then
