@@ -81,7 +81,7 @@ function main() {
   vm_ids="$(az vm list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${vm_ids}" ]; then
@@ -103,7 +103,7 @@ function main() {
   disk_ids="$(az disk list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${disk_ids}" ]; then
@@ -125,7 +125,7 @@ function main() {
   network_interface_card_ids="$(az network nic list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${network_interface_card_ids}" ]; then
@@ -146,7 +146,7 @@ function main() {
   storage_account_ids="$(az storage account list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${storage_account_ids}" ]; then
@@ -168,7 +168,7 @@ function main() {
   mysql_server_ids="$(az mysql flexible-server list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${mysql_server_ids}" ]; then
@@ -190,7 +190,7 @@ function main() {
   bastion_names="$(az network bastion list \
       --only-show-errors \
       --output tsv \
-      [].name" \
+      --query "[].name" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${bastion_names}" ]; then
@@ -212,7 +212,7 @@ function main() {
   application_gateway_ids="$(az network application-gateway list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${application_gateway_ids}" ]; then
@@ -233,7 +233,7 @@ function main() {
   private_dns_zone_names="$(az network private-dns zone list \
       --only-show-errors \
       --output tsv \
-      [].name" \
+      --query "[].name" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${private_dns_zone_names}" ]; then
@@ -248,7 +248,7 @@ function main() {
       link_vnet_names="$(az network private-dns link vnet list \
           --only-show-errors \
           --output tsv \
-          [].name" \
+          --query "[].name" \
           --resource-group "${parameters[--resource-group-name]}" \
           --zone-name "${private_dns_zone_name}" \
         )"
@@ -286,7 +286,7 @@ function main() {
   virtual_network_ids="$(az network vnet list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${virtual_network_ids}" ]; then
@@ -307,7 +307,7 @@ function main() {
   network_security_group_ids="$(az network nsg list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${network_security_group_ids}" ]; then
@@ -328,7 +328,7 @@ function main() {
   public_ip_ids="$(az network public-ip list \
       --only-show-errors \
       --output tsv \
-      [?!contains(name,'-AG-')].id" \
+      --query "[?!contains(name,'-AG-')].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${public_ip_ids}" ]; then
@@ -349,7 +349,7 @@ function main() {
   recovery_service_vault_ids="$(az backup vault list \
       --only-show-errors \
       --output tsv \
-      [].id" \
+      --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
   if [ -z "${recovery_service_vault_ids}" ]; then
@@ -371,7 +371,7 @@ function main() {
       backup_item_ids="$(az backup item list \
           --only-show-errors \
           --output tsv \
-          [].id" \
+          --query "[].id" \
           --resource-group "${parameters[--resource-group-name]}" \
           --vault-name "$(basename "${recovery_service_vault_id}")" \
         )"
