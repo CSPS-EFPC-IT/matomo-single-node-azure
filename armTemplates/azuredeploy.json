@@ -696,9 +696,9 @@
 							"serviceEndpoints": [],
 							"delegations": [
 								{
-									"name": "Microsoft.DBforMySQL.flexibleServers",
+									"name": "Microsoft.DBforMySQL.servers",
 									"properties": {
-										"serviceName": "Microsoft.DBforMySQL/flexibleServers"
+										"serviceName": "Microsoft.DBforMySQL/servers"
 									}
 								}
 							],
@@ -1075,7 +1075,7 @@
 			}
 		},
 		{
-			"type": "Microsoft.DBforMySQL/flexibleServers",
+			"type": "Microsoft.DBforMySQL/servers",
 			"apiVersion": "[variables('apiVersion')]",
 			"name": "[variables('databaseName')]",
 			"dependsOn": [
@@ -1113,11 +1113,11 @@
 			}
 		},
 		{
-			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"type": "Microsoft.DBforMySQL/servers/configurations",
 			"apiVersion": "[variables('apiVersion')]",
 			"name": "[concat(variables('databaseName'), '/audit_log_enabled')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
 			],
 			"properties": {
 				"value": "[parameters('configurationAuditLogEnabled')]",
@@ -1125,11 +1125,11 @@
 			}
 		},
 		{
-			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"type": "Microsoft.DBforMySQL/servers/configurations",
 			"apiVersion": "[variables('apiVersion')]",
 			"name": "[concat(variables('databaseName'), '/audit_log_events')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
 			],
 			"properties": {
 				"value": "[parameters('configurationAuditLogEvents')]",
@@ -1137,11 +1137,11 @@
 			}
 		},
 		{
-			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"type": "Microsoft.DBforMySQL/servers/configurations",
 			"apiVersion": "[variables('apiVersion')]",
 			"name": "[concat(variables('databaseName'), '/character_set_server')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
 			],
 			"properties": {
 				"value": "[parameters('configurationCharacterSetServer')]",
@@ -1149,11 +1149,11 @@
 			}
 		},
 		{
-			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"type": "Microsoft.DBforMySQL/servers/configurations",
 			"apiVersion": "[variables('apiVersion')]",
 			"name": "[concat(variables('databaseName'), '/collation_server')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
 			],
 			"properties": {
 				"value": "[parameters('configurationCollationServer')]",
@@ -1165,10 +1165,10 @@
 			"apiVersion": "2021-05-01-preview",
 			"name": "local-mysql-logging",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]",
         			"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
 			],
-			"scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]",
+			"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]",
 			"properties": {
 				"logs": [
 					{
@@ -1320,7 +1320,7 @@
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Azure.Extensions",
