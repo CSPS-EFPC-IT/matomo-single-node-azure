@@ -370,7 +370,7 @@
 		"databaseSkuTier": "GeneralPurpose",
 		"databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
 		"databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
-		"databaseVersion": "8.0.21",
+		"databaseVersion": "5.7",
 		"diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
 		"diagnosticStorageAccountSasProperties": {
 			"signedServices": "bt",
