@@ -366,7 +366,7 @@
 		"databaseApplicationDatabaseName": "[tolower(custom.cleanName(parameters('databaseApplicationUsername')))]",
 		"databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
 		"databaseNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
-		"databaseSkuName": "Standard_D2ds_v4",
+		"databaseSkuName": "GP_Gen5_2",
 		"databaseSkuTier": "GeneralPurpose",
 		"databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
 		"databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
