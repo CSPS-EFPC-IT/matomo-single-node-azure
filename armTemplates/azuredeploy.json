@@ -355,7 +355,7 @@
 		}
 	],
 	"variables": {
-		"apiVersion": "2021-12-01-preview",
+		"apiVersion": "2017-12-01-preview",
 		"applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
 		"applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
 		"applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
