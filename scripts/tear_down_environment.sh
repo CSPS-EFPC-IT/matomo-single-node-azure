@@ -165,7 +165,7 @@ function main() {
   fi
 
   echo "Deleting MySQL Server, if any..."
-  mysql_server_ids="$(az mysql flexible-server list \
+  mysql_server_ids="$(az mysql server list \
       --only-show-errors \
       --output tsv \
       --query "[].id" \
@@ -178,7 +178,7 @@ function main() {
     for mysql_server_id in ${mysql_server_ids}; do
       ((++index))
       echo "(${index}) Deleting ${mysql_server_id}..."
-      az mysql flexible-server delete \
+      az mysql server delete \
         --ids "${mysql_server_id}" \
         --only-show-errors \
         --output none \
