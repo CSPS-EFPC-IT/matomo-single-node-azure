@@ -15,13 +15,13 @@ And installs the following software (up to their latest available patch level fo
 - Ubuntu 20.04.2
 - Mysql client 5.7
 - Apache 2.4
-- PHP-CLI 7.2
-- PHP 7.2 modules
-  - php7.2-gd
-  - php7.2-curl
-  - php7.2-mbstring
-  - php7.2-mysql
-  - php7.2-xml
+- PHP-CLI 8.2
+- PHP 8.2 modules
+  - php8.2-gd
+  - php8.2-curl
+  - php8.2-mbstring
+  - php8.2-mysql
+  - php8.2-xml
 - libmaxminddb
 
 # Prerequisites
