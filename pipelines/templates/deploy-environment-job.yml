@@ -40,19 +40,20 @@ jobs:
               csmFile: 'armTemplates/azuredeploy.json'
               overrideParameters: >-
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
+                -applicationCustomFqdn "$(applicationCustomFqdn)"
                 -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
-                -currentProjectRepoRawFilesBaseUrl "$(currentProjectRepoRawFilesBaseUrl)"
                 -configurationAuditLogEvents "$(configurationAuditLogEvents)"
-                -configurationCharacterSetServer "$(utf8mb4)"
-                -configurationCollationServer "$(utf8mb4_0900_ai_ci)"
-                -customApplicationFqdn "$(customApplicationFqdn)"
+                -configurationCharacterSetServer "$(configurationCharacterSetServer)"
+                -configurationCollationServer "$(configurationCollationServer)"
                 -databaseCapacity $(databaseCapacity)
                 -databaseIops $(databaseIops)
                 -databaseIopsAutoGrow "$(databaseIopsAutoGrow)"
                 -databaseAdminUsername "$(databaseAdminUsername)"
                 -databaseAdminPassword "$(databaseAdminPassword)"
+                -databaseApplicationPassword "$(databaseApplicationPassword)"
+                -databaseApplicationUsername "$(databaseApplicationUsername)"
                 -databaseBackupRetentionDays $(databaseBackupRetentionDays)
-                -databaseServerStorageSizeGB "$(databaseServerStorageSizeGB)"
+                -databaseStorageGb $(databaseStorageGb)
                 -dataDiskSizeGB $(dataDiskSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
@@ -63,12 +64,14 @@ jobs:
                 -highAvailabilityMode "$(highAvailabilityMode)"
                 -resourceLocation "$(resourceLocation)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
+                -projectPublicRawFilesBaseUrl "$(projectPublicRawFilesBaseUrl)"
                 -projectShortName "$(projectShortName)"
                 -resourceTags $(resourceTags)
                 -smtpServerFqdn "$(smtpServerFqdn)"
                 -smtpServerFromAddress "$(smtpServerFromAddress)"
                 -smtpServerPassword "$(smtpServerPassword)"
                 -smtpServerPort $(smtpServerPort)
+                -smtpServerPrivateIp "$(smtpServerPrivateIp)"
                 -smtpServerUsername "$(smtpServerUsername)"
                 -storageAccountAllowedIpAddressList "$(corporateGatewayIpAddressList)"
                 -virtualMachineTags $(virtualMachineTags)
@@ -76,6 +79,7 @@ jobs:
                 -webServerAdminEmail "$(webServerAdminEmail)"
                 -webServerAdminPassword "$(webServerAdminPassword)"
                 -webServerAdminUsername "$(webServerAdminUsername)"
+                -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime)
                 -webServerRebootUtcTime "$(webServerRebootUtcTime)"
                 -webServerVirtualMachineSize "$(webServerVirtualMachineSize)"
               deploymentMode: 'Incremental'

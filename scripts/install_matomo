@@ -33,12 +33,12 @@ function main() {
   local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/7.2/apache2/php.ini"
+  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.2/apache2/php.ini"
   local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.11.0.tar.gz"
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.15.1.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
   local matomo_package_file_name
@@ -105,7 +105,7 @@ function main() {
 
   logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
-    mysql-client-5.7
+    mysql-client
 
   #############################################################################
 
@@ -117,21 +117,23 @@ function main() {
 
   logger::action "Adding ppa:maxmind package repository..."
   add-apt-repository --yes ppa:maxmind/ppa
+  logger::action "Adding ppa:ondrej/php package repository..."
+  add-apt-repository --yes ppa:ondrej/php
   apt update
 
   logger::action "Installing packages..."
   apt install --yes --quiet \
     apache2 \
-    libapache2-mod-php \
+    libapache2-mod-php8.2 \
     libmaxminddb-dev \
     libmaxminddb0 \
     mmdb-bin \
-    php-cli \
-    php-curl \
-    php-gd \
-    php-mbstring \
-    php-mysql \
-    php-xml \
+    php8.2-cli \
+    php8.2-curl \
+    php8.2-gd \
+    php8.2-mbstring \
+    php8.2-mysql \
+    php8.2-xml \
 
   #############################################################################
 

@@ -20,9 +20,12 @@ declare -A parameters=( \
   [db_server_matomo_password]= \
   [db_server_matomo_username]= \
   [php_max_execution_time]= \
-  [smtp_server_fqdn]= \
+  [smtp_server_fqdn]= \,
+  [smtp_server_from_address]= \
+  [smtp_server_password]= \
   [smtp_server_port]= \
   [smtp_server_private_ip]= \
+  [smtp_server_username]= \
   [web_server_admin_email]= \
   [web_server_fqdn]= \
   [web_server_reboot_utc_time]= \
@@ -65,7 +68,10 @@ function main() {
     --server_reboot_utc_time "${parameters[web_server_reboot_utc_time]}" \
     --server_resource_name "${parameters[web_server_resource_name]}" \
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
-    --smtp_server_port "${parameters[smtp_server_port]}"
+    --smtp_server_from_address "${parameters[smtp_server_from_address]}" \
+    --smtp_server_password "${parameters[smtp_server_password]}" \
+    --smtp_server_port "${parameters[smtp_server_port]}" \
+    --smtp_server_username "${parameters[smtp_server_username]}"
 
   #############################################################################
 
@@ -83,6 +89,13 @@ function main() {
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --smtp_server_private_ip "${parameters[smtp_server_private_ip]}" \
     --web_server_fqdn "${parameters[web_server_fqdn]}"
+
+  logger::title "Install Linux Diagnostic Extension Prerequisites"
+  # Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux-v3
+  logger::action "Installing python2..."
+  sudo apt install -y python2
+  logger::action "Updating python link..."
+  sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
 
   #############################################################################
 

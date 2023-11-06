@@ -5,7 +5,7 @@
         "applicationCustomFqdn": {
             "value": "myapp.domain.com"
         },
-        "armTemplateRepoBaseUrl": {
+        "armTemplateRepoRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
         },
         "configurationAuditLogEnabled": {
@@ -15,10 +15,10 @@
             "value": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS"
         },
         "configurationCharacterSetServer": {
-            "value": "utf8mb4"
+            "value": "UTF8MB4"
         },
         "configurationCollationServer": {
-            "value": "utf8mb4_0900_ai_ci"
+            "value": "UTF8MB4_0900_AI_CI"
         },
         "databaseAdminPassword": {
             "value": "mySecret"
@@ -61,7 +61,7 @@
                 "/subscriptions/my-subscription-id/resourceGroups/my-resource-group-name/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myUAMI": {}
             }
         },
-        "genericShellScriptsPublicRawFilesUrl": {
+        "genericShellScriptsRepoRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
         },
         "geoRedundantBackup": {
@@ -88,8 +88,17 @@
         "smtpServerFqdn": {
             "value": "my.smtp.domain.com"
         },
+        "smtpServerFromAddress": {
+            "value": "my-from-addresse@my.domain"
+        },
+        "smtpServerPassword": {
+            "value": "mySmtpServerPassword"
+        },
         "smtpServerPort": {
             "value": 25
+        },
+        "smtpServerUsername": {
+            "value": "mySmtpServerUsername"
         },
         "smtpServerPrivateIp": {
             "value": "255.255.255.255"
