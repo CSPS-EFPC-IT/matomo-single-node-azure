@@ -39,33 +39,29 @@ jobs:
               templateLocation: 'Linked artifact'
               csmFile: 'armTemplates/azuredeploy.json'
               overrideParameters: >-
-                -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -applicationCustomFqdn "$(applicationCustomFqdn)"
+                -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
                 -configurationAuditLogEvents "$(configurationAuditLogEvents)"
                 -configurationCharacterSetServer "$(configurationCharacterSetServer)"
                 -configurationCollationServer "$(configurationCollationServer)"
-                -databaseCapacity $(databaseCapacity)
-                -databaseIops $(databaseIops)
-                -databaseIopsAutoGrow "$(databaseIopsAutoGrow)"
-                -databaseAdminUsername "$(databaseAdminUsername)"
                 -databaseAdminPassword "$(databaseAdminPassword)"
+                -databaseAdminUsername "$(databaseAdminUsername)"
                 -databaseApplicationPassword "$(databaseApplicationPassword)"
                 -databaseApplicationUsername "$(databaseApplicationUsername)"
                 -databaseBackupRetentionDays $(databaseBackupRetentionDays)
-                -databaseStorageGb $(databaseStorageGb)
+                -databaseCapacity $(databaseCapacity)
+                -databaseStorageMb $(databaseStorageMb)
                 -dataDiskSizeGB $(dataDiskSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
                 -gatewaySslCertificateUri "$(gatewaySslCertificateUri)"
                 -gatewayUserAssignedIdentity "$(gatewayUserAssignedIdentity)"
                 -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"
-                -geoRedundantBackup "$(geoRedundantBackup)"
-                -highAvailabilityMode "$(highAvailabilityMode)"
-                -resourceLocation "$(resourceLocation)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
                 -projectPublicRawFilesBaseUrl "$(projectPublicRawFilesBaseUrl)"
                 -projectShortName "$(projectShortName)"
+                -resourceLocation "$(resourceLocation)"
                 -resourceTags $(resourceTags)
                 -smtpServerFqdn "$(smtpServerFqdn)"
                 -smtpServerFromAddress "$(smtpServerFromAddress)"
