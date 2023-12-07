@@ -35,14 +35,8 @@
         "databaseBackupRetentionDays": {
             "value": 7
         },
-        "databaseIops": {
-            "value": 1000
-        },
-        "databaseIopsAutoGrow": {
-            "value": "Enabled"
-        },
-        "databaseStorageGb": {
-            "value": 256
+        "databaseStorageMb": {
+            "value": 5120
         },
         "dataDiskSizeGB" : {
             "value": 64
@@ -63,12 +57,6 @@
         },
         "genericShellScriptsRepoRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
-        },
-        "geoRedundantBackup": {
-            "value": "Disabled"
-        },
-        "highAvailabilityMode": {
-            "value": "Disabled"
         },
         "projectPublicRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
