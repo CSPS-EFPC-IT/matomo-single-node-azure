@@ -10,26 +10,26 @@
 # See the ARM template deployment parameters for the exact version used.
 
 # Parameters: all manadatory and must be prefixed with "--" on command line.
-declare -A parameters=( \
-  [data_disk_mount_point_path]= \
-  [data_disk_size]= \
-  [db_server_admin_password]= \
-  [db_server_admin_username]= \
-  [db_server_fqdn]= \
-  [db_server_matomo_database]= \
-  [db_server_matomo_password]= \
-  [db_server_matomo_username]= \
-  [php_max_execution_time]= \
-  [smtp_server_fqdn]= \,
-  [smtp_server_from_address]= \
-  [smtp_server_password]= \
-  [smtp_server_port]= \
-  [smtp_server_private_ip]= \
-  [smtp_server_username]= \
-  [web_server_admin_email]= \
-  [web_server_fqdn]= \
-  [web_server_reboot_utc_time]= \
-  [web_server_resource_name]= \
+declare -A parameters=(\
+  [data_disk_mount_point_path]=\
+  [data_disk_size]=\
+  [db_server_admin_password]=\
+  [db_server_admin_username]=\
+  [db_server_fqdn]=\
+  [db_server_matomo_database]=\
+  [db_server_matomo_password]=\
+  [db_server_matomo_username]=\
+  [php_max_execution_time]=\
+  [smtp_server_fqdn]=\
+  [smtp_server_from_address]=\
+  [smtp_server_password]=\
+  [smtp_server_port]=\
+  [smtp_server_private_ip]=\
+  [smtp_server_username]=\
+  [web_server_admin_email]=\
+  [web_server_fqdn]=\
+  [web_server_reboot_utc_time]=\
+  [web_server_resource_name]=\
 )
 
 # Functions
