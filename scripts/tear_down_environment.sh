@@ -229,59 +229,6 @@ function main() {
     done
   fi
 
-  echo "Deleting Private DNS Zones, if any..."
-  private_dns_zone_names="$(az network private-dns zone list \
-      --only-show-errors \
-      --output tsv \
-      --query "[].name" \
-      --resource-group "${parameters[--resource-group-name]}" \
-    )"
-  if [ -z "${private_dns_zone_names}" ]; then
-    echo "No Private DNS Zones Found. Skipping."
-  else
-    index=0
-    for private_dns_zone_name in ${private_dns_zone_names}; do
-      ((++index))
-      echo "(${index}) Processing ${private_dns_zone_name}..."
-
-      echo "(${index}) Deleting Link VNets, if any..."
-      link_vnet_names="$(az network private-dns link vnet list \
-          --only-show-errors \
-          --output tsv \
-          --query "[].name" \
-          --resource-group "${parameters[--resource-group-name]}" \
-          --zone-name "${private_dns_zone_name}" \
-        )"
-      if [ -z "${link_vnet_names}" ]; then
-        echo "(${index}) No Link Vnet Found. Skipping."
-      else
-        subindex=0
-        for link_vnet_name in ${link_vnet_names}; do
-          ((++subindex))
-          echo "(${index}.${subindex}) Deleting Link Vnet ${link_vnet_name}..."
-          az network private-dns link vnet delete \
-            --name "${link_vnet_name}" \
-            --only-show-errors \
-            --output none \
-            --resource-group "${parameters[--resource-group-name]}" \
-            --yes \
-            --zone-name "${private_dns_zone_name}"
-        done
-        # Workaround to prevent Private DNS Zone deletion failures.
-        # Wait a little while for the link vnets to be deleted.
-        sleep 30
-      fi
-
-      echo "(${index}) Deleting the Private DNS Zone..."
-      az network private-dns zone delete \
-        --name "${private_dns_zone_name}" \
-        --only-show-errors \
-        --output none \
-        --resource-group "${parameters[--resource-group-name]}" \
-        --yes
-    done
-  fi
-
   echo "Deleting Virtual Networks, if any..."
   virtual_network_ids="$(az network vnet list \
       --only-show-errors \
