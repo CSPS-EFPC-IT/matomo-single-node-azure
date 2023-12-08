@@ -6,18 +6,18 @@
 
 # Parameters: all manadatory and must be prefix with "--" on command line.
 declare -A parameters=( \
-  [data_disk_mount_point_path]=\
-  [data_disk_size]=\
-  [db_server_admin_password]=\
-  [db_server_admin_username]=\
-  [db_server_fqdn]=\
-  [db_server_matomo_database]=\
-  [db_server_matomo_password]=\
-  [db_server_matomo_username]=\
-  [php_max_execution_time]=\
-  [smtp_server_fqdn]=\
-  [smtp_server_private_ip]=\
-  [web_server_fqdn]=\
+  [data_disk_mount_point_path]="" \
+  [data_disk_size]="" \
+  [db_server_admin_password]="" \
+  [db_server_admin_username]="" \
+  [db_server_fqdn]="" \
+  [db_server_matomo_database]="" \
+  [db_server_matomo_password]="" \
+  [db_server_matomo_username]="" \
+  [php_max_execution_time]="" \
+  [smtp_server_fqdn]="" \
+  [smtp_server_private_ip]="" \
+  [web_server_fqdn]="" \
 )
 
 # Functions
@@ -195,7 +195,7 @@ function main() {
   logger::title "Setup MySQL Database"
 
   mysql::create_user_options_file \
-    "${parameters[db_server_admin_username]}" \
+    "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[db_server_fqdn]}" \
     "3306" \
