@@ -39,26 +39,25 @@ jobs:
               templateLocation: 'Linked artifact'
               csmFile: 'armTemplates/azuredeploy.json'
               overrideParameters: >-
-                -applicationCustomFqdn "$(applicationCustomFqdn)"
+                -applicationGatewaySslCertificateUri "$(applicationGatewaySslCertificateUri)"
+                -applicationGatewayUserAssignedIdentity "$(applicationGatewayUserAssignedIdentity)"
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
-                -configurationAuditLogEnabled "$(configurationAuditLogEnabled)"
-                -configurationAuditLogEvents "$(configurationAuditLogEvents)"
-                -configurationCharacterSetServer "$(configurationCharacterSetServer)"
-                -configurationCollationServer "$(configurationCollationServer)"
-                -databaseAdminPassword "$(databaseAdminPassword)"
-                -databaseAdminUsername "$(databaseAdminUsername)"
-                -databaseApplicationPassword "$(databaseApplicationPassword)"
-                -databaseApplicationUsername "$(databaseApplicationUsername)"
-                -databaseBackupRetentionDays $(databaseBackupRetentionDays)
-                -databaseCapacity $(databaseCapacity)
-                -databaseStorageMb $(databaseStorageMb)
+                -databaseServerAdminPassword "$(databaseServerAdminPassword)"
+                -databaseServerAdminUsername "$(databaseServerAdminUsername)"
+                -databaseServerBackupRetentionDays $(databaseServerBackupRetentionDays)
+                -databaseServerCapacity $(databaseServerCapacity)
+                -databaseServerConfigurationAuditLogEnabled "$(databaseServerConfigurationAuditLogEnabled)"
+                -databaseServerConfigurationAuditLogEvents "$(databaseServerConfigurationAuditLogEvents)"
+                -databaseServerConfigurationCharacterSetServer "$(databaseServerConfigurationCharacterSetServer)"
+                -databaseServerConfigurationCollationServer "$(databaseServerConfigurationCollationServer)"
+                -databaseServerStorageMb $(databaseServerStorageMb)
                 -dataDiskSizeGB $(dataDiskSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
-                -gatewaySslCertificateUri "$(gatewaySslCertificateUri)"
-                -gatewayUserAssignedIdentity "$(gatewayUserAssignedIdentity)"
                 -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
+                -matomoDatabasePassword "$(matomoDatabasePassword)"
+                -matomoDatabaseUsername "$(matomoDatabaseUsername)"
                 -projectPublicRawFilesBaseUrl "$(projectPublicRawFilesBaseUrl)"
                 -projectShortName "$(projectShortName)"
                 -resourceLocation "$(resourceLocation)"
@@ -76,6 +75,7 @@ jobs:
                 -webServerAdminPassword "$(webServerAdminPassword)"
                 -webServerAdminUsername "$(webServerAdminUsername)"
                 -webServerBackendMaxExecutionTime $(webServerBackendMaxExecutionTime)
+                -webServerFqdn "$(webServerFqdn)"
                 -webServerRebootUtcTime "$(webServerRebootUtcTime)"
                 -webServerVirtualMachineSize "$(webServerVirtualMachineSize)"
               deploymentMode: 'Incremental'

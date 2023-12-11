@@ -28,12 +28,10 @@ function main() {
   local bastion_names
   local disk_ids
   local index
-  local link_vnet_names
   local log_analytics_workspace_names
   local network_interface_card_ids
   local network_security_group_ids
   local mysql_server_ids
-  local private_dns_zone_names
   local public_ip_ids
   local recovery_service_vault_ids
   local storage_account_ids

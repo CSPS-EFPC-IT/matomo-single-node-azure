@@ -2,10 +2,16 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"applicationCustomFqdn": {
+		"applicationGatewaySslCertificateUri": {
 			"type": "string",
 			"metadata": {
-				"description": "The custom fully qualified domain name for this moodle instance."
+				"description": "The URI of the SSL Certificate Secret used by the Application Gateway."
+			}
+		},
+		"applicationGatewayUserAssignedIdentity": {
+			"type": "object",
+			"metadata": {
+				"description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
 			}
 		},
 		"armTemplateRepoRawFilesBaseUrl": {
@@ -14,7 +20,34 @@
 				"description": "The base URL of the Azure Resource Manager template repository raw files."
 			}
 		},
-		"configurationAuditLogEnabled": {
+		"databaseServerAdminPassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The password to use in order to manage the database server."
+			}
+		},
+		"databaseServerAdminUsername": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The username to use in order to manage the database server."
+			}
+		},
+		"databaseServerBackupRetentionDays": {
+			"type": "int",
+			"minValue": 7,
+			"maxValue": 35,
+			"metadata": {
+				"description": "The database backup retention period in days."
+			}
+		},
+		"databaseServerCapacity": {
+			"type": "int",
+			"defaultValue": 2,
+			"metadata": {
+				"description": "Allowed database capacity."
+			}
+		},
+		"databaseServerConfigurationAuditLogEnabled": {
 			"type": "string",
 			"defaultValue": "On",
 			"allowedValues": [
@@ -25,67 +58,28 @@
 				"description": "The value of the database server's parameter \"audit_log_enabled\"."
 			}
 		},
-		"configurationAuditLogEvents": {
+		"databaseServerConfigurationAuditLogEvents": {
 			"type": "string",
 			"defaultValue": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS",
 			"metadata": {
 				"description": "The value of the database server's parameter \"audit_log_events\"."
 			}
 		},
-		"configurationCharacterSetServer": {
+		"databaseServerConfigurationCharacterSetServer": {
 			"type": "string",
 			"defaultValue": "utf8mb4",
 			"metadata": {
 				"description": "The value of the database server's parameter \"character_set_server\"."
 			}
 		},
-		"configurationCollationServer": {
+		"databaseServerConfigurationCollationServer": {
 			"type": "string",
 			"defaultValue": "utf8mb4_0900_ai_ci",
 			"metadata": {
 				"description": "The value of the database server's parameter \"collation_server\"."
 			}
 		},
-		"databaseAdminPassword": {
-			"type": "securestring",
-			"metadata": {
-				"description": "The password to use in order to manage the database server."
-			}
-		},
-		"databaseAdminUsername": {
-			"type": "securestring",
-			"metadata": {
-				"description": "The username to use in order to manage the database server."
-			}
-		},
-		"databaseApplicationPassword": {
-			"type": "securestring",
-			"metadata": {
-				"description": "The Matomo application database account password."
-			}
-		},
-		"databaseApplicationUsername": {
-			"type": "securestring",
-			"metadata": {
-				"description": "The Matomo application database account username."
-			}
-		},
-		"databaseBackupRetentionDays": {
-			"type": "int",
-			"minValue": 7,
-			"maxValue": 35,
-			"metadata": {
-				"description": "The database backup retention period in days."
-			}
-		},
-		"databaseCapacity": {
-			"type": "int",
-			"defaultValue": 2,
-			"metadata": {
-				"description": "Allowed database capacity."
-			}
-		},
-		"databaseStorageMb": {
+		"databaseServerStorageMb": {
 			"type": "int",
 			"minValue": 5120,
 			"maxValue": 16777216,
@@ -126,18 +120,6 @@
 				"description": "The name of the provisioned environment. Used to build resource names."
 			}
 		},
-		"gatewaySslCertificateUri": {
-			"type": "string",
-			"metadata": {
-				"description": "The URI of the SSL Certificate Secret used by the Application Gateway."
-			}
-		},
-		"gatewayUserAssignedIdentity": {
-			"type": "object",
-			"metadata": {
-				"description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
-			}
-		},
 		"genericShellScriptsRepoRawFilesBaseUrl": {
 			"type": "string",
 			"metadata": {
@@ -151,6 +133,18 @@
 			"defaultValue": 365,
 			"metadata": {
 				"description": "The log retention period in days of the Log Analytics Workspace resource."
+			}
+		},
+		"matomoDatabasePassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The Matomo application database account password."
+			}
+		},
+		"matomoDatabaseUsername": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The Matomo application database account username."
 			}
 		},
 		"projectPublicRawFilesBaseUrl": {
@@ -261,6 +255,12 @@
 				"description": "The time (in seconds) allowed to the Web server backend to fullfil a request."
 			}
 		},
+		"webServerFqdn": {
+			"type": "string",
+			"metadata": {
+				"description": "The custom fully qualified domain name for this matomo instance."
+			}
+		},
 		"webServerRebootUtcTime": {
 			"type": "string",
 			"metadata": {
@@ -294,6 +294,26 @@
 		}
 	],
 	"variables": {
+		"applicationGatewayBackendAddressPoolName": "matomo-web-server",
+		"applicationGatewayBackendHttpSettingsCollectionName": "[concat(parameters('projectShortName'), '-HTTP-Settings')]",
+		"applicationGatewayBackendHttpSettingsCollectionRequestTimeout": "[add(parameters('webServerBackendMaxExecutionTime'),1)]",
+		"applicationGatewayFrontendIPConfigurationsName": "appGwPublicFrontendIp",
+		"applicationGatewayFrontendPortHttpName": "HTTP-Port",
+		"applicationGatewayFrontendPortHttpsName": "HTTPS-Port",
+		"applicationGatewayGatewayIPConfigurationsName": "appGatewayIpConfig",
+		"applicationGatewayHttpListenersHttpName": "HTTP-Listener",
+		"applicationGatewayHttpListenersHttpsName": "HTTPS-Listener",
+		"applicationGatewayName": "[concat(variables('resourceNamePrefix'), '-AG')]",
+		"applicationGatewayNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-NSG')]",
+		"applicationGatewayPublicIpDomainNameLabel": "[tolower(concat(variables('resourceNamePrefix')))]",
+		"applicationGatewayPublicIpName": "[concat(variables('applicationGatewayName'), '-PublicIP')]",
+		"applicationGatewayRedirectConfigurationsName": "HTTP-Redirect",
+		"applicationGatewayRequestRoutingRuleHttpName": "HTTP-Rule",
+		"applicationGatewayRequestRoutingRuleHttpsName": "HTTPS-Rule",
+		"applicationGatewayRewriteRuleSetsName": "Custom-Rewrite-Rules",
+		"applicationGatewaySslCertificateHttpsName": "HTTPS-Certificate",
+		"applicationGatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
+		"applicationGatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
 		"applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
 		"applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
 		"applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
@@ -301,12 +321,12 @@
 		"bastionPublicIpName": "[concat(variables('bastionName'), '-PublicIP')]",
 		"bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
 		"bastionSubnetName": "AzureBastionSubnet",
-		"databaseApiVersion": "2017-12-01",
-		"databaseApplicationDatabaseName": "[tolower(custom.cleanName(parameters('databaseApplicationUsername')))]",
-		"databaseName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
-		"databaseNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
-		"databaseSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
-		"databaseSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
+		"databaseServerApiVersion": "2017-12-01",
+		"databaseServerMatomoDatabaseName": "[tolower(custom.cleanName(parameters('matomoDatabaseUsername')))]",
+		"databaseServerName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
+		"databaseServerNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
+		"databaseServerSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
+		"databaseServerSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
 		"diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
 		"diagnosticStorageAccountSasProperties": {
 			"signedServices": "bt",
@@ -314,26 +334,6 @@
 			"signedExpiry": "2100-01-01T00:00:00Z", // Basically, forever.
 			"signedResourceTypes": "co"
 		},
-		"gatewayBackendAddressPoolName": "matomo-web-server",
-		"gatewayBackendHttpSettingsCollectionName": "[concat(parameters('projectShortName'), '-HTTP-Settings')]",
-		"gatewayBackendHttpSettingsCollectionRequestTimeout": "[add(parameters('webServerBackendMaxExecutionTime'),1)]",
-		"gatewayFrontendIPConfigurationsName": "appGwPublicFrontendIp",
-		"gatewayFrontendPortHttpName": "HTTP-Port",
-		"gatewayFrontendPortHttpsName": "HTTPS-Port",
-		"gatewayGatewayIPConfigurationsName": "appGatewayIpConfig",
-		"gatewayHttpListenersHttpName": "HTTP-Listener",
-		"gatewayHttpListenersHttpsName": "HTTPS-Listener",
-		"gatewayName": "[concat(variables('resourceNamePrefix'), '-AG')]",
-		"gatewayNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-NSG')]",
-		"gatewayPublicIpDomainNameLabel": "[tolower(concat(variables('resourceNamePrefix')))]",
-		"gatewayPublicIpName": "[concat(variables('gatewayName'), '-PublicIP')]",
-		"gatewayRedirectConfigurationsName": "HTTP-Redirect",
-		"gatewayRequestRoutingRuleHttpName": "HTTP-Rule",
-		"gatewayRequestRoutingRuleHttpsName": "HTTPS-Rule",
-		"gatewayRewriteRuleSetsName": "Custom-Rewrite-Rules",
-		"gatewaySslCertificateHttpsName": "HTTPS-Certificate",
-		"gatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
-		"gatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
 		"logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
 		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_rsv-bp'), 64)]",
 		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_rsv'), 64)]",
@@ -346,12 +346,12 @@
 		"webServerComputerName": "webserver",
 		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
 		"webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-		"webServerVirtualMachineSetupExtensionName": "SetupWebServer",
 		"webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
 		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
 		"webServerVirtualMachineOsDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-OS-Disk')]",
+		"webServerVirtualMachineSetupExtensionName": "SetupWebServer",
 		"copy": [
 			{
 				"name": "storageAccountAllowedIpRuleArray",
@@ -367,7 +367,7 @@
 		{
 			"type": "Microsoft.Network/networkSecurityGroups",
 			"apiVersion": "2019-11-01",
-			"name": "[variables('gatewayNetworkSecurityGroupName')]",
+			"name": "[variables('applicationGatewayNetworkSecurityGroupName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
 			"properties": {
@@ -469,7 +469,7 @@
 						}
 					},
 					{
-						"name": "[concat('Allow_', variables('gatewayName'), '_TCP_80_Inbound')]",
+						"name": "[concat('Allow_', variables('applicationGatewayName'), '_TCP_80_Inbound')]",
 						"properties": {
 							"access": "Allow",
 							"destinationAddressPrefix": "*",
@@ -477,7 +477,7 @@
 							"direction": "Inbound",
 							"priority": 1000,
 							"protocol": "TCP",
-							"sourceAddressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
+							"sourceAddressPrefix": "[variables('applicationGatewaySubnetAddressPrefix')]",
 							"sourcePortRange": "*"
 						}
 					},
@@ -513,21 +513,21 @@
 		{
 			"type": "Microsoft.Network/networkSecurityGroups",
 			"apiVersion": "2022-05-01",
-			"name": "[variables('databaseNetworkSecurityGroupName')]",
+			"name": "[variables('databaseServerNetworkSecurityGroupName')]",
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [],
 			"properties": {
 				"securityRules": [
 					{
 						"name": "AllowCidrBlockMySQLInbound",
-						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
+						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseServerNetworkSecurityGroupName'), 'AllowCidrBlockMySQLInbound')]",
 						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
 						"properties": {
 							"protocol": "TCP",
 							"sourcePortRange": "*",
 							"destinationPortRange": "3306",
 							"sourceAddressPrefix": "[variables('applicationSubnetAddressPrefix')]",
-							"destinationAddressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+							"destinationAddressPrefix": "[variables('databaseServerSubnetAddressPrefix')]",
 							"access": "Allow",
 							"priority": 1000,
 							"direction": "Inbound",
@@ -539,7 +539,7 @@
 					},
 					{
 						"name": "DenyAnyCustomAnyInbound",
-						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
+						"id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('databaseServerNetworkSecurityGroupName'), 'DenyAnyCustomAnyInbound')]",
 						"type": "Microsoft.Network/networkSecurityGroups/securityRules",
 						"properties": {
 							"protocol": "*",
@@ -566,9 +566,9 @@
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]",
+				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationGatewayNetworkSecurityGroupName'))]",
 				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]",
-				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
+				"[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseServerNetworkSecurityGroupName'))]"
 			],
 			"properties": {
 				"addressSpace": {
@@ -588,11 +588,11 @@
 						}
 					},
 					{
-						"name": "[variables('gatewaySubnetName')]",
+						"name": "[variables('applicationGatewaySubnetName')]",
 						"properties": {
-							"addressPrefix": "[variables('gatewaySubnetAddressPrefix')]",
+							"addressPrefix": "[variables('applicationGatewaySubnetAddressPrefix')]",
 							"networkSecurityGroup": {
-								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('gatewayNetworkSecurityGroupName'))]"
+								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationGatewayNetworkSecurityGroupName'))]"
 							},
 							"serviceEndpoints": [],
 							"delegations": [],
@@ -627,11 +627,11 @@
 						}
 					},
 					{
-						"name": "[variables('databaseSubnetName')]",
+						"name": "[variables('databaseServerSubnetName')]",
 						"properties": {
-							"addressPrefix": "[variables('databaseSubnetAddressPrefix')]",
+							"addressPrefix": "[variables('databaseServerSubnetAddressPrefix')]",
 							"networkSecurityGroup": {
-								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseNetworkSecurityGroupName'))]"
+								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('databaseServerNetworkSecurityGroupName'))]"
 							},
 							"serviceEndpoints": [],
 							"delegations": [
@@ -698,7 +698,7 @@
 		{
 			"type": "Microsoft.Network/publicIPAddresses",
 			"apiVersion": "2019-11-01",
-			"name": "[variables('gatewayPublicIpName')]",
+			"name": "[variables('applicationGatewayPublicIpName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
 			"sku": {
@@ -709,7 +709,7 @@
 				"publicIPAllocationMethod": "Static",
 				"idleTimeoutInMinutes": 4,
 				"dnsSettings": {
-					"domainNameLabel": "[variables('gatewayPublicIpDomainNameLabel')]"
+					"domainNameLabel": "[variables('applicationGatewayPublicIpDomainNameLabel')]"
 				},
 				"ipTags": []
 			}
@@ -717,16 +717,16 @@
 		{
 			"type": "Microsoft.Network/applicationGateways",
 			"apiVersion": "2019-11-01",
-			"name": "[variables('gatewayName')]",
+			"name": "[variables('applicationGatewayName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-				"[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
+				"[resourceId('Microsoft.Network/publicIPAddresses', variables('applicationGatewayPublicIpName'))]"
 			],
 			"identity": {
 				"type": "UserAssigned",
-				"userAssignedIdentities": "[parameters('gatewayUserAssignedIdentity')]"
+				"userAssignedIdentities": "[parameters('applicationGatewayUserAssignedIdentity')]"
 			},
 			"properties": {
 				"sku": {
@@ -735,34 +735,34 @@
 				},
 				"gatewayIPConfigurations": [
 					{
-						"name": "[variables('gatewayGatewayIPConfigurationsName')]",
+						"name": "[variables('applicationGatewayGatewayIPConfigurationsName')]",
 						"properties": {
 							"subnet": {
-								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('gatewaySubnetName'))]"
+								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationGatewaySubnetName'))]"
 							}
 						}
 					}
 				],
 				"frontendIPConfigurations": [
 					{
-						"name": "[variables('gatewayFrontendIPConfigurationsName')]",
+						"name": "[variables('applicationGatewayFrontendIPConfigurationsName')]",
 						"properties": {
 							"privateIPAllocationMethod": "Dynamic",
 							"publicIPAddress": {
-								"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPublicIpName'))]"
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('applicationGatewayPublicIpName'))]"
 							}
 						}
 					}
 				],
 				"frontendPorts": [
 					{
-						"name": "[variables('gatewayFrontendPortHttpName')]",
+						"name": "[variables('applicationGatewayFrontendPortHttpName')]",
 						"properties": {
 							"port": 80
 						}
 					},
 					{
-						"name": "[variables('gatewayFrontendPortHttpsName')]",
+						"name": "[variables('applicationGatewayFrontendPortHttpsName')]",
 						"properties": {
 							"port": 443
 						}
@@ -770,7 +770,7 @@
 				],
 				"backendAddressPools": [
 					{
-						"name": "[variables('gatewayBackendAddressPoolName')]",
+						"name": "[variables('applicationGatewayBackendAddressPoolName')]",
 						"properties": {
 							"backendAddresses": []
 						}
@@ -778,50 +778,50 @@
 				],
 				"backendHttpSettingsCollection": [
 					{
-						"name": "[variables('gatewayBackendHttpSettingsCollectionName')]",
+						"name": "[variables('applicationGatewayBackendHttpSettingsCollectionName')]",
 						"properties": {
 							"port": 80,
 							"protocol": "Http",
 							"cookieBasedAffinity": "Disabled",
 							"pickHostNameFromBackendAddress": false,
-							"requestTimeout": "[variables('gatewayBackendHttpSettingsCollectionRequestTimeout')]"
+							"requestTimeout": "[variables('applicationGatewayBackendHttpSettingsCollectionRequestTimeout')]"
 						}
 					}
 				],
 				"sslCertificates": [
 					{
-						"name": "[variables('gatewaySslCertificateHttpsName')]",
+						"name": "[variables('applicationGatewaySslCertificateHttpsName')]",
 						"properties": {
-							"keyVaultSecretId": "[parameters('gatewaySslCertificateUri')]"
+							"keyVaultSecretId": "[parameters('applicationGatewaySslCertificateUri')]"
 						}
 					}
 				],
 				"httpListeners": [
 					{
-						"name": "[variables('gatewayHttpListenersHttpsName')]",
+						"name": "[variables('applicationGatewayHttpListenersHttpsName')]",
 						"properties": {
 							"frontendIPConfiguration": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendIPConfigurations/', variables('gatewayFrontendIPConfigurationsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/frontendIPConfigurations/', variables('applicationGatewayFrontendIPConfigurationsName'))]"
 							},
 							"frontendPort": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendPorts/', variables('gatewayFrontendPortHttpsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/frontendPorts/', variables('applicationGatewayFrontendPortHttpsName'))]"
 							},
 							"protocol": "Https",
 							"sslCertificate": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/sslCertificates/', variables('gatewaySslCertificateHttpsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/sslCertificates/', variables('applicationGatewaySslCertificateHttpsName'))]"
 							},
 							"hostNames": [],
 							"requireServerNameIndication": false
 						}
 					},
 					{
-						"name": "[variables('gatewayHttpListenersHttpName')]",
+						"name": "[variables('applicationGatewayHttpListenersHttpName')]",
 						"properties": {
 							"frontendIPConfiguration": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendIPConfigurations/', variables('gatewayFrontendIPConfigurationsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/frontendIPConfigurations/', variables('applicationGatewayFrontendIPConfigurationsName'))]"
 							},
 							"frontendPort": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/frontendPorts/', variables('gatewayFrontendPortHttpName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/frontendPorts/', variables('applicationGatewayFrontendPortHttpName'))]"
 							},
 							"protocol": "Http",
 							"hostNames": [],
@@ -832,32 +832,32 @@
 				"urlPathMaps": [],
 				"requestRoutingRules": [
 					{
-						"name": "[variables('gatewayRequestRoutingRuleHttpsName')]",
+						"name": "[variables('applicationGatewayRequestRoutingRuleHttpsName')]",
 						"properties": {
 							"ruleType": "Basic",
 							"httpListener": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpsName'))]"
 							},
 							"backendAddressPool": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/backendAddressPools/', variables('applicationGatewayBackendAddressPoolName'))]"
 							},
 							"backendHttpSettings": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendHttpSettingsCollection/', variables('gatewayBackendHttpSettingsCollectionName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/backendHttpSettingsCollection/', variables('applicationGatewayBackendHttpSettingsCollectionName'))]"
 							},
 							"rewriteRuleSet": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/rewriteRuleSets/', variables('gatewayRewriteRuleSetsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/rewriteRuleSets/', variables('applicationGatewayRewriteRuleSetsName'))]"
 							}
 						}
 					},
 					{
-						"name": "[variables('gatewayRequestRoutingRuleHttpName')]",
+						"name": "[variables('applicationGatewayRequestRoutingRuleHttpName')]",
 						"properties": {
 							"ruleType": "Basic",
 							"httpListener": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpName'))]"
 							},
 							"redirectConfiguration": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/redirectConfigurations/', variables('gatewayRedirectConfigurationsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/redirectConfigurations/', variables('applicationGatewayRedirectConfigurationsName'))]"
 							}
 						}
 					}
@@ -865,7 +865,7 @@
 				"probes": [],
 				"rewriteRuleSets": [
 					{
-						"name": "[variables('gatewayRewriteRuleSetsName')]",
+						"name": "[variables('applicationGatewayRewriteRuleSetsName')]",
 						"properties": {
 							"rewriteRules": [
 								{
@@ -888,17 +888,17 @@
 				],
 				"redirectConfigurations": [
 					{
-						"name": "[variables('gatewayRedirectConfigurationsName')]",
+						"name": "[variables('applicationGatewayRedirectConfigurationsName')]",
 						"properties": {
 							"redirectType": "Permanent",
 							"targetListener": {
-								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/httpListeners/', variables('gatewayHttpListenersHttpsName'))]"
+								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpsName'))]"
 							},
 							"includePath": true,
 							"includeQueryString": true,
 							"requestRoutingRules": [
 								{
-									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/requestRoutingRules/', variables('gatewayRequestRoutingRuleHttpName'))]"
+									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/requestRoutingRules/', variables('applicationGatewayRequestRoutingRuleHttpName'))]"
 								}
 							]
 						}
@@ -941,7 +941,7 @@
 			"tags": "[parameters('resourceTags')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-				"[resourceId('Microsoft.Network/applicationGateways', variables('gatewayName'))]"
+				"[resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName'))]"
 			],
 			"location": "[parameters('resourceLocation')]",
 			"properties": {
@@ -957,7 +957,7 @@
 							"privateIPAddressVersion": "IPv4",
 							"applicationGatewayBackendAddressPools": [
 								{
-									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('gatewayName')), '/backendAddressPools/', variables('gatewayBackendAddressPoolName'))]"
+									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/backendAddressPools/', variables('applicationGatewayBackendAddressPoolName'))]"
 								}
 							]
 						}
@@ -993,20 +993,20 @@
 		},
 		{
 			"type": "Microsoft.DBforMySQL/servers",
-			"apiVersion": "[variables('databaseApiVersion')]",
-			"name": "[variables('databaseName')]",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[variables('databaseServerName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
 			"sku": {
-				"name": "[concat('GP_Gen5_', parameters('databaseCapacity'))]",
+				"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
 				"tier": "GeneralPurpose",
 				"family": "Gen5",
-				"capacity": "[parameters('databaseCapacity')]"
+				"capacity": "[parameters('databaseServerCapacity')]"
 			},
 			"properties": {
 				"storageProfile": {
-					"storageMB": "[parameters('databaseStorageMb')]",
-					"backupRetentionDays": "[parameters('databaseBackupRetentionDays')]",
+					"storageMB": "[parameters('databaseServerStorageMb')]",
+					"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
 					"geoRedundantBackup": "Disabled",
 					"storageAutogrow": "Enabled"
 				},
@@ -1016,16 +1016,16 @@
 				"infrastructureEncryption": "Disabled",
 				"publicNetworkAccess": "Enabled",
 				"createMode": "Default",
-				"administratorLogin": "[parameters('databaseAdminUsername')]",
-				"administratorLoginPassword": "[parameters('databaseAdminPassword')]"
+				"administratorLogin": "[parameters('databaseServerAdminUsername')]",
+				"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
 			}
 		},
 		{
 			"type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
 			"apiVersion": "2017-12-01",
-			"name": "[concat(variables('databaseName'), '/', variables('applicationSubnetName'))]",
+			"name": "[concat(variables('databaseServerName'), '/', variables('applicationSubnetName'))]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]",
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
 			],
 			"properties": {
@@ -1035,49 +1035,49 @@
 		},
 		{
 			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseApiVersion')]",
-			"name": "[concat(variables('databaseName'), '/audit_log_enabled')]",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
 			],
 			"properties": {
-				"value": "[parameters('configurationAuditLogEnabled')]",
+				"value": "[parameters('databaseServerConfigurationAuditLogEnabled')]",
 				"source": "user-override"
 			}
 		},
 		{
 			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseApiVersion')]",
-			"name": "[concat(variables('databaseName'), '/audit_log_events')]",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
 			],
 			"properties": {
-				"value": "[parameters('configurationAuditLogEvents')]",
+				"value": "[parameters('databaseServerConfigurationAuditLogEvents')]",
 				"source": "user-override"
 			}
 		},
 		{
 			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseApiVersion')]",
-			"name": "[concat(variables('databaseName'), '/character_set_server')]",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
 			],
 			"properties": {
-				"value": "[parameters('configurationCharacterSetServer')]",
+				"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
 				"source": "user-override"
 			}
 		},
 		{
 			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseApiVersion')]",
-			"name": "[concat(variables('databaseName'), '/collation_server')]",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/collation_server')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
 			],
 			"properties": {
-				"value": "[parameters('configurationCollationServer')]",
+				"value": "[parameters('databaseServerConfigurationCollationServer')]",
 				"source": "user-override"
 			}
 		},
@@ -1086,10 +1086,10 @@
 			"apiVersion": "2021-05-01-preview",
 			"name": "local-mysql-logging",
 			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]",
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
 				"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
 			],
-			"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseName'))]",
+			"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
 			"properties": {
 				"logs": [
 					{
@@ -1241,7 +1241,7 @@
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-				"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseName'), variables('applicationSubnetName'))]"
+				"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseServerName'), variables('applicationSubnetName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Azure.Extensions",
@@ -1264,7 +1264,7 @@
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
-					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_mount_point_path ', variables('webServerVirtualMachineDataDiskMountPoint'), ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseAdminPassword'), ' --db_server_admin_username ', parameters('databaseAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseName')).fullyQualifiedDomainName, ' --db_server_matomo_database ', variables('databaseApplicationDatabaseName'), ' --db_server_matomo_password ', parameters('databaseApplicationPassword'), ' --db_server_matomo_username ', parameters('databaseApplicationUsername'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_from_address ', parameters('smtpServerFromAddress'), ' --smtp_server_password ', parameters('smtpServerPassword'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_private_ip ', parameters('smtpServerPrivateIp'), ' --smtp_server_username ', parameters('smtpServerUsername'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('applicationCustomFqdn')), reference(variables('gatewayPublicIpName')).dnsSettings.fqdn, parameters('applicationCustomFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
+					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_mount_point_path ', variables('webServerVirtualMachineDataDiskMountPoint'), ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseServerAdminPassword'), ' --db_server_admin_username ', parameters('databaseServerAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseServerName')).fullyQualifiedDomainName, ' --db_server_matomo_database ', variables('databaseServerMatomoDatabaseName'), ' --db_server_matomo_password ', parameters('matomoDatabasePassword'), ' --db_server_matomo_username ', parameters('matomoDatabaseUsername'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_from_address ', parameters('smtpServerFromAddress'), ' --smtp_server_password ', parameters('smtpServerPassword'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_private_ip ', parameters('smtpServerPrivateIp'), ' --smtp_server_username ', parameters('smtpServerUsername'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('webServerFqdn')), reference(variables('applicationGatewayPublicIpName')).dnsSettings.fqdn, parameters('webServerFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
 				}
 			}
 		},
