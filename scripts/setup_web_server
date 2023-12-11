@@ -63,8 +63,8 @@ function main() {
     --smtp_server_port "${parameters[smtp_server_port]}" \
     --smtp_server_username "${parameters[smtp_server_username]}"
 
-  logger::title "Install Moodle core"
-  ./install_moodle \
+  logger::title "Install Matomo"
+  ./install_matomo \
     --data_disk_size "${parameters[data_disk_size]}" \
     --data_disk_mount_point_path "${parameters[data_disk_mount_point_path]}" \
     --db_server_admin_password "${parameters[db_server_admin_password]}" \
