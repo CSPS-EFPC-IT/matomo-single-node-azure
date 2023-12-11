@@ -16,7 +16,6 @@ declare -A parameters=( \
   [db_server_matomo_username]="" \
   [php_max_execution_time]="" \
   [smtp_server_fqdn]="" \
-  [smtp_server_private_ip]="" \
   [web_server_fqdn]="" \
 )
 
@@ -134,15 +133,6 @@ function main() {
     php8.2-mbstring \
     php8.2-mysql \
     php8.2-xml \
-
-  #############################################################################
-
-  logger::title "Set Up SMTP Server"
-
-  os::add_hosts_file_entry \
-    "${parameters[smtp_server_private_ip]}" \
-    "${parameters[smtp_server_fqdn]}" \
-    "Redirect SMTP Server FQDN to Private IP Address."
 
   #############################################################################
 

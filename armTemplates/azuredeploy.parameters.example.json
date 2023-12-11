@@ -82,9 +82,6 @@
         "smtpServerPort": {
             "value": 25
         },
-        "smtpServerPrivateIp": {
-            "value": "255.255.255.255"
-        },
         "smtpServerUsername": {
             "value": "mySmtpServerUsername"
         },
