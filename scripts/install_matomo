@@ -11,9 +11,9 @@ declare -A parameters=( \
   [db_server_admin_password]="" \
   [db_server_admin_username]="" \
   [db_server_fqdn]="" \
-  [db_server_matomo_database]="" \
-  [db_server_matomo_password]="" \
-  [db_server_matomo_username]="" \
+  [matomo_database_name]="" \
+  [matomo_database_password]="" \
+  [matomo_database_username]="" \
   [php_max_execution_time]="" \
   [smtp_server_fqdn]="" \
   [web_server_fqdn]="" \
@@ -48,13 +48,7 @@ function main() {
 
   logger::title "Start of $0"
 
-  logger::info "This script: "
-  logger::info "1) Sets up a web server running Matomo."
-
-  #############################################################################
-
   logger::title "Parse Input Parameters"
-
   utils::parse_parameters "$@"
 
   #############################################################################
@@ -184,25 +178,14 @@ function main() {
 
   logger::title "Setup MySQL Database"
 
-  mysql::create_user_options_file \
+  mysql::create_database_and_credentials \
+    "${parameters[db_server_fqdn]}" \
     "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
     "${parameters[db_server_admin_password]}" \
-    "${parameters[db_server_fqdn]}" \
-    "3306" \
-    "mysql"
-
-  mysql::create_database_if_not_exists \
-    "${parameters[db_server_matomo_database]}"
-
-  mysql::create_user_if_not_exists \
-    "${parameters[db_server_matomo_username]}" \
-    "${parameters[db_server_matomo_password]}"
-
-  mysql::grant_all_privileges \
-    "${parameters[db_server_matomo_database]}" \
-    "${parameters[db_server_matomo_username]}"
-
-  mysql::delete_user_options_file
+    "${parameters[matomo_database_username]}" \
+    "${parameters[matomo_database_password]}" \
+    "${parameters[matomo_database_name]}"
+  logger::info "Done."
 
   #############################################################################
 

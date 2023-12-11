@@ -16,9 +16,9 @@ declare -A parameters=(\
   [db_server_admin_password]="" \
   [db_server_admin_username]="" \
   [db_server_fqdn]="" \
-  [db_server_matomo_database]="" \
-  [db_server_matomo_password]="" \
-  [db_server_matomo_username]="" \
+  [matomo_database_name]="" \
+  [matomo_database_password]="" \
+  [matomo_database_username]="" \
   [php_max_execution_time]="" \
   [smtp_server_fqdn]="" \
   [smtp_server_from_address]="" \
@@ -70,9 +70,9 @@ function main() {
     --db_server_admin_password "${parameters[db_server_admin_password]}" \
     --db_server_admin_username "${parameters[db_server_admin_username]}" \
     --db_server_fqdn "${parameters[db_server_fqdn]}" \
-    --db_server_matomo_database "${parameters[db_server_matomo_database]}" \
-    --db_server_matomo_password "${parameters[db_server_matomo_password]}" \
-    --db_server_matomo_username "${parameters[db_server_matomo_username]}" \
+    --matomo_database_name "${parameters[matomo_database_name]}" \
+    --matomo_database_password "${parameters[matomo_database_password]}" \
+    --matomo_database_username "${parameters[matomo_database_username]}" \
     --php_max_execution_time "${parameters[php_max_execution_time]}" \
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --web_server_fqdn "${parameters[web_server_fqdn]}"
