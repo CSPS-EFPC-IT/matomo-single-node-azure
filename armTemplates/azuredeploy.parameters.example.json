@@ -2,61 +2,58 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "applicationCustomFqdn": {
-            "value": "myapp.domain.com"
+        "applicationGatewaySslCertificateUri": {
+            "value": "https://mykeyvaultname.vault.azure.net/secrets/my-certificate-name/my-certificate-version"
+        },
+        "applicationGatewayUserAssignedIdentity": {
+            "value": {
+                "/subscriptions/my-subscription-id/resourceGroups/my-resource-group-name/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myUAMI": {}
+            }
         },
         "armTemplateRepoRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/SysAdmins-ARMTemplates/master"
         },
-        "configurationAuditLogEnabled": {
-            "value": "On"
-        },
-        "configurationAuditLogEvents": {
-            "value": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS"
-        },
-        "configurationCharacterSetServer": {
-            "value": "UTF8MB4"
-        },
-        "configurationCollationServer": {
-            "value": "UTF8MB4_0900_AI_CI"
-        },
-        "databaseAdminPassword": {
-            "value": "mySecret"
-        },
-        "databaseAdminUsername": {
-            "value": "myDbAdminUsername"
-        },
-        "databaseApplicationPassword": {
-            "value": "mySecret"
-        },
-        "databaseApplicationUsername": {
-            "value": "matomo"
-        },
-        "databaseBackupRetentionDays": {
-            "value": 7
-        },
-        "databaseStorageMb": {
-            "value": 5120
-        },
-        "dataDiskSizeGB" : {
+        "dataDiskSizeGB": {
             "value": 64
         },
-        "deniedIpAddressList" : {
+        "databaseServerAdminPassword": {
+            "value": "mySecret"
+        },
+        "databaseServerAdminUsername": {
+            "value": "myDbAdminUsername"
+        },
+        "databaseServerBackupRetentionDays": {
+            "value": 7
+        },
+        "databaseServerConfigurationAuditLogEnabled": {
+            "value": "On"
+        },
+        "databaseServerConfigurationAuditLogEvents": {
+            "value": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS"
+        },
+        "databaseServerConfigurationCharacterSetServer": {
+            "value": "UTF8MB4"
+        },
+        "databaseServerConfigurationCollationServer": {
+            "value": "UTF8MB4_0900_AI_CI"
+        },
+        "databaseServerStorageMb": {
+            "value": 5120
+        },
+        "deniedIpAddressList": {
             "value": "10.12.13.14/32,11.12.13.14/32"
         },
         "environmentName": {
             "value": "dev"
         },
-        "gatewaySslCertificateUri": {
-            "value": "https://mykeyvaultname.vault.azure.net/secrets/my-certificate-name/my-certificate-version"
-        },
-        "gatewayUserAssignedIdentity": {
-            "value": {
-                "/subscriptions/my-subscription-id/resourceGroups/my-resource-group-name/providers/Microsoft.ManagedIdentity/userAssignedIdentities/myUAMI": {}
-            }
-        },
         "genericShellScriptsRepoRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
+        },
+        "matomoDatabasePassword": {
+            "value": "mySecret"
+        },
+        "matomoDatabaseUsername": {
+            "value": "matomo"
         },
         "projectPublicRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
@@ -85,11 +82,11 @@
         "smtpServerPort": {
             "value": 25
         },
-        "smtpServerUsername": {
-            "value": "mySmtpServerUsername"
-        },
         "smtpServerPrivateIp": {
             "value": "255.255.255.255"
+        },
+        "smtpServerUsername": {
+            "value": "mySmtpServerUsername"
         },
         "standbyAvailabilityZone": {
             "value": "zone"
@@ -117,6 +114,9 @@
         },
         "webServerBackendMaxExecutionTime": {
             "value": 60
+        },
+        "webServerFqdn": {
+            "value": "myapp.domain.com"
         },
         "webServerRebootUtcTime": {
             "value": "05:00"
