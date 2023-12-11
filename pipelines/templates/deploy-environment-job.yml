@@ -57,7 +57,7 @@ jobs:
                 -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
                 -matomoDatabasePassword "$(matomoDatabasePassword)"
-                -matomoDatabaseUsername "$(databaseApplicationUsername)"
+                -matomoDatabaseUsername "$(matomoDatabaseUsername)"
                 -projectPublicRawFilesBaseUrl "$(projectPublicRawFilesBaseUrl)"
                 -projectShortName "$(projectShortName)"
                 -resourceLocation "$(resourceLocation)"
