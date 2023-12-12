@@ -94,8 +94,8 @@ function main() {
     logger::info "Existing Matomo installation found. Performing an upgrade."
 
     logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
-    "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1
-    "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0
+    "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1 --ignore-warn
+    "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0 --ignore-warn
     matomo_update=1
   fi
 
