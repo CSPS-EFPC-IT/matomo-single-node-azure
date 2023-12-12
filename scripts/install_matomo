@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install Matomo 4.11.0 on Ubuntu 20.04.
+# Install Matomo 4.16.0 on Ubuntu 20.04.
 # This script must be run as root (ex.: sudo sh [script_name])
 # Style Guide: https://google.github.io/styleguide/shellguide.html
 
@@ -37,10 +37,11 @@ function main() {
   local -r APACHE2_USER="www-data"
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.11.0.tar.gz"
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.16.0.tar.gz"
 
   local apache2_matomo_site_document_root_dir_path
   local matomo_package_file_name
+  local matomo_update
 
   utils::set_exit_trap
 
@@ -70,26 +71,44 @@ function main() {
 
   logger::title "Download and Extract Matomo Files"
 
+  logger::action "Downloading Matomo package and signature files..."
+  # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
+  wget "${MATOMO_PACKAGE_FILE_URL}"
+  wget "${MATOMO_PACKAGE_FILE_URL}.asc"
+
+  logger::action "Downloading and installing Matomo packages' signing certificate..."
+  gpg --keyserver keyserver.ubuntu.com --recv-keys F529A27008477483777FC23D63BB30D0E5D2C749
+
+  logger::action "Checking Matomo package file integrity and origin..."
+  matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
+  if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
+    logger::error "Downloaded Matomo package file fails signature check. Aborting."
+    exit 1
+  fi
+
+  #############################################################################
+
+  logger::title "Install or Upgrade Matomo"
+
   if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
-    logger::warn "Skipped: Matomo already installed."
-  else
-    logger::action "Downloading Matomo package and signature files..."
-    # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
-    wget "${MATOMO_PACKAGE_FILE_URL}"
-    wget "${MATOMO_PACKAGE_FILE_URL}.asc"
+    logger::info "Existing Matomo installation found. Performing an upgrade."
 
-    logger::action "Downloading and installing Matomo packages' signing certificate..."
-    gpg --keyserver keyserver.ubuntu.com --recv-keys F529A27008477483777FC23D63BB30D0E5D2C749
+    logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
+    "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1
+    "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0
+    matomo_update=1
+  fi
 
-    logger::action "Checking Matomo package file integrity and origin..."
-    matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
-    if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
-      logger::error "Downloaded Matomo package file fails signature check. Aborting."
-      exit 1
-    fi
+  logger::action "Extracting Matomo package files..."
+  tar zxf "${matomo_package_file_name}" -C "${parameters[data_disk_mount_point_path]}"
 
-    logger::action "Extracting Matomo package files..."
-    tar zxf "${matomo_package_file_name}" -C "${parameters[data_disk_mount_point_path]}"
+  if [[ ${matomo_update} -eq 1 ]]; then
+    logger::action "Updating matomo core..."
+    "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose
+
+    logger::action "Turning maintenance mode off and resuming web site tracking..."
+    "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0
+    "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=1
   fi
 
   #############################################################################
