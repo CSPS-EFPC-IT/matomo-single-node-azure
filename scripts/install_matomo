@@ -137,21 +137,45 @@ function main() {
 
   #############################################################################
 
-  logger::title "Install or Update Matomo Files"
+  logger::title "Install or Update Matomo"
 
-  if [[ -d "${apache2_matomo_site_document_root_dir_path}" ]]; then
-    logger::info "Existing Matomo installation found. Performing an update."
+  if [[ -f "${apache2_matomo_site_document_root_dir_path}/config/config.ini.php" ]]; then
+
+    logger::info "An existing Matomo installation found. Performing an update."
 
     logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
     logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1 --ignore-warn)"
     logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0 --ignore-warn)"
-    matomo_update=1
-  else
-    logger::info "No existing Matomo installation found. Performing a genuine installation."
-  fi
 
-  logger::action "Extracting Matomo package files..."
-  tar zxf "${matomo_package_file_name}" -C "${parameters[data_disk_mount_point_path]}"
+    logger::action "Updating Matomo Core..."
+    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose --no-interaction)"
+
+    logger::action "Turning maintenance mode off and resuming web site tracking..."
+    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0)"
+    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=1)"
+
+  else
+
+    logger::info "No existing Matomo installation found. Performing a genuine installation."
+
+    logger::action "Downloading Matomo package and signature files..."
+    # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
+    wget "${MATOMO_PACKAGE_FILE_URL}"
+    wget "${MATOMO_PACKAGE_FILE_URL}.asc"
+
+    logger::action "Downloading and installing Matomo packages' signing certificate..."
+    gpg --keyserver keyserver.ubuntu.com --recv-keys F529A27008477483777FC23D63BB30D0E5D2C749
+
+    logger::action "Checking Matomo package file integrity and origin..."
+    matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
+    if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
+      logger::error "Downloaded Matomo package file fails signature check. Aborting."
+      exit 1
+    fi
+
+    logger::action "Extracting Matomo package files..."
+    tar zxf "${matomo_package_file_name}" -C "${parameters[data_disk_mount_point_path]}"
+  fi
 
   #############################################################################
 
@@ -222,16 +246,6 @@ function main() {
           chown "${APACHE2_USER}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
           echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
       done
-  fi
-
-  # Perform additional steps on update.
-  if [[ ${matomo_update} -eq 1 ]]; then
-    logger::action "Updating Matomo Core..."
-    "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose
-
-    logger::action "Turning maintenance mode off and resuming web site tracking..."
-    "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0
-    "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=1
   fi
 
   #############################################################################
