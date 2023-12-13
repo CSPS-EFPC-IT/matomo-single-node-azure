@@ -118,25 +118,6 @@ function main() {
 
   #############################################################################
 
-  logger::title "Download and Extract Matomo Files"
-
-  logger::action "Downloading Matomo package and signature files..."
-  # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
-  wget "${MATOMO_PACKAGE_FILE_URL}"
-  wget "${MATOMO_PACKAGE_FILE_URL}.asc"
-
-  logger::action "Downloading and installing Matomo packages' signing certificate..."
-  gpg --keyserver keyserver.ubuntu.com --recv-keys F529A27008477483777FC23D63BB30D0E5D2C749
-
-  logger::action "Checking Matomo package file integrity and origin..."
-  matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
-  if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
-    logger::error "Downloaded Matomo package file fails signature check. Aborting."
-    exit 1
-  fi
-
-  #############################################################################
-
   logger::title "Install or Update Matomo"
 
   if [[ -f "${apache2_matomo_site_document_root_dir_path}/config/config.ini.php" ]]; then
