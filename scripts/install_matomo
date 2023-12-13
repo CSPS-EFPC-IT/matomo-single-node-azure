@@ -125,15 +125,15 @@ function main() {
     logger::info "An existing Matomo installation found. Performing an update."
 
     logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
-    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1 --ignore-warn)"
-    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0 --ignore-warn)"
+    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1 --ignore-warn
+    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0 --ignore-warn
 
     logger::action "Updating Matomo Core..."
-    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose --no-interaction)"
+    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose --no-interaction
 
     logger::action "Turning maintenance mode off and resuming web site tracking..."
-    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0)"
-    logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=1)"
+    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0
+    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=1
 
   else
 
@@ -214,7 +214,7 @@ function main() {
   # found. This is the expected behaviour as Matomo's configuration file will
   # only be created once the initial set up procedure is completed through
   # the application Web portal.
-  logger::info "$(runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files)"
+  runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files
 
   logger::action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
