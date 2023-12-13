@@ -129,7 +129,7 @@ function main() {
     runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0 --ignore-warn
 
     logger::action "Updating Matomo Core..."
-    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose --no-interaction
+    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose --no-interaction --ignore-warn
 
     logger::action "Turning maintenance mode off and resuming web site tracking..."
     runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0
