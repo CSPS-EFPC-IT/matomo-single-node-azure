@@ -36,9 +36,8 @@ function install_matomo_dependencies() {
   #       https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
 
   logger::action "Adding package repositories..."
-  add-apt-repository --yes \
-    ppa:maxmind/ppa \
-    ppa:ondrej/php
+  add-apt-repository --yes ppa:maxmind/ppa
+  add-apt-repository --yes ppa:ondrej/php
 
   logger::action "Update package repository definition..."
   apt update
