@@ -1,23 +1,8 @@
 #!/bin/bash
 #
-# Install Matomo 4.16.0 on Ubuntu 20.04.
+# Install or Update Matomo on Ubuntu 20.04.
 # This script must be run as root (ex.: sudo sh [script_name])
 # Style Guide: https://google.github.io/styleguide/shellguide.html
-
-# Parameters: all manadatory and must be prefix with "--" on command line.
-declare -A parameters=( \
-  [data_disk_mount_point_path]="" \
-  [data_disk_size]="" \
-  [db_server_admin_password]="" \
-  [db_server_admin_username]="" \
-  [db_server_fqdn]="" \
-  [matomo_database_name]="" \
-  [matomo_database_password]="" \
-  [matomo_database_username]="" \
-  [php_max_execution_time]="" \
-  [smtp_server_fqdn]="" \
-  [web_server_fqdn]="" \
-)
 
 # Functions
 source ./apache2.sh
@@ -27,71 +12,35 @@ source ./os.sh
 source ./php.sh
 source ./utils.sh
 
-function main() {
-
-  local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
-  local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
-  local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.2/apache2/php.ini"
-  local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
-  local -r APACHE2_USER="www-data"
-  local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
-  local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
-  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-4.16.0.tar.gz"
-
-  local apache2_matomo_site_document_root_dir_path
-  local matomo_package_file_name
-  local matomo_update
-
-  utils::set_exit_trap
-
-  #############################################################################
-
-  logger::title "Start of $0"
-
-  logger::title "Parse Input Parameters"
-  utils::parse_parameters "$@"
-
-  #############################################################################
-
-  logger::title "Set Global Variables"
-
-  logger::action "Setting apache2_matomo_site_document_root_dir_path..."
-  apache2_matomo_site_document_root_dir_path="${parameters[data_disk_mount_point_path]}/matomo"
-
-  #############################################################################
-
-  logger::title "Install Database Tools"
-
+######################################
+# Install packages required to complete matomo installation.
+# Arguments: None
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function install_utilities() {
   logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
     mysql-client
+}
 
-  #############################################################################
-
-  logger::title "Setup Matomo Database and Credentials"
-
-  mysql::create_database_and_credentials \
-    "${parameters[db_server_fqdn]}" \
-    "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
-    "${parameters[db_server_admin_password]}" \
-    "${parameters[matomo_database_username]}" \
-    "${parameters[matomo_database_password]}" \
-    "${parameters[matomo_database_name]}"
-  logger::info "Done."
-
-  #############################################################################
-
-  logger::title "Install Matomo Dependencies"
-
+######################################
+# Install packages required to run matomo.
+# Arguments: None
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function install_matomo_dependencies() {
   # Ref.: https://matomo.org/docs/requirements/
   #       https://fr.matomo.org/faq/how-to/faq_164/
   #       https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
 
-  logger::action "Adding ppa:maxmind package repository..."
-  add-apt-repository --yes ppa:maxmind/ppa
-  logger::action "Adding ppa:ondrej/php package repository..."
-  add-apt-repository --yes ppa:ondrej/php
+  logger::action "Adding package repositories..."
+  add-apt-repository --yes \
+    ppa:maxmind/ppa \
+    ppa:ondrej/php
+
+  logger::action "Update package repository definition..."
   apt update
 
   logger::action "Installing packages..."
@@ -106,61 +55,172 @@ function main() {
     php8.2-gd \
     php8.2-mbstring \
     php8.2-mysql \
-    php8.2-xml \
+    php8.2-xml
+}
 
-  #############################################################################
+######################################
+# Assess whether an update is required based on a current and a desired version.
+# Arguments:
+# - The current version, a string.
+# - The desired version, a string.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+#   Returns 0 if an update is required and 1 otherwise.
+######################################
+function is_update_required() {
+  # Parameters
+  local current_version="${1}"
+  local desired_version="${2}"
 
-  logger::title "Mount Data Disk"
+  # Add a final dot to version values.
+  current_version="${current_version}."
+  desired_version="${desired_version}."
 
-  os::mount_data_disk_by_size \
-    "${parameters[data_disk_size]}" \
-    "${parameters[data_disk_mount_point_path]}"
+  # Loop through sementic version tokens.
+  while [[ -n "${current_version}" ]]; do
 
-  #############################################################################
+    logger::debug "Current version: ${current_version}"
+    logger::debug "Desired version: ${desired_version}"
 
-  logger::title "Install or Update Matomo"
-
-  if [[ -f "${apache2_matomo_site_document_root_dir_path}/config/config.ini.php" ]]; then
-
-    logger::info "An existing Matomo installation found. Performing an update."
-
-    logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
-    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=1 --ignore-warn
-    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=0 --ignore-warn
-
-    logger::action "Updating Matomo Core..."
-    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" core:update --yes --verbose --no-interaction --ignore-warn
-
-    logger::action "Turning maintenance mode off and resuming web site tracking..."
-    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set General.maintenance_mode=0
-    runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}/console" config:set Tracker.record_statistics=1
-
-  else
-
-    logger::info "No existing Matomo installation found. Performing a genuine installation."
-
-    logger::action "Downloading Matomo package and signature files..."
-    # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
-    wget "${MATOMO_PACKAGE_FILE_URL}"
-    wget "${MATOMO_PACKAGE_FILE_URL}.asc"
-
-    logger::action "Downloading and installing Matomo packages' signing certificate..."
-    gpg --keyserver keyserver.ubuntu.com --recv-keys F529A27008477483777FC23D63BB30D0E5D2C749
-
-    logger::action "Checking Matomo package file integrity and origin..."
-    matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
-    if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
-      logger::error "Downloaded Matomo package file fails signature check. Aborting."
-      exit 1
+    if [[ "${current_version%%.*}" -lt "${desired_version%%.*}" ]]; then
+      logger::info "Current version ($1) is older than desired version ($2)."
+      return 0
     fi
+    # Move to next sementic version token
+    current_version="${current_version#*.}"
+    desired_version="${desired_version#*.}"
+  done
 
-    logger::action "Extracting Matomo package files..."
-    tar zxf "${matomo_package_file_name}" -C "${parameters[data_disk_mount_point_path]}"
+  logger::info "Current version ($1) is not older than desired version ($2)."
+  return 1
+}
+
+######################################
+# Download, extract and set permission on matomo files.
+# Arguments:
+# - The Matomo home directory path, a string.
+# - The Matomo version to download, a string.
+# - The owner for the matomo files, a string.
+# - The group for the matomo files, a string.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function deploy_matomo_files() {
+  # Parameters
+  local matomo_home_path="${1}"
+  local matomo_version="${2}"
+  local matomo_file_owner="${3}"
+  local matomo_file_group="${4}"
+
+  # Constants
+  local -r MATOMO_PACKAGE_FILE_URL="https://builds.matomo.org/matomo-${matomo_version}.tar.gz"
+
+  # Variables
+  local matomo_package_file_name
+  local extraction_path
+
+  logger::action "Downloading Matomo package and signature files..."
+  # Ref.: https://matomo.org/blog/2014/11/verify-signatures-piwik-packages/
+  wget "${MATOMO_PACKAGE_FILE_URL}"
+  wget "${MATOMO_PACKAGE_FILE_URL}.asc"
+
+  logger::action "Downloading and installing Matomo packages' signing certificate..."
+  gpg --keyserver keyserver.ubuntu.com --recv-keys F529A27008477483777FC23D63BB30D0E5D2C749
+
+  logger::action "Checking Matomo package file integrity and origin..."
+  matomo_package_file_name=$(basename "${MATOMO_PACKAGE_FILE_URL}")
+  if ! gpg --verify "${matomo_package_file_name}"{.asc*,};  then
+    logger::error "Downloaded Matomo package file fails signature check. Aborting."
+    exit 1
   fi
 
-  #############################################################################
+  logger::action "Extracting Matomo package files..."
+  extraction_path="$(dirname "${matomo_home_path}")"
+  tar zxf "${matomo_package_file_name}" -C "${extraction_path}"
 
-  logger::title "Set Up Apache2"
+  logger::action "Setting file ownership and permissions on ${matomo_home_path}..."
+  chown -R "${matomo_file_owner}:${matomo_file_group}" "${matomo_home_path}"
+  chmod -R 775 "${matomo_home_path}"
+}
+
+######################################
+# Perform a fresh install or update the current version of Matomo.
+# Arguments:
+# - The Matomo home directory path, a string
+# - The Matomo desired version, a string.
+# - The owner for the matomo files, a string.
+# - The group for the matomo files, a string.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+install_or_update_matomo() {
+  # Parameters
+  local matomo_home_path="${1}"
+  local matomo_desired_version="${2}"
+  local matomo_file_owner="${3}"
+  local matomo_file_group="${4}"
+
+  # Variables
+  local matomo_current_version
+
+  logger::action "Assessing whether Matomo has already been installed..."
+  if [[ -f "${matomo_home_path}/config/config.ini.php" ]]; then
+    logger::info "An existing Matomo installation found."
+
+    logger::action "Getting Matomo's current version..."
+    matomo_current_version="$(runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" core:version | grep '^[0-9]*\.[0-9]*\.[0-9]*$')"
+    logger::info "Matomo's current version is ${matomo_current_version}."
+
+    logger::action "Assessing whether an update is required..."
+    if [[ $(is_update_required "${matomo_current_version}" "${matomo_desired_version}") ]]; then
+      logger::info "An update is required."
+
+      logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
+      runuser -u "${matomo_file_owner} "-- "${matomo_home_path}/console" config:set General.maintenance_mode=1 --ignore-warn
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set Tracker.record_statistics=0 --ignore-warn
+
+      logger::action "Updating Matomo file system..."
+      deploy_matomo_files "${matomo_home_path}" "${matomo_desired_version}" "${matomo_file_owner}" "${matomo_file_group}"
+
+      logger::action "Updating Matomo core..."
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" core:update --yes --verbose --no-interaction --ignore-warn
+
+      logger::action "Removing unexpected files, if any..."
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" diagnostics:unexpected-files --delete  --no-interaction
+
+      logger::action "Turning maintenance mode off and resuming web site tracking..."
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set General.maintenance_mode=0
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set Tracker.record_statistics=1
+    else
+      logger:info "No update required: the current version is either the same or newer than the desired version. Skipping the update process."
+    fi
+  else
+    logger::info "No previous Matomo installation found."
+
+    logger::action "Installing Matomo file system..."
+    deploy_matomo_files "${matomo_home_path}" "${matomo_desired_version}" "${matomo_file_owner}" "${matomo_file_group}"
+  fi
+}
+
+######################################
+# Set up Apache2 for matomo.
+# Arguments:
+# - The matomo document root path, a string.
+# - The PHP max execution time value, an integer.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_apache2() {
+  # Parameters
+  local matomo_document_root_path="${1}"
+  local php_max_execution_time="${2}"
+
+  # Constants
+  local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
+  local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
+  local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
+  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.2/apache2/php.ini"
+  local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
 
   logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
   # Use the Default site config file as a template.
@@ -169,12 +229,12 @@ function main() {
   # Updating matomo site config DocumentRoot.
   apache2::update_config_file \
     "DocumentRoot" \
-    "${apache2_matomo_site_document_root_dir_path}" \
+    "${matomo_document_root_path}" \
     "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 1/2)..."
   # Ref.: https://httpd.apache.org/docs/2.4/mod/core.html#allowoverride
-  sed -i "/^[[:space:]]*DocumentRoot .*$/a  \ \n\t<Directory ${apache2_matomo_site_document_root_dir_path}>\n\t\tAllowOverride All\n\t<\/Directory>\n" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
+  sed -i "/^[[:space:]]*DocumentRoot .*$/a  \ \n\t<Directory ${matomo_document_root_path}>\n\t\tAllowOverride All\n\t<\/Directory>\n" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
 
   logger::action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
   logger::warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
@@ -185,10 +245,6 @@ function main() {
   logger::action "Hardening web werver..."
   apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
 
-  logger::action "Setting permission on files: ${apache2_matomo_site_document_root_dir_path}..."
-  chown -R "${APACHE2_USER}:root" "${apache2_matomo_site_document_root_dir_path}"
-  chmod -R 775 "${apache2_matomo_site_document_root_dir_path}"
-
   logger::action "Updating Apache2's PHP configuration..."
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
   # Values required to run report on 12 months of data.
@@ -198,25 +254,32 @@ function main() {
     "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file \
     "max_execution_time" \
-    "${parameters[php_max_execution_time]}" \
+    "${php_max_execution_time}" \
     "${APACHE2_PHP_INI_FILE_PATH}"
 
   logger::action "Restarting Apache2..."
   service apache2 restart
+}
 
-  #############################################################################
+######################################
+# Set up matomo specific crontabs.
+# Arguments:
+# - The matomo home path, a string.
+# - The Matomo file owner, a string.
+# - The web server FQDN, a string
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_crontab() {
+  # Parameters
+  local matomo_home_path="${1}"
+  local matomo_file_owner="{$2}"
+  local web_server_fqdn="${3}"
 
-  logger::title "Matomo Post Installation Process"
+  # Constants
+  local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
+  local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
 
-  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
-  # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
-  # The command below will complain about the configuration file not being
-  # found. This is the expected behaviour as Matomo's configuration file will
-  # only be created once the initial set up procedure is completed through
-  # the application Web portal.
-  runuser -u www-data -- "${apache2_matomo_site_document_root_dir_path}"/console core:create-security-files
-
-  logger::action "Setting up Matomo Archive Crontab..."
   # Ref.: See section "Launching multiple archivers at once" in
   #       https://matomo.org/docs/setup-auto-archiving/#linux-unix-how-to-set-up-a-crontab-to-automatically-archive-the-reports
   if [[ -f "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}" ]]; then
@@ -224,17 +287,108 @@ function main() {
   else
       for archiver_id in {1..2}; do
           touch "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
-          chown "${APACHE2_USER}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
-          echo "${archiver_id} * * * * ${APACHE2_USER} /usr/bin/php ${apache2_matomo_site_document_root_dir_path}/console core:archive --url=https://${parameters[web_server_fqdn]} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
+          chown "${matomo_file_owner}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
+          echo "${archiver_id} * * * * ${matomo_file_owner} /usr/bin/php ${matomo_home_path}/console core:archive --url=https://${web_server_fqdn} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
       done
   fi
+}
+
+######################################
+# The main installation script.
+# Arguments:
+# - The data disk size, an integer.
+# - The database server administrator password, a string.
+# - The database server administrator username, a string.
+# - The database server fully qualified domain name, a string.
+# - The matomo database name, a string.
+# - The matomo database password, a string.
+# - The matomo database username, a string.
+# - The matomo version to install, a string.
+# - The PHP max execution time value, an integer.
+# - The SMTP service fully qualified domain name, a string.
+# - The Web server fully qualified domain name, a string.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function main() {
+  # Parameters: all manadatory and must be prefix with "--" on command line.
+  declare -A parameters=( \
+    [data_disk_size]="" \
+    [db_server_admin_password]="" \
+    [db_server_admin_username]="" \
+    [db_server_fqdn]="" \
+    [matomo_database_name]="" \
+    [matomo_database_password]="" \
+    [matomo_database_username]="" \
+    [matomo_version]="" \
+    [php_max_execution_time]="" \
+    [smtp_server_fqdn]="" \
+    [web_server_fqdn]="" \
+  )
+
+  # Constants
+  DATA_DISK_MOUNT_POINT_PATH="/var/www/html"
+  MATOMO_FILE_GROUP="www-data"
+  MATOMO_FILE_OWNER="www-data"
+  MATOMO_HOME_PATH="${DATA_DISK_MOUNT_POINT_PATH}/matomo"
+
+  utils::set_exit_trap
+  logger::title "Start of $0"
+
+  #############################################################################
+
+  logger::title "Parse Input Parameters"
+  utils::parse_parameters "$@"
+
+  logger::title "Install Utilities"
+  install_utilities
+
+  logger::title "Install Matomo Dependencies"
+  install_matomo_dependencies
+
+  logger::title "Mount Data Disk"
+  os::mount_data_disk_by_size \
+    "${parameters[data_disk_size]}" \
+    "${DATA_DISK_MOUNT_POINT_PATH}"
+
+  logger::title "Setup Matomo Database and Credentials"
+  mysql::create_database_and_credentials \
+    "${parameters[db_server_fqdn]}" \
+    "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
+    "${parameters[db_server_admin_password]}" \
+    "${parameters[matomo_database_username]}" \
+    "${parameters[matomo_database_password]}" \
+    "${parameters[matomo_database_name]}"
+
+  # logger::title "Install or Update Matomo"
+  # install_or_update_matomo \
+  #   "${MATOMO_HOME_PATH}" \
+  #   "{parameters[matomo_version]}" \
+  #   "${MATOMO_FILE_OWNER}" \
+  #   "${MATOMO_FILE_GROUP}"
+
+  # logger::title "Set Up Apache2"
+  # set_up_apache2 \
+  #   "${MATOMO_HOME_PATH}" \
+  #   "${parameters[php_max_execution_time]}"
+
+  # logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
+  # # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
+  # # The command below will complain about the configuration file not being
+  # # found. This is the expected behaviour as Matomo's configuration file will
+  # # only be created once the initial set up procedure is completed through
+  # # the application Web portal.
+  # runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction
+
+  # logger::action "Set up Matomo Archive Crontab..."
+  # set_up_crontab \
+  #   "${MATOMO_HOME_PATH}" \
+  #   "${MATOMO_FILE_OWNER}" \
+  #   "${parameters['web_server_fqdn']}"
 
   #############################################################################
 
   logger::title "End of $0"
-
-  #############################################################################
-
   utils::unset_exit_trap
 }
 

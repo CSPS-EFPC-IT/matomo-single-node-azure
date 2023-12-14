@@ -55,6 +55,9 @@
         "matomoDatabaseUsername": {
             "value": "matomo"
         },
+        "matomoVersion": {
+            "value": "4.11.0"
+        },
         "projectPublicRawFilesBaseUrl": {
             "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/matomo-single-node-azure/main"
         },
