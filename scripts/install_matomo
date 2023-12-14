@@ -330,7 +330,7 @@ function set_up_crontab() {
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
 function main() {
-  # Parameters: all manadatory and must be prefix with "--" on command line.
+  # Parameters: all manadatory and must be prefixed with "--" on command line.
   declare -A parameters=( \
     [data_disk_size]="" \
     [db_server_admin_password]="" \
