@@ -200,7 +200,7 @@ install_or_update_matomo() {
       runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" core:update --yes --verbose --no-interaction --ignore-warn
 
       logger::action "Removing unexpected files, if any..."
-      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" diagnostics:unexpected-files --delete  --no-interaction
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" diagnostics:unexpected-files --delete --no-interaction
 
       logger::action "Turning maintenance mode off and resuming web site tracking..."
       runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set General.maintenance_mode=0
@@ -374,17 +374,17 @@ function main() {
   #   "${parameters[matomo_database_password]}" \
   #   "${parameters[matomo_database_name]}"
 
-  logger::title "Install or Update Matomo"
-  install_or_update_matomo \
-    "${MATOMO_HOME_PATH}" \
-    "${parameters[matomo_version]}" \
-    "${MATOMO_FILE_OWNER}" \
-    "${MATOMO_FILE_GROUP}"
-
-  # logger::title "Set Up Apache2"
-  # set_up_apache2 \
+  # logger::title "Install or Update Matomo"
+  # install_or_update_matomo \
   #   "${MATOMO_HOME_PATH}" \
-  #   "${parameters[php_max_execution_time]}"
+  #   "${parameters[matomo_version]}" \
+  #   "${MATOMO_FILE_OWNER}" \
+  #   "${MATOMO_FILE_GROUP}"
+
+  logger::title "Set Up Apache2"
+  set_up_apache2 \
+    "${MATOMO_HOME_PATH}" \
+    "${parameters[php_max_execution_time]}"
 
   # logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
   # # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
