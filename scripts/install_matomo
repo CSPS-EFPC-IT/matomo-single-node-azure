@@ -71,7 +71,22 @@ function is_update_required() {
   local current_version="${1}"
   local desired_version="${2}"
 
-  # Add a final dot to version values.
+  function validate_version() {
+    # Parameters
+    local name="${1}"
+    local value="${2}"
+
+    if grep -q -E '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${value}"; then
+      logger::error "The ${name} (${value}) does not respect semetic versionning. Aborting."
+      exit 1
+    fi
+  }
+
+  # Validate input paramters
+  validate_version "current_version" "${current_version}"
+  validate_version "desired_version" "${desired_version}"
+
+  # Add a final dot to version values (a stop condition for the loop below).
   current_version="${current_version}."
   desired_version="${desired_version}."
 
@@ -167,11 +182,11 @@ install_or_update_matomo() {
     logger::info "An existing Matomo installation found."
 
     logger::action "Getting Matomo's current version..."
-    matomo_current_version="$(runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" core:version | grep '^[0-9]*\.[0-9]*\.[0-9]*$')"
+    matomo_current_version="$(runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" core:version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$')"
     logger::info "Matomo's current version is ${matomo_current_version}."
 
     logger::action "Assessing whether an update is required..."
-    if [[ $(is_update_required "${matomo_current_version}" "${matomo_desired_version}") ]]; then
+    if is_update_required "${matomo_current_version}" "${matomo_desired_version}"; then
       logger::info "An update is required."
 
       logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
