@@ -390,10 +390,11 @@ function main() {
   logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
   # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
   # The command below will complain about the configuration file not being
-  # found. This is the expected behaviour as Matomo's configuration file will
-  # only be created once the initial set up procedure is completed through
-  # the application Web portal.
-  runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction
+  # found during the initial installation. This is the expected behaviour as
+  # Matomo's configuration file will only be created once the initial set up
+  # procedure is completed through the application Web portal.
+  # The --ignore-warn option has been added to prevent script failure.
+  runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction --ignore-warn
 
   logger::action "Set up Matomo Archive Crontab..."
   set_up_crontab \
