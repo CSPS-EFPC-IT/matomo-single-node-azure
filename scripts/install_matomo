@@ -305,6 +305,7 @@ function set_up_crontab() {
           chown "${matomo_file_owner}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
           echo "${archiver_id} * * * * ${matomo_file_owner} /usr/bin/php ${matomo_home_path}/console core:archive --url=https://${web_server_fqdn} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
       done
+      logger::info "Done."
   fi
 }
 
