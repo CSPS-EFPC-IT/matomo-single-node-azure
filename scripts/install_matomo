@@ -207,7 +207,7 @@ install_or_update_matomo() {
       runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set General.maintenance_mode=0
       runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set Tracker.record_statistics=1
     else
-      logger:info "No update required: the current version is either the same or newer than the desired version. Skipping the update process."
+      logger::info "No update required: the current version is either the same or newer than the desired version. Skipping the update process."
     fi
   else
     logger::info "No previous Matomo installation found."
