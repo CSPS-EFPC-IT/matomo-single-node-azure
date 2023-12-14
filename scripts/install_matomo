@@ -280,7 +280,7 @@ function set_up_apache2() {
 }
 
 ######################################
-# Set up matomo specific crontabs.
+# Set up Matomo specific crontabs.
 # Arguments:
 # - The matomo home path, a string.
 # - The Matomo file owner, a string.
