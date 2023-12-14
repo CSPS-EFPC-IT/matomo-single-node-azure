@@ -288,7 +288,7 @@ function set_up_apache2() {
 function set_up_crontab() {
   # Parameters
   local matomo_home_path="${1}"
-  local matomo_file_owner="{$2}"
+  local matomo_file_owner="${2}"
   local web_server_fqdn="${3}"
 
   # Constants
