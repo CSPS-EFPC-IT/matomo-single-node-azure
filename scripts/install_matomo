@@ -175,7 +175,7 @@ install_or_update_matomo() {
       logger::info "An update is required."
 
       logger::action "Turning Matomo maintenance mode on and stoping web site tracking..."
-      runuser -u "${matomo_file_owner} "-- "${matomo_home_path}/console" config:set General.maintenance_mode=1 --ignore-warn
+      runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set General.maintenance_mode=1 --ignore-warn
       runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" config:set Tracker.record_statistics=0 --ignore-warn
 
       logger::action "Updating Matomo file system..."
@@ -362,7 +362,7 @@ function main() {
   logger::title "Install or Update Matomo"
   install_or_update_matomo \
     "${MATOMO_HOME_PATH}" \
-    "{parameters[matomo_version]}" \
+    "${parameters[matomo_version]}" \
     "${MATOMO_FILE_OWNER}" \
     "${MATOMO_FILE_GROUP}"
 
