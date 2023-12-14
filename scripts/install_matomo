@@ -59,6 +59,7 @@ function install_matomo_dependencies() {
 
 ######################################
 # Assess whether an update is required based on a current and a desired version.
+# Both version values must respect the Sementic Versioning. Ref.: https://semver.org
 # Arguments:
 # - The current version, a string.
 # - The desired version, a string.
@@ -77,7 +78,7 @@ function is_update_required() {
     local value="${2}"
 
     if ! grep -q -E '^[0-9]+\.[0-9]+\.[0-9]+$' <<< "${value}"; then
-      logger::error "The ${name} (${value}) does not respect semetic versionning. Aborting."
+      logger::error "The ${name} (${value}) does not respect Semetic Versioning. Aborting."
       exit 1
     fi
   }
@@ -317,7 +318,7 @@ function set_up_crontab() {
 # - The matomo database name, a string.
 # - The matomo database password, a string.
 # - The matomo database username, a string.
-# - The matomo version to install, a string.
+# - The matomo version to install, a string. The value must respect the Sementic Versioning. Ref.: https://semver.org
 # - The PHP max execution time value, an integer.
 # - The SMTP service fully qualified domain name, a string.
 # - The Web server fully qualified domain name, a string.
