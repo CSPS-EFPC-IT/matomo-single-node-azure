@@ -48,20 +48,20 @@ function main() {
   logger::title "Parse Input Parameters"
   utils::parse_parameters "$@"
 
-  # logger::title "Upgrade Server and Remove Unused Packages"
-  # ./upgrade_server
+  logger::title "Upgrade Server and Remove Unused Packages"
+  ./upgrade_server
 
-  # logger::title "Install Unattended Upgrade Tools"
-  # ./install_unattended_upgrade_tools \
-  #   --server_admin_email "${parameters[web_server_admin_email]}" \
-  #   --server_fqdn "${parameters[web_server_fqdn]}" \
-  #   --server_reboot_utc_time "${parameters[web_server_reboot_utc_time]}" \
-  #   --server_resource_name "${parameters[web_server_resource_name]}" \
-  #   --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
-  #   --smtp_server_from_address "${parameters[smtp_server_from_address]}" \
-  #   --smtp_server_password "${parameters[smtp_server_password]}" \
-  #   --smtp_server_port "${parameters[smtp_server_port]}" \
-  #   --smtp_server_username "${parameters[smtp_server_username]}"
+  logger::title "Install Unattended Upgrade Tools"
+  ./install_unattended_upgrade_tools \
+    --server_admin_email "${parameters[web_server_admin_email]}" \
+    --server_fqdn "${parameters[web_server_fqdn]}" \
+    --server_reboot_utc_time "${parameters[web_server_reboot_utc_time]}" \
+    --server_resource_name "${parameters[web_server_resource_name]}" \
+    --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
+    --smtp_server_from_address "${parameters[smtp_server_from_address]}" \
+    --smtp_server_password "${parameters[smtp_server_password]}" \
+    --smtp_server_port "${parameters[smtp_server_port]}" \
+    --smtp_server_username "${parameters[smtp_server_username]}"
 
   logger::title "Install Matomo"
   ./install_matomo \
@@ -77,12 +77,12 @@ function main() {
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --web_server_fqdn "${parameters[web_server_fqdn]}"
 
-  # logger::title "Install Linux Diagnostic Extension Prerequisites"
-  # # Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux-v3
-  # logger::action "Installing python2..."
-  # sudo apt install -y python2
-  # logger::action "Updating python link..."
-  # sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+  logger::title "Install Linux Diagnostic Extension Prerequisites"
+  # Ref.: https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-linux-v3
+  logger::action "Installing python2..."
+  sudo apt install -y python2
+  logger::action "Updating python link..."
+  sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
 
   #############################################################################
 
