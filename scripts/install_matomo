@@ -374,31 +374,31 @@ function main() {
   #   "${parameters[matomo_database_password]}" \
   #   "${parameters[matomo_database_name]}"
 
-  # logger::title "Install or Update Matomo"
-  # install_or_update_matomo \
-  #   "${MATOMO_HOME_PATH}" \
-  #   "${parameters[matomo_version]}" \
-  #   "${MATOMO_FILE_OWNER}" \
-  #   "${MATOMO_FILE_GROUP}"
+  logger::title "Install or Update Matomo"
+  install_or_update_matomo \
+    "${MATOMO_HOME_PATH}" \
+    "${parameters[matomo_version]}" \
+    "${MATOMO_FILE_OWNER}" \
+    "${MATOMO_FILE_GROUP}"
 
   logger::title "Set Up Apache2"
   set_up_apache2 \
     "${MATOMO_HOME_PATH}" \
     "${parameters[php_max_execution_time]}"
 
-  # logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
-  # # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
-  # # The command below will complain about the configuration file not being
-  # # found. This is the expected behaviour as Matomo's configuration file will
-  # # only be created once the initial set up procedure is completed through
-  # # the application Web portal.
-  # runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction
+  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
+  # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
+  # The command below will complain about the configuration file not being
+  # found. This is the expected behaviour as Matomo's configuration file will
+  # only be created once the initial set up procedure is completed through
+  # the application Web portal.
+  runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction
 
-  # logger::action "Set up Matomo Archive Crontab..."
-  # set_up_crontab \
-  #   "${MATOMO_HOME_PATH}" \
-  #   "${MATOMO_FILE_OWNER}" \
-  #   "${parameters['web_server_fqdn']}"
+  logger::action "Set up Matomo Archive Crontab..."
+  set_up_crontab \
+    "${MATOMO_HOME_PATH}" \
+    "${MATOMO_FILE_OWNER}" \
+    "${parameters['web_server_fqdn']}"
 
   #############################################################################
 
