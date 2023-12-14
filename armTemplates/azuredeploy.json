@@ -695,25 +695,25 @@
 		// 		]
 		// 	}
 		// },
-		// {
-		// 	"type": "Microsoft.Network/publicIPAddresses",
-		// 	"apiVersion": "2019-11-01",
-		// 	"name": "[variables('applicationGatewayPublicIpName')]",
-		// 	"tags": "[parameters('resourceTags')]",
-		// 	"location": "[parameters('resourceLocation')]",
-		// 	"sku": {
-		// 		"name": "Standard"
-		// 	},
-		// 	"properties": {
-		// 		"publicIPAddressVersion": "IPv4",
-		// 		"publicIPAllocationMethod": "Static",
-		// 		"idleTimeoutInMinutes": 4,
-		// 		"dnsSettings": {
-		// 			"domainNameLabel": "[variables('applicationGatewayPublicIpDomainNameLabel')]"
-		// 		},
-		// 		"ipTags": []
-		// 	}
-		// },
+		{
+			"type": "Microsoft.Network/publicIPAddresses",
+			"apiVersion": "2019-11-01",
+			"name": "[variables('applicationGatewayPublicIpName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"sku": {
+				"name": "Standard"
+			},
+			"properties": {
+				"publicIPAddressVersion": "IPv4",
+				"publicIPAllocationMethod": "Static",
+				"idleTimeoutInMinutes": 4,
+				"dnsSettings": {
+					"domainNameLabel": "[variables('applicationGatewayPublicIpDomainNameLabel')]"
+				},
+				"ipTags": []
+			}
+		},
 		// {
 		// 	"type": "Microsoft.Network/applicationGateways",
 		// 	"apiVersion": "2019-11-01",
@@ -991,35 +991,35 @@
 		// 		"publicNetworkAccessForQuery": "Enabled"
 		// 	}
 		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[variables('databaseServerName')]",
-		// 	"tags": "[parameters('resourceTags')]",
-		// 	"location": "[parameters('resourceLocation')]",
-		// 	"sku": {
-		// 		"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
-		// 		"tier": "GeneralPurpose",
-		// 		"family": "Gen5",
-		// 		"capacity": "[parameters('databaseServerCapacity')]"
-		// 	},
-		// 	"properties": {
-		// 		"storageProfile": {
-		// 			"storageMB": "[parameters('databaseServerStorageMb')]",
-		// 			"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
-		// 			"geoRedundantBackup": "Disabled",
-		// 			"storageAutogrow": "Enabled"
-		// 		},
-		// 		"version": "5.7",
-		// 		"sslEnforcement": "Enabled",
-		// 		"minimalTlsVersion": "TLS1_2",
-		// 		"infrastructureEncryption": "Disabled",
-		// 		"publicNetworkAccess": "Enabled",
-		// 		"createMode": "Default",
-		// 		"administratorLogin": "[parameters('databaseServerAdminUsername')]",
-		// 		"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
-		// 	}
-		// },
+		{
+			"type": "Microsoft.DBforMySQL/servers",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[variables('databaseServerName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"sku": {
+				"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
+				"tier": "GeneralPurpose",
+				"family": "Gen5",
+				"capacity": "[parameters('databaseServerCapacity')]"
+			},
+			"properties": {
+				"storageProfile": {
+					"storageMB": "[parameters('databaseServerStorageMb')]",
+					"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
+					"geoRedundantBackup": "Disabled",
+					"storageAutogrow": "Enabled"
+				},
+				"version": "5.7",
+				"sslEnforcement": "Enabled",
+				"minimalTlsVersion": "TLS1_2",
+				"infrastructureEncryption": "Disabled",
+				"publicNetworkAccess": "Enabled",
+				"createMode": "Default",
+				"administratorLogin": "[parameters('databaseServerAdminUsername')]",
+				"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
+			}
+		},
 		// {
 		// 	"type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
 		// 	"apiVersion": "2017-12-01",
