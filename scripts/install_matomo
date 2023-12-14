@@ -178,9 +178,9 @@ install_or_update_matomo() {
   # Variables
   local matomo_current_version
 
-  logger::action "Assessing whether Matomo has already been installed..."
+  logger::action "Looking for an existing Matomo configuration file..."
   if [[ -f "${matomo_home_path}/config/config.ini.php" ]]; then
-    logger::info "An existing Matomo installation found."
+    logger::info "A Matomo configuration file found."
 
     logger::action "Getting Matomo's current version..."
     matomo_current_version="$(runuser -u "${matomo_file_owner}" -- "${matomo_home_path}/console" core:version | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$')"
@@ -210,7 +210,10 @@ install_or_update_matomo() {
       logger::info "No update required. Skipping the update process."
     fi
   else
-    logger::info "No previous Matomo installation found."
+    logger::info "No Matomo configuration file not found. Moving on with a clean install."
+
+    logger::action "Removing all traces of previous partial installation process."
+    rm -rf "${matomo_home_path}"
 
     logger::action "Installing Matomo file system..."
     deploy_matomo_files "${matomo_home_path}" "${matomo_desired_version}" "${matomo_file_owner}" "${matomo_file_group}"
