@@ -339,32 +339,32 @@ function main() {
   logger::title "Parse Input Parameters"
   utils::parse_parameters "$@"
 
-  logger::title "Install Utilities"
-  install_utilities
+  # logger::title "Install Utilities"
+  # install_utilities
 
-  logger::title "Install Matomo Dependencies"
-  install_matomo_dependencies
+  # logger::title "Install Matomo Dependencies"
+  # install_matomo_dependencies
 
-  logger::title "Mount Data Disk"
-  os::mount_data_disk_by_size \
-    "${parameters[data_disk_size]}" \
-    "${DATA_DISK_MOUNT_POINT_PATH}"
+  # logger::title "Mount Data Disk"
+  # os::mount_data_disk_by_size \
+  #   "${parameters[data_disk_size]}" \
+  #   "${DATA_DISK_MOUNT_POINT_PATH}"
 
-  logger::title "Setup Matomo Database and Credentials"
-  mysql::create_database_and_credentials \
-    "${parameters[db_server_fqdn]}" \
-    "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
-    "${parameters[db_server_admin_password]}" \
-    "${parameters[matomo_database_username]}" \
-    "${parameters[matomo_database_password]}" \
-    "${parameters[matomo_database_name]}"
+  # logger::title "Setup Matomo Database and Credentials"
+  # mysql::create_database_and_credentials \
+  #   "${parameters[db_server_fqdn]}" \
+  #   "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
+  #   "${parameters[db_server_admin_password]}" \
+  #   "${parameters[matomo_database_username]}" \
+  #   "${parameters[matomo_database_password]}" \
+  #   "${parameters[matomo_database_name]}"
 
-  # logger::title "Install or Update Matomo"
-  # install_or_update_matomo \
-  #   "${MATOMO_HOME_PATH}" \
-  #   "{parameters[matomo_version]}" \
-  #   "${MATOMO_FILE_OWNER}" \
-  #   "${MATOMO_FILE_GROUP}"
+  logger::title "Install or Update Matomo"
+  install_or_update_matomo \
+    "${MATOMO_HOME_PATH}" \
+    "{parameters[matomo_version]}" \
+    "${MATOMO_FILE_OWNER}" \
+    "${MATOMO_FILE_GROUP}"
 
   # logger::title "Set Up Apache2"
   # set_up_apache2 \
