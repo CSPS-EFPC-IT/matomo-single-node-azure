@@ -58,6 +58,7 @@ jobs:
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
                 -matomoDatabasePassword "$(matomoDatabasePassword)"
                 -matomoDatabaseUsername "$(matomoDatabaseUsername)"
+                -matomoVersion "$(matomoVersion)"
                 -projectPublicRawFilesBaseUrl "$(projectPublicRawFilesBaseUrl)"
                 -projectShortName "$(projectShortName)"
                 -resourceLocation "$(resourceLocation)"

@@ -9,28 +9,6 @@
 # code for these can be found at https://github.com/CSPS-EFPC-IT/generic-shell-scripts.
 # See the ARM template deployment parameters for the exact version used.
 
-# Parameters: all manadatory and must be prefixed with "--" on command line.
-declare -A parameters=(\
-  [data_disk_mount_point_path]="" \
-  [data_disk_size]="" \
-  [db_server_admin_password]="" \
-  [db_server_admin_username]="" \
-  [db_server_fqdn]="" \
-  [matomo_database_name]="" \
-  [matomo_database_password]="" \
-  [matomo_database_username]="" \
-  [php_max_execution_time]="" \
-  [smtp_server_fqdn]="" \
-  [smtp_server_from_address]="" \
-  [smtp_server_password]="" \
-  [smtp_server_port]="" \
-  [smtp_server_username]="" \
-  [web_server_admin_email]="" \
-  [web_server_fqdn]="" \
-  [web_server_reboot_utc_time]="" \
-  [web_server_resource_name]="" \
-)
-
 # Functions
 
 # All libraries not available at build time.
@@ -40,6 +18,28 @@ source ./logger.sh
 source ./utils.sh
 
 function main() {
+  # Parameters: all manadatory and must be prefixed with "--" on command line.
+  declare -A parameters=(\
+    [data_disk_size]="" \
+    [db_server_admin_password]="" \
+    [db_server_admin_username]="" \
+    [db_server_fqdn]="" \
+    [matomo_database_name]="" \
+    [matomo_database_password]="" \
+    [matomo_database_username]="" \
+    [matomo_version]="" \
+    [php_max_execution_time]="" \
+    [smtp_server_fqdn]="" \
+    [smtp_server_from_address]="" \
+    [smtp_server_password]="" \
+    [smtp_server_port]="" \
+    [smtp_server_username]="" \
+    [web_server_admin_email]="" \
+    [web_server_fqdn]="" \
+    [web_server_reboot_utc_time]="" \
+    [web_server_resource_name]="" \
+  )
+
   utils::set_exit_trap
   logger::title "Start of $0"
 
@@ -66,13 +66,13 @@ function main() {
   logger::title "Install Matomo"
   ./install_matomo \
     --data_disk_size "${parameters[data_disk_size]}" \
-    --data_disk_mount_point_path "${parameters[data_disk_mount_point_path]}" \
     --db_server_admin_password "${parameters[db_server_admin_password]}" \
     --db_server_admin_username "${parameters[db_server_admin_username]}" \
     --db_server_fqdn "${parameters[db_server_fqdn]}" \
     --matomo_database_name "${parameters[matomo_database_name]}" \
     --matomo_database_password "${parameters[matomo_database_password]}" \
     --matomo_database_username "${parameters[matomo_database_username]}" \
+    --matomo_version "${parameters[matomo_version]}" \
     --php_max_execution_time "${parameters[php_max_execution_time]}" \
     --smtp_server_fqdn "${parameters[smtp_server_fqdn]}" \
     --web_server_fqdn "${parameters[web_server_fqdn]}"
