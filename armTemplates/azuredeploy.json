@@ -1096,7 +1096,7 @@
 			}
 		},
 		{
-			"condition": "[ equals(parameters('environmentName'), 'dev' )]",
+			"condition": "[ equals(parameters('environmentName'), 'staging' )]",
 			"type": "Microsoft.Storage/storageAccounts",
 			"apiVersion": "2019-06-01",
 			"name": "[variables('storageAccountName')]",
