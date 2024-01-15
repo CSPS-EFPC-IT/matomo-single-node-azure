@@ -326,13 +326,6 @@
 		"databaseServerNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
 		"databaseServerSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
 		"databaseServerSubnetName": "[concat(variables('resourceNamePrefix'), '-DATA-SN')]",
-		"diagnosticStorageAccountName": "[concat(variables('storageAccountNamePrefix'), 'diagsa')]",
-		"diagnosticStorageAccountSasProperties": {
-			"signedServices": "bt",
-			"signedPermission": "acluw",
-			"signedExpiry": "2100-01-01T00:00:00Z", // Basically, forever.
-			"signedResourceTypes": "co"
-		},
 		"logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
 		"matomoDatabaseName": "[tolower(custom.cleanName(parameters('matomoDatabaseUsername')))]",
 		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_rsv-bp'), 64)]",
@@ -340,13 +333,11 @@
 		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
 		"storageAccountAllowedIpAddressArray": "[if(empty(parameters('storageAccountAllowedIpAddressList')), createArray(), split(parameters('storageAccountAllowedIpAddressList'), ','))]",
-		"storageAccountNamePrefix": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4))))]",
+		"storageAccountName": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4)),'sa'))]",
 		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
 		"virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
 		"webServerComputerName": "webserver",
-		"webServerVirtualMachineDataDiskMountPoint": "/var/www/html",
 		"webServerVirtualMachineDataDiskName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-Data-Disk')]",
-		"webServerVirtualMachineLinuxDiagnosticExtensionName": "LinuxDiagnostic",
 		"webServerVirtualMachineName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-VM')]",
 		"webServerVirtualMachineNamePrefix": "[concat(variables('resourceNamePrefix'), '-WebServer')]",
 		"webServerVirtualMachineNetworkInterfaceCardName": "[concat(variables('webServerVirtualMachineNamePrefix'), '-NIC')]",
@@ -1105,14 +1096,13 @@
 			}
 		},
 		{
+			"condition": "[ equals(parameters('environmentName'), 'staging' )]",
 			"type": "Microsoft.Storage/storageAccounts",
 			"apiVersion": "2019-06-01",
-			"name": "[variables('diagnosticStorageAccountName')]",
+			"name": "[variables('storageAccountName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-			],
+			"dependsOn": [],
 			"sku": {
 				"name": "Standard_LRS",
 				"tier": "Standard"
@@ -1120,17 +1110,10 @@
 			"kind": "StorageV2",
 			"properties": {
 				"minimumTlsVersion": "TLS1_2",
-				"allowBlobPublicAccess": true,
-				// Storage Account firewall must be turned off for Guest Metrics to work as per the following reference:
-				// https://docs.microsoft.com/en-ca/azure/azure-monitor/platform/metrics-troubleshoot#cannot-pick-guest-os-namespace-and-metrics
+				"allowBlobPublicAccess": false,
 				"networkAcls": {
 					"bypass": "AzureServices",
-					"virtualNetworkRules": [
-						{
-							"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
-							"action": "Allow"
-						}
-					],
+					"virtualNetworkRules": [],
 					"ipRules": "[variables('storageAccountAllowedIpRuleArray')]",
 					"defaultAction": "Deny"
 				},
@@ -1147,7 +1130,6 @@
 				"accessTier": "Hot"
 			}
 		},
-
 		{
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
@@ -1265,147 +1247,6 @@
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
 					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseServerAdminPassword'), ' --db_server_admin_username ', parameters('databaseServerAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseServerName')).fullyQualifiedDomainName, ' --matomo_database_name ', variables('matomoDatabaseName'), ' --matomo_database_password ', parameters('matomoDatabasePassword'), ' --matomo_database_username ', parameters('matomoDatabaseUsername'), ' --matomo_version ', parameters('matomoVersion'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_from_address ', parameters('smtpServerFromAddress'), ' --smtp_server_password ', parameters('smtpServerPassword'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_username ', parameters('smtpServerUsername'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('webServerFqdn')), reference(variables('applicationGatewayPublicIpName')).dnsSettings.fqdn, parameters('webServerFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
-				}
-			}
-		},
-		{
-			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"apiVersion": "2020-06-01",
-			"name": "[concat(variables('webServerVirtualMachineName'), '/', variables('webServerVirtualMachineLinuxDiagnosticExtensionName'))]",
-			"location": "[parameters('resourceLocation')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]",
-				"[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('webServerVirtualMachineName'), variables('webServerVirtualMachineSetUpExtensionName'))]"
-			],
-			"properties": {
-				"publisher": "Microsoft.Azure.Diagnostics",
-				"type": "LinuxDiagnostic",
-				"typeHandlerVersion": "3.0",
-				"autoUpgradeMinorVersion": true,
-				"protectedSettings": {
-					"storageAccountName": "[variables('diagnosticStorageAccountName')]",
-					"storageAccountSasToken": "[listAccountSas(variables('diagnosticStorageAccountName'), '2019-06-01', variables('diagnosticStorageAccountSasProperties')).accountSasToken]"
-				},
-				"settings": {
-					"StorageAccount": "[variables('diagnosticStorageAccountName')]",
-					"ladCfg": {
-						"diagnosticMonitorConfiguration": {
-							"eventVolume": "Medium",
-							"metrics": {
-								"metricAggregation": [
-									{
-										"scheduledTransferPeriod": "PT1M"
-									},
-									{
-										"scheduledTransferPeriod": "PT1H"
-									}
-								],
-								"resourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('webServerVirtualMachineName'))]"
-							},
-							"performanceCounters": {
-								"performanceCounterConfiguration": [
-									{
-										"class": "memory",
-										"annotation": [
-											{
-												"displayName": "Swap percent used",
-												"locale": "en-us"
-											}
-										],
-										"counter": "percentusedswap",
-										"counterSpecifier": "/builtin/memory/percentusedswap",
-										"type": "builtin",
-										"unit": "Percent",
-										"sampleRate": "PT15S"
-									},
-									{
-										"class": "memory",
-										"annotation": [
-											{
-												"displayName": "Memory percentage",
-												"locale": "en-us"
-											}
-										],
-										"counter": "percentusedmemory",
-										"counterSpecifier": "/builtin/memory/percentusedmemory",
-										"type": "builtin",
-										"unit": "Percent",
-										"sampleRate": "PT15S"
-									},
-									{
-										"class": "disk",
-										"annotation": [
-											{
-												"displayName": "Disk queue length",
-												"locale": "en-us"
-											}
-										],
-										"condition": "IsAggregate=TRUE",
-										"counter": "averagediskqueuelength",
-										"counterSpecifier": "/builtin/disk/averagediskqueuelength",
-										"type": "builtin",
-										"unit": "Count",
-										"sampleRate": "PT15S"
-									},
-									{
-										"class": "filesystem",
-										"annotation": [
-											{
-												"displayName": "OS disk filesystem % used space",
-												"locale": "en-us"
-											}
-										],
-										"condition": "Name=\"/\"",
-										"counter": "percentusedspace",
-										"counterSpecifier": "/builtin/filesystem/osusedspace",
-										"type": "builtin",
-										"unit": "percent",
-										"sampleRate": "PT15S"
-									},
-									{
-										"class": "filesystem",
-										"annotation": [
-											{
-												"displayName": "Data disk filesystem % used space",
-												"locale": "en-us"
-											}
-										],
-										"condition": "[concat('Name=\"', variables('webServerVirtualMachineDataDiskMountPoint'), '\"')]",
-										"counter": "percentusedspace",
-										"counterSpecifier": "/builtin/filesystem/datausedspace",
-										"type": "builtin",
-										"unit": "percent",
-										"sampleRate": "PT15S"
-									}
-								]
-							},
-							"syslogEvents": {
-								"syslogEventConfiguration": {
-									"LOG_AUTH": "LOG_DEBUG",
-									"LOG_AUTHPRIV": "LOG_DEBUG",
-									"LOG_CRON": "LOG_DEBUG",
-									"LOG_DAEMON": "LOG_DEBUG",
-									"LOG_FTP": "LOG_DEBUG",
-									"LOG_KERN": "LOG_DEBUG",
-									"LOG_LOCAL0": "LOG_DEBUG",
-									"LOG_LOCAL1": "LOG_DEBUG",
-									"LOG_LOCAL2": "LOG_DEBUG",
-									"LOG_LOCAL3": "LOG_DEBUG",
-									"LOG_LOCAL4": "LOG_DEBUG",
-									"LOG_LOCAL5": "LOG_DEBUG",
-									"LOG_LOCAL6": "LOG_DEBUG",
-									"LOG_LOCAL7": "LOG_DEBUG",
-									"LOG_LPR": "LOG_DEBUG",
-									"LOG_MAIL": "LOG_DEBUG",
-									"LOG_NEWS": "LOG_DEBUG",
-									"LOG_SYSLOG": "LOG_DEBUG",
-									"LOG_USER": "LOG_DEBUG",
-									"LOG_UUCP": "LOG_DEBUG"
-								}
-							}
-						},
-						"sampleRateInSeconds": 15
-					}
 				}
 			}
 		},
