@@ -83,9 +83,19 @@ function is_update_required() {
     fi
   }
 
+  # Echo input parameters.
+  logger::debug "Current version: ${current_version}"
+  logger::debug "Desired version: ${desired_version}"
+
   # Validate input paramters
   validate_version "current_version" "${current_version}"
   validate_version "desired_version" "${desired_version}"
+
+  # Check if versions are equal first.
+  if [[ "${current_version}" == "${desired_version}" ]]; then
+    logger::info "Current version ($1) is matching the desired version ($2)."
+    return 1
+  fi
 
   # Add a final dot to version values (a stop condition for the loop below).
   current_version="${current_version}."
@@ -94,20 +104,27 @@ function is_update_required() {
   # Loop through sementic version tokens.
   while [[ -n "${current_version}" ]]; do
 
-    logger::debug "Current version: ${current_version}"
-    logger::debug "Desired version: ${desired_version}"
+    current_version_token="${current_version%%.*}"
+    desired_version_token="${desired_version%%.*}"
 
-    if [[ "${current_version%%.*}" -lt "${desired_version%%.*}" ]]; then
+    logger::debug "Current version token: ${current_version_token}"
+    logger::debug "Desired version token: ${desired_version_token}"
+
+    if [[ "${current_version_token}" -lt "${desired_version_token}" ]]; then
       logger::info "Current version ($1) is older than desired version ($2)."
       return 0
+    elif [[ "${current_version_token}" -gt "${desired_version_token}" ]]; then
+      logger::info "Current version ($1) is not older than desired version ($2)."
+      return 1
+    else
+      # Tokens are equal. Move to next sementic version token.
+      current_version="${current_version#*.}"
+      desired_version="${desired_version#*.}"
     fi
-    # Move to next sementic version token
-    current_version="${current_version#*.}"
-    desired_version="${desired_version#*.}"
   done
 
-  logger::info "Current version ($1) is not older than desired version ($2)."
-  return 1
+  # Should never reach this point.
+  exit 1
 }
 
 ######################################
