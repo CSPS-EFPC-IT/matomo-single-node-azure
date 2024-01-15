@@ -983,6 +983,29 @@
 			}
 		},
 		{
+            "type": "Microsoft.Insights/diagnosticSettings",
+            "apiVersion": "2021-05-01-preview",
+            "name": "local-logging",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName'))]",
+                "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+            ],
+            "scope": "[concat('Microsoft.Network/applicationGateways', '/', variables('applicationGatewayName'))]",
+            "properties": {
+                "logs": [
+                    {
+                        "category": "ApplicationGatewayAccessLog",
+                        "enabled": true,
+                        "retentionPolicy": {
+                            "days": 0,
+                            "enabled": false
+                        }
+                    }
+                ],
+                "workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+            }
+        },
+		{
 			"type": "Microsoft.DBforMySQL/servers",
 			"apiVersion": "[variables('databaseServerApiVersion')]",
 			"name": "[variables('databaseServerName')]",
