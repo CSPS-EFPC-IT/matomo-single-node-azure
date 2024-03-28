@@ -1005,119 +1005,119 @@
                 "workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
             }
         },
-		{
-			"type": "Microsoft.DBforMySQL/servers",
-			"apiVersion": "[variables('databaseServerApiVersion')]",
-			"name": "[variables('databaseServerName')]",
-			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('resourceLocation')]",
-			"sku": {
-				"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
-				"tier": "GeneralPurpose",
-				"family": "Gen5",
-				"capacity": "[parameters('databaseServerCapacity')]"
-			},
-			"properties": {
-				"storageProfile": {
-					"storageMB": "[parameters('databaseServerStorageMb')]",
-					"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
-					"geoRedundantBackup": "Disabled",
-					"storageAutogrow": "Enabled"
-				},
-				"version": "5.7",
-				"sslEnforcement": "Enabled",
-				"minimalTlsVersion": "TLS1_2",
-				"infrastructureEncryption": "Disabled",
-				"publicNetworkAccess": "Enabled",
-				"createMode": "Default",
-				"administratorLogin": "[parameters('databaseServerAdminUsername')]",
-				"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
-			}
-		},
-		{
-			"type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
-			"apiVersion": "2017-12-01",
-			"name": "[concat(variables('databaseServerName'), '/', variables('applicationSubnetName'))]",
-			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
-				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-			],
-			"properties": {
-				"virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
-				"ignoreMissingVnetServiceEndpoint": false
-			}
-		},
-		{
-			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseServerApiVersion')]",
-			"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-			],
-			"properties": {
-				"value": "[parameters('databaseServerConfigurationAuditLogEnabled')]",
-				"source": "user-override"
-			}
-		},
-		{
-			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseServerApiVersion')]",
-			"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-			],
-			"properties": {
-				"value": "[parameters('databaseServerConfigurationAuditLogEvents')]",
-				"source": "user-override"
-			}
-		},
-		{
-			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseServerApiVersion')]",
-			"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-			],
-			"properties": {
-				"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
-				"source": "user-override"
-			}
-		},
-		{
-			"type": "Microsoft.DBforMySQL/servers/configurations",
-			"apiVersion": "[variables('databaseServerApiVersion')]",
-			"name": "[concat(variables('databaseServerName'), '/collation_server')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-			],
-			"properties": {
-				"value": "[parameters('databaseServerConfigurationCollationServer')]",
-				"source": "user-override"
-			}
-		},
-		{
-			"type": "Microsoft.Insights/diagnosticSettings",
-			"apiVersion": "2021-05-01-preview",
-			"name": "local-mysql-logging",
-			"dependsOn": [
-				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
-				"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
-			],
-			"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
-			"properties": {
-				"logs": [
-					{
-						"category": "MySqlAuditLogs",
-						"enabled": true,
-						"retentionPolicy": {
-							"days": 0,
-							"enabled": false
-						}
-					}
-				],
-				"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
-			}
-		},
+		// {
+		// 	"type": "Microsoft.DBforMySQL/servers",
+		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
+		// 	"name": "[variables('databaseServerName')]",
+		// 	"tags": "[parameters('resourceTags')]",
+		// 	"location": "[parameters('resourceLocation')]",
+		// 	"sku": {
+		// 		"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
+		// 		"tier": "GeneralPurpose",
+		// 		"family": "Gen5",
+		// 		"capacity": "[parameters('databaseServerCapacity')]"
+		// 	},
+		// 	"properties": {
+		// 		"storageProfile": {
+		// 			"storageMB": "[parameters('databaseServerStorageMb')]",
+		// 			"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
+		// 			"geoRedundantBackup": "Disabled",
+		// 			"storageAutogrow": "Enabled"
+		// 		},
+		// 		"version": "5.7",
+		// 		"sslEnforcement": "Enabled",
+		// 		"minimalTlsVersion": "TLS1_2",
+		// 		"infrastructureEncryption": "Disabled",
+		// 		"publicNetworkAccess": "Enabled",
+		// 		"createMode": "Default",
+		// 		"administratorLogin": "[parameters('databaseServerAdminUsername')]",
+		// 		"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
+		// 	}
+		// },
+		// {
+		// 	"type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
+		// 	"apiVersion": "2017-12-01",
+		// 	"name": "[concat(variables('databaseServerName'), '/', variables('applicationSubnetName'))]",
+		// 	"dependsOn": [
+		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
+		// 		"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+		// 	],
+		// 	"properties": {
+		// 		"virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
+		// 		"ignoreMissingVnetServiceEndpoint": false
+		// 	}
+		// },
+		// {
+		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
+		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
+		// 	"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
+		// 	"dependsOn": [
+		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+		// 	],
+		// 	"properties": {
+		// 		"value": "[parameters('databaseServerConfigurationAuditLogEnabled')]",
+		// 		"source": "user-override"
+		// 	}
+		// },
+		// {
+		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
+		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
+		// 	"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
+		// 	"dependsOn": [
+		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+		// 	],
+		// 	"properties": {
+		// 		"value": "[parameters('databaseServerConfigurationAuditLogEvents')]",
+		// 		"source": "user-override"
+		// 	}
+		// },
+		// {
+		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
+		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
+		// 	"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
+		// 	"dependsOn": [
+		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+		// 	],
+		// 	"properties": {
+		// 		"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
+		// 		"source": "user-override"
+		// 	}
+		// },
+		// {
+		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
+		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
+		// 	"name": "[concat(variables('databaseServerName'), '/collation_server')]",
+		// 	"dependsOn": [
+		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+		// 	],
+		// 	"properties": {
+		// 		"value": "[parameters('databaseServerConfigurationCollationServer')]",
+		// 		"source": "user-override"
+		// 	}
+		// },
+		// {
+		// 	"type": "Microsoft.Insights/diagnosticSettings",
+		// 	"apiVersion": "2021-05-01-preview",
+		// 	"name": "local-mysql-logging",
+		// 	"dependsOn": [
+		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
+		// 		"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+		// 	],
+		// 	"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
+		// 	"properties": {
+		// 		"logs": [
+		// 			{
+		// 				"category": "MySqlAuditLogs",
+		// 				"enabled": true,
+		// 				"retentionPolicy": {
+		// 					"days": 0,
+		// 					"enabled": false
+		// 				}
+		// 			}
+		// 		],
+		// 		"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+		// 	}
+		// },
 		{
 			"condition": "[ equals(parameters('environmentName'), 'staging' )]",
 			"type": "Microsoft.Storage/storageAccounts",
