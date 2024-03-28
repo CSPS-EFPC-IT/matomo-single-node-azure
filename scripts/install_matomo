@@ -313,15 +313,33 @@ function set_up_crontab() {
 
   # Constants
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
-  local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
+  local -r MATOMO_ARCHIVE_LOG_FILE_PATH="/var/log"
+  local -r MATOMO_ARCHIVE_LOG_FILE_PREFIX="matomo-archive"
+  local -r MATOMO_ARCHIVE_LOG_FILE_EXTENSION="log"
+
+  # Variables
+  local dailyLogFilePath;
 
   if [[ -f "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}" ]]; then
       logger::warn "Skipped: Matomo Archive Crontab already exist."
   else
       # Set only one archiver job as multiple concurent archivers tend to overload database server resources.
-      touch "${MATOMO_ARCHIVE_LOG_PATH}"
-      chown "${matomo_file_owner}" "${MATOMO_ARCHIVE_LOG_PATH}"
-      echo "0 * * * * ${matomo_file_owner} /usr/bin/php ${matomo_home_path}/console core:archive --url=https://${web_server_fqdn} --concurrent-requests-per-website=1 > ${MATOMO_ARCHIVE_LOG_PATH} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
+      # Store job's log in distinct log file for every day of the week. (Effectively keeping 7 days worth of logs.)
+
+      # Create empty log files for every day of the week with proper file ownership.
+      for day in {Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday}; do
+        dailyLogFilePath="${MATOMO_ARCHIVE_LOG_FILE_PATH}/${MATOMO_ARCHIVE_LOG_FILE_PREFIX}.${day}.${MATOMO_ARCHIVE_LOG_FILE_EXTENSION}"
+        touch "${dailyLogFilePath}"
+        chown "${matomo_file_owner}" "${dailyLogFilePath}"
+      done
+
+      # Create cron tab entries with a dynamically created daily log file path.
+      dailyLogFilePath="${MATOMO_ARCHIVE_LOG_FILE_PATH}/${MATOMO_ARCHIVE_LOG_FILE_PREFIX}.\$(date +\\%A).${MATOMO_ARCHIVE_LOG_FILE_EXTENSION}"
+      # Purge archiver daily log file at midnight every day.
+      echo "0 0 * * * ${matomo_file_owner} printf '' > ${dailyLogFilePath}" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
+      # Run archiver job on the 1st minute of every hour and append log in the daily log file.
+      echo "1 * * * * ${matomo_file_owner} /usr/bin/php ${matomo_home_path}/console core:archive --url=https://${web_server_fqdn} --concurrent-requests-per-website=1 >> ${dailyLogFilePath} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
+
       logger::info "Done."
   fi
 }
