@@ -1245,8 +1245,8 @@
 			"name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-				"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseServerName'), variables('applicationSubnetName'))]"
+				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]"//,
+				//"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseServerName'), variables('applicationSubnetName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Azure.Extensions",
