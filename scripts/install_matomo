@@ -315,16 +315,13 @@ function set_up_crontab() {
   local -r MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH="/etc/cron.d/matomo-archive"
   local -r MATOMO_ARCHIVE_LOG_PATH="/var/log/matomo-archive.log"
 
-  # Ref.: See section "Launching multiple archivers at once" in
-  #       https://matomo.org/docs/setup-auto-archiving/#linux-unix-how-to-set-up-a-crontab-to-automatically-archive-the-reports
   if [[ -f "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}" ]]; then
       logger::warn "Skipped: Matomo Archive Crontab already exist."
   else
-      for archiver_id in {1..2}; do
-          touch "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
-          chown "${matomo_file_owner}" "${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id}"
-          echo "${archiver_id} * * * * ${matomo_file_owner} /usr/bin/php ${matomo_home_path}/console core:archive --url=https://${web_server_fqdn} > ${MATOMO_ARCHIVE_LOG_PATH}.${archiver_id} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
-      done
+      # Set only one archiver job as multiple concurent archivers tend to overload database server resources.
+      touch "${MATOMO_ARCHIVE_LOG_PATH}"
+      chown "${matomo_file_owner}" "${MATOMO_ARCHIVE_LOG_PATH}"
+      echo "0 * * * * ${matomo_file_owner} /usr/bin/php ${matomo_home_path}/console core:archive --url=https://${web_server_fqdn} --concurrent-requests-per-website=1 > ${MATOMO_ARCHIVE_LOG_PATH} 2>&1" >> "${MATOMO_ARCHIVE_CRONTAB_ENTRY_PATH}"
       logger::info "Done."
   fi
 }
