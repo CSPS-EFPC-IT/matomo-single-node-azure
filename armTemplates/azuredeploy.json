@@ -1005,119 +1005,119 @@
                 "workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
             }
         },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[variables('databaseServerName')]",
-		// 	"tags": "[parameters('resourceTags')]",
-		// 	"location": "[parameters('resourceLocation')]",
-		// 	"sku": {
-		// 		"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
-		// 		"tier": "GeneralPurpose",
-		// 		"family": "Gen5",
-		// 		"capacity": "[parameters('databaseServerCapacity')]"
-		// 	},
-		// 	"properties": {
-		// 		"storageProfile": {
-		// 			"storageMB": "[parameters('databaseServerStorageMb')]",
-		// 			"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
-		// 			"geoRedundantBackup": "Disabled",
-		// 			"storageAutogrow": "Enabled"
-		// 		},
-		// 		"version": "5.7",
-		// 		"sslEnforcement": "Enabled",
-		// 		"minimalTlsVersion": "TLS1_2",
-		// 		"infrastructureEncryption": "Disabled",
-		// 		"publicNetworkAccess": "Enabled",
-		// 		"createMode": "Default",
-		// 		"administratorLogin": "[parameters('databaseServerAdminUsername')]",
-		// 		"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
-		// 	"apiVersion": "2017-12-01",
-		// 	"name": "[concat(variables('databaseServerName'), '/', variables('applicationSubnetName'))]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
-		// 		"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
-		// 		"ignoreMissingVnetServiceEndpoint": false
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[parameters('databaseServerConfigurationAuditLogEnabled')]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[parameters('databaseServerConfigurationAuditLogEvents')]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/servers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/collation_server')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[parameters('databaseServerConfigurationCollationServer')]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.Insights/diagnosticSettings",
-		// 	"apiVersion": "2021-05-01-preview",
-		// 	"name": "local-mysql-logging",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
-		// 		"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
-		// 	],
-		// 	"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
-		// 	"properties": {
-		// 		"logs": [
-		// 			{
-		// 				"category": "MySqlAuditLogs",
-		// 				"enabled": true,
-		// 				"retentionPolicy": {
-		// 					"days": 0,
-		// 					"enabled": false
-		// 				}
-		// 			}
-		// 		],
-		// 		"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
-		// 	}
-		// },
+		{
+			"type": "Microsoft.DBforMySQL/servers",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[variables('databaseServerName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"sku": {
+				"name": "[concat('GP_Gen5_', parameters('databaseServerCapacity'))]",
+				"tier": "GeneralPurpose",
+				"family": "Gen5",
+				"capacity": "[parameters('databaseServerCapacity')]"
+			},
+			"properties": {
+				"storageProfile": {
+					"storageMB": "[parameters('databaseServerStorageMb')]",
+					"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
+					"geoRedundantBackup": "Disabled",
+					"storageAutogrow": "Enabled"
+				},
+				"version": "5.7",
+				"sslEnforcement": "Enabled",
+				"minimalTlsVersion": "TLS1_2",
+				"infrastructureEncryption": "Disabled",
+				"publicNetworkAccess": "Enabled",
+				"createMode": "Default",
+				"administratorLogin": "[parameters('databaseServerAdminUsername')]",
+				"administratorLoginPassword": "[parameters('databaseServerAdminPassword')]"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/servers/virtualNetworkRules",
+			"apiVersion": "2017-12-01",
+			"name": "[concat(variables('databaseServerName'), '/', variables('applicationSubnetName'))]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+			],
+			"properties": {
+				"virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]",
+				"ignoreMissingVnetServiceEndpoint": false
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/servers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[parameters('databaseServerConfigurationAuditLogEnabled')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/servers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[parameters('databaseServerConfigurationAuditLogEvents')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/servers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/servers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/collation_server')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[parameters('databaseServerConfigurationCollationServer')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.Insights/diagnosticSettings",
+			"apiVersion": "2021-05-01-preview",
+			"name": "local-mysql-logging",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
+				"[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+			],
+			"scope": "[resourceId('Microsoft.DBforMySQL/servers', variables('databaseServerName'))]",
+			"properties": {
+				"logs": [
+					{
+						"category": "MySqlAuditLogs",
+						"enabled": true,
+						"retentionPolicy": {
+							"days": 0,
+							"enabled": false
+						}
+					}
+				],
+				"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+			}
+		},
 		{
 			"condition": "[ equals(parameters('environmentName'), 'staging' )]",
 			"type": "Microsoft.Storage/storageAccounts",
@@ -1245,8 +1245,8 @@
 			"name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]"
-				//"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseServerName'), variables('applicationSubnetName'))]"
+				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
+				"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseServerName'), variables('applicationSubnetName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Azure.Extensions",
@@ -1269,7 +1269,7 @@
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
-					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseServerAdminPassword'), ' --db_server_admin_username ', parameters('databaseServerAdminUsername'), ' --db_server_fqdn ', 'a.b.c', ' --matomo_database_name ', variables('matomoDatabaseName'), ' --matomo_database_password ', parameters('matomoDatabasePassword'), ' --matomo_database_username ', parameters('matomoDatabaseUsername'), ' --matomo_version ', parameters('matomoVersion'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_from_address ', parameters('smtpServerFromAddress'), ' --smtp_server_password ', parameters('smtpServerPassword'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_username ', parameters('smtpServerUsername'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('webServerFqdn')), reference(variables('applicationGatewayPublicIpName')).dnsSettings.fqdn, parameters('webServerFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
+					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseServerAdminPassword'), ' --db_server_admin_username ', parameters('databaseServerAdminUsername'), ' --db_server_fqdn ', reference(variables('databaseServerName')).fullyQualifiedDomainName, ' --matomo_database_name ', variables('matomoDatabaseName'), ' --matomo_database_password ', parameters('matomoDatabasePassword'), ' --matomo_database_username ', parameters('matomoDatabaseUsername'), ' --matomo_version ', parameters('matomoVersion'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_from_address ', parameters('smtpServerFromAddress'), ' --smtp_server_password ', parameters('smtpServerPassword'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_username ', parameters('smtpServerUsername'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('webServerFqdn')), reference(variables('applicationGatewayPublicIpName')).dnsSettings.fqdn, parameters('webServerFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
 				}
 			}
 		},
