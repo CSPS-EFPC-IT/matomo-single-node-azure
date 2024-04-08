@@ -42,16 +42,17 @@ jobs:
                 -applicationGatewaySslCertificateUri "$(applicationGatewaySslCertificateUri)"
                 -applicationGatewayUserAssignedIdentity "$(applicationGatewayUserAssignedIdentity)"
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
-                -databaseServerAdminPassword "$(databaseServerAdminPassword)"
-                -databaseServerAdminUsername "$(databaseServerAdminUsername)"
+                -dataDiskSizeGB $(dataDiskSizeGB)
+                -databaseServerAdministratorLogin "$(databaseServerAdminUsername)"
+                -databaseServerAdministratorLoginPassword "$(databaseServerAdminPassword)"
                 -databaseServerBackupRetentionDays $(databaseServerBackupRetentionDays)
-                -databaseServerCapacity $(databaseServerCapacity)
-                -databaseServerConfigurationAuditLogEnabled "$(databaseServerConfigurationAuditLogEnabled)"
                 -databaseServerConfigurationAuditLogEvents "$(databaseServerConfigurationAuditLogEvents)"
                 -databaseServerConfigurationCharacterSetServer "$(databaseServerConfigurationCharacterSetServer)"
                 -databaseServerConfigurationCollationServer "$(databaseServerConfigurationCollationServer)"
-                -databaseServerStorageMb $(databaseServerStorageMb)
-                -dataDiskSizeGB $(dataDiskSizeGB)
+                -databaseServerSkuName "$(databaseServerSkuName)"
+                -databaseServerSkuTier "$(databaseServerSkuTier)"
+                -databaseServerStorageIops $(databaseServerStorageIops)
+                -databaseServerStorageSizeGb $(databaseServerStorageSizeGb)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
                 -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"
