@@ -654,20 +654,7 @@
 							"networkSecurityGroup": {
 								"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('applicationNetworkSecurityGroupName'))]"
 							},
-							"serviceEndpoints": [
-								{
-									"service": "Microsoft.Storage",
-									"locations": [
-										"[parameters('resourceLocation')]"
-									]
-								},
-								{
-									"service": "Microsoft.SQL",
-									"locations": [
-										"[parameters('resourceLocation')]"
-									]
-								}
-							],
+							"serviceEndpoints": [],
 							"delegations": [],
 							"privateEndpointNetworkPolicies": "Enabled",
 							"privateLinkServiceNetworkPolicies": "Enabled"
