@@ -43,8 +43,8 @@ jobs:
                 -applicationGatewayUserAssignedIdentity "$(applicationGatewayUserAssignedIdentity)"
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -dataDiskSizeGB $(dataDiskSizeGB)
-                -databaseServerAdministratorLogin "$(databaseServerAdminUsername)"
-                -databaseServerAdministratorLoginPassword "$(databaseServerAdminPassword)"
+                -databaseServerAdministratorLogin "$(databaseServerAdministratorLogin)"
+                -databaseServerAdministratorLoginPassword "$(databaseServerAdministratorLoginPassword)"
                 -databaseServerBackupRetentionDays $(databaseServerBackupRetentionDays)
                 -databaseServerConfigurationAuditLogEvents "$(databaseServerConfigurationAuditLogEvents)"
                 -databaseServerConfigurationCharacterSetServer "$(databaseServerConfigurationCharacterSetServer)"
