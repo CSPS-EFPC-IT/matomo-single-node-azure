@@ -683,11 +683,11 @@
 							"serviceEndpoints": [],
 							"delegations": [
 								{
-									"name": "Microsoft.DBforMySQL.servers",
-									"properties": {
-										"serviceName": "Microsoft.DBforMySQL/servers"
-									}
-								}
+                                    "name": "Microsoft.DBforMySQL.flexibleServers",
+                                    "properties": {
+                                        "serviceName": "Microsoft.DBforMySQL/flexibleServers"
+                                    }
+                                }
 							],
 							"privateEndpointNetworkPolicies": "Enabled",
 							"privateLinkServiceNetworkPolicies": "Enabled"
