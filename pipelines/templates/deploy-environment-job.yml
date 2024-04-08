@@ -52,7 +52,7 @@ jobs:
                 -databaseServerSkuName "$(databaseServerSkuName)"
                 -databaseServerSkuTier "$(databaseServerSkuTier)"
                 -databaseServerStorageIops $(databaseServerStorageIops)
-                -databaseServerStorageSizeGb $(databaseServerStorageSizeGb)
+                -databaseServerStorageSizeGB $(databaseServerStorageSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
                 -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"

@@ -34,7 +34,7 @@
         "databaseServerConfigurationCollationServer": {
             "value": "UTF8MB4_0900_AI_CI"
         },
-        "databaseServerStorageSizeGb": {
+        "databaseServerStorageSizeGB": {
             "value": 20
         },
         "deniedIpAddressList": {
