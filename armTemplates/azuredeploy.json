@@ -1353,7 +1353,7 @@
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
-				"[resourceId('Microsoft.DBforMySQL/servers/virtualNetworkRules', variables('databaseServerName'), variables('applicationSubnetName'))]"
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Azure.Extensions",
