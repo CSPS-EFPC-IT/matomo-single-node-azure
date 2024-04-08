@@ -356,6 +356,62 @@
 	},
 	"resources": [
 		{
+			"type": "microsoft.operationalinsights/workspaces",
+			"apiVersion": "2021-06-01",
+			"name": "[variables('logAnalyticsWorkspaceName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"properties": {
+				"sku": {
+					"name": "pergb2018"
+				},
+				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionPeriod')]",
+				"features": {
+					"enableLogAccessUsingOnlyResourcePermissions": true
+				},
+				"workspaceCapping": {
+					"dailyQuotaGb": -1
+				},
+				"publicNetworkAccessForIngestion": "Enabled",
+				"publicNetworkAccessForQuery": "Enabled"
+			}
+		},
+		{
+			"condition": "[ equals(parameters('environmentName'), 'staging' )]",
+			"type": "Microsoft.Storage/storageAccounts",
+			"apiVersion": "2019-06-01",
+			"name": "[variables('storageAccountName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"dependsOn": [],
+			"sku": {
+				"name": "Standard_LRS",
+				"tier": "Standard"
+			},
+			"kind": "StorageV2",
+			"properties": {
+				"minimumTlsVersion": "TLS1_2",
+				"allowBlobPublicAccess": false,
+				"networkAcls": {
+					"bypass": "AzureServices",
+					"virtualNetworkRules": [],
+					"ipRules": "[variables('storageAccountAllowedIpRuleArray')]",
+					"defaultAction": "Deny"
+				},
+				"supportsHttpsTrafficOnly": true,
+				"encryption": {
+					"services": {
+						"blob": {
+							"keyType": "Account",
+							"enabled": true
+						}
+					},
+					"keySource": "Microsoft.Storage"
+				},
+				"accessTier": "Hot"
+			}
+		},
+		{
 			"type": "Microsoft.Network/networkSecurityGroups",
 			"apiVersion": "2019-11-01",
 			"name": "[variables('applicationGatewayNetworkSecurityGroupName')]",
@@ -926,63 +982,6 @@
 			}
 		},
 		{
-			"type": "Microsoft.Network/networkInterfaces",
-			"apiVersion": "2020-05-01",
-			"name": "[variables('webServerVirtualMachineNetworkInterfaceCardName')]",
-			"tags": "[parameters('resourceTags')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-				"[resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName'))]"
-			],
-			"location": "[parameters('resourceLocation')]",
-			"properties": {
-				"ipConfigurations": [
-					{
-						"name": "ipconfig1",
-						"properties": {
-							"privateIPAllocationMethod": "Dynamic",
-							"subnet": {
-								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]"
-							},
-							"primary": true,
-							"privateIPAddressVersion": "IPv4",
-							"applicationGatewayBackendAddressPools": [
-								{
-									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/backendAddressPools/', variables('applicationGatewayBackendAddressPoolName'))]"
-								}
-							]
-						}
-					}
-				],
-				"dnsSettings": {
-					"dnsServers": []
-				},
-				"enableAcceleratedNetworking": true,
-				"enableIPForwarding": false
-			}
-		},
-		{
-			"type": "microsoft.operationalinsights/workspaces",
-			"apiVersion": "2021-06-01",
-			"name": "[variables('logAnalyticsWorkspaceName')]",
-			"tags": "[parameters('resourceTags')]",
-			"location": "[parameters('resourceLocation')]",
-			"properties": {
-				"sku": {
-					"name": "pergb2018"
-				},
-				"retentionInDays": "[parameters('logAnalyticsWorkspaceRetentionPeriod')]",
-				"features": {
-					"enableLogAccessUsingOnlyResourcePermissions": true
-				},
-				"workspaceCapping": {
-					"dailyQuotaGb": -1
-				},
-				"publicNetworkAccessForIngestion": "Enabled",
-				"publicNetworkAccessForQuery": "Enabled"
-			}
-		},
-		{
             "type": "Microsoft.Insights/diagnosticSettings",
             "apiVersion": "2021-05-01-preview",
             "name": "local-logging",
@@ -1119,38 +1118,39 @@
 			}
 		},
 		{
-			"condition": "[ equals(parameters('environmentName'), 'staging' )]",
-			"type": "Microsoft.Storage/storageAccounts",
-			"apiVersion": "2019-06-01",
-			"name": "[variables('storageAccountName')]",
+			"type": "Microsoft.Network/networkInterfaces",
+			"apiVersion": "2020-05-01",
+			"name": "[variables('webServerVirtualMachineNetworkInterfaceCardName')]",
 			"tags": "[parameters('resourceTags')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+				"[resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName'))]"
+			],
 			"location": "[parameters('resourceLocation')]",
-			"dependsOn": [],
-			"sku": {
-				"name": "Standard_LRS",
-				"tier": "Standard"
-			},
-			"kind": "StorageV2",
 			"properties": {
-				"minimumTlsVersion": "TLS1_2",
-				"allowBlobPublicAccess": false,
-				"networkAcls": {
-					"bypass": "AzureServices",
-					"virtualNetworkRules": [],
-					"ipRules": "[variables('storageAccountAllowedIpRuleArray')]",
-					"defaultAction": "Deny"
-				},
-				"supportsHttpsTrafficOnly": true,
-				"encryption": {
-					"services": {
-						"blob": {
-							"keyType": "Account",
-							"enabled": true
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('applicationSubnetName'))]"
+							},
+							"primary": true,
+							"privateIPAddressVersion": "IPv4",
+							"applicationGatewayBackendAddressPools": [
+								{
+									"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/backendAddressPools/', variables('applicationGatewayBackendAddressPoolName'))]"
+								}
+							]
 						}
-					},
-					"keySource": "Microsoft.Storage"
+					}
+				],
+				"dnsSettings": {
+					"dnsServers": []
 				},
-				"accessTier": "Hot"
+				"enableAcceleratedNetworking": true,
+				"enableIPForwarding": false
 			}
 		},
 		{
