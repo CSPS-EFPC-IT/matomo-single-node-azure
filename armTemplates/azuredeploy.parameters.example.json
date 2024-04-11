@@ -16,17 +16,14 @@
         "dataDiskSizeGB": {
             "value": 64
         },
-        "databaseServerAdminPassword": {
+        "databaseServerAdministratorLoginPassword": {
             "value": "mySecret"
         },
-        "databaseServerAdminUsername": {
+        "databaseServerAdministratorLogin": {
             "value": "myDbAdminUsername"
         },
         "databaseServerBackupRetentionDays": {
             "value": 7
-        },
-        "databaseServerConfigurationAuditLogEnabled": {
-            "value": "On"
         },
         "databaseServerConfigurationAuditLogEvents": {
             "value": "ADMIN,CONNECTION,DCL,DDL,DML,GENERAL,TABLE_ACCESS"
@@ -37,8 +34,8 @@
         "databaseServerConfigurationCollationServer": {
             "value": "UTF8MB4_0900_AI_CI"
         },
-        "databaseServerStorageMb": {
-            "value": 5120
+        "databaseServerStorageSizeGB": {
+            "value": 20
         },
         "deniedIpAddressList": {
             "value": "10.12.13.14/32,11.12.13.14/32"
@@ -87,9 +84,6 @@
         },
         "smtpServerUsername": {
             "value": "mySmtpServerUsername"
-        },
-        "standbyAvailabilityZone": {
-            "value": "zone"
         },
         "storageAccountAllowedIpAddressList": {
             "value": "255.255.255.255,10.10.10.0/24"

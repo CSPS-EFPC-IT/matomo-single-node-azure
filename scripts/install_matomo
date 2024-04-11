@@ -405,7 +405,7 @@ function main() {
   logger::title "Setup Matomo Database and Credentials"
   mysql::create_database_and_credentials \
     "${parameters[db_server_fqdn]}" \
-    "${parameters[db_server_admin_username]}@${parameters[db_server_fqdn]%%.*}" \
+    "${parameters[db_server_admin_username]}" \
     "${parameters[db_server_admin_password]}" \
     "${parameters[matomo_database_username]}" \
     "${parameters[matomo_database_password]}" \
