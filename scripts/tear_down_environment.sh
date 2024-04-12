@@ -29,9 +29,10 @@ function main() {
   local disk_ids
   local index
   local log_analytics_workspace_names
+  local mysql_flexible_server_ids
   local network_interface_card_ids
   local network_security_group_ids
-  local mysql_server_ids
+  local private_dns_zone_ids
   local public_ip_ids
   local recovery_service_vault_ids
   local storage_account_ids
@@ -162,24 +163,65 @@ function main() {
     done
   fi
 
-  echo "Deleting MySQL Server, if any..."
-  mysql_server_ids="$(az mysql server list \
+  echo "Deleting MySQL Flexible Server, if any..."
+  mysql_flexible_server_ids="$(az mysql flexible-server list \
       --only-show-errors \
       --output tsv \
       --query "[].id" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
-  if [ -z "${mysql_server_ids}" ]; then
-    echo "No MySQL Server Found. Skipping."
+  if [ -z "${mysql_flexible_server_ids}" ]; then
+    echo "No MySQL Flexible Server Found. Skipping."
   else
     index=0
-    for mysql_server_id in ${mysql_server_ids}; do
+    for mysql_flexible_server_id in ${mysql_flexible_server_ids}; do
       ((++index))
-      echo "(${index}) Deleting ${mysql_server_id}..."
-      az mysql server delete \
-        --ids "${mysql_server_id}" \
+      echo "(${index}) Deleting ${mysql_flexible_server_id}..."
+      az mysql flexible-server delete \
+        --ids "${mysql_flexible_server_id}" \
         --only-show-errors \
         --output none \
+        --yes
+    done
+  fi
+
+  echo "Deleting Private DNS Zone, if any..."
+  private_dns_zone_ids="$(az network private-dns zone list \
+      --only-show-errors \
+      --output tsv \
+      --query "[].id" \
+      --resource-group "${parameters[--resource-group-name]}" \
+    )"
+  if [ -z "${private_dns_zone_ids}" ]; then
+    echo "No Private DNS Zone Found. Skipping."
+  else
+    index=0
+    for private_dns_zone_id in ${private_dns_zone_ids}; do
+      ((++index))
+
+      # Delete all Virtual Network Links first as Private DNS Zone can't be
+      # deleted when linked to Virtual Networks.
+      echo "(${index}) Deleting Virtual Network Links, if any..."
+      vnet_link_names="$(az network private-dns link vnet list \
+        --output tsv \
+        --query "[].name" \
+        --id "${private_dns_zone_id}" \
+      | xargs  \
+      )"
+      iteration_count=0
+      for vnet_link_name in ${vnet_link_names}; do
+        (( ++iteration_count ))
+        echo "(${index}.${iteration_count}) Deleting Virtual Network Link..."
+        az network private-dns link vnet delete \
+          --name "${vnet_link_name}" \
+          --id "${private_dns_zone_id}" \
+          --yes
+      done
+
+      echo "(${index}) Deleting ${private_dns_zone_id}..."
+      az network private-dns zone delete \
+        --output none \
+        --id "${private_dns_zone_id}" \
         --yes
     done
   fi
