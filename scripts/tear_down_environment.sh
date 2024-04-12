@@ -205,7 +205,7 @@ function main() {
       vnet_link_names="$(az network private-dns link vnet list \
         --output tsv \
         --query "[].name" \
-        --id "${private_dns_zone_id}" \
+        --ids "${private_dns_zone_id}" \
       | xargs  \
       )"
       iteration_count=0
@@ -214,14 +214,14 @@ function main() {
         echo "(${index}.${iteration_count}) Deleting Virtual Network Link..."
         az network private-dns link vnet delete \
           --name "${vnet_link_name}" \
-          --id "${private_dns_zone_id}" \
+          --ids "${private_dns_zone_id}" \
           --yes
       done
 
       echo "(${index}) Deleting ${private_dns_zone_id}..."
       az network private-dns zone delete \
         --output none \
-        --id "${private_dns_zone_id}" \
+        --ids "${private_dns_zone_id}" \
         --yes
     done
   fi
