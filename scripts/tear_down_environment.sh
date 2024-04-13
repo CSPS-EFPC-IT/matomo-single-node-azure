@@ -32,13 +32,14 @@ function main() {
   local mysql_flexible_server_ids
   local network_interface_card_ids
   local network_security_group_ids
-  local private_dns_zone_ids
+  local private_dns_zone_names
   local public_ip_ids
   local recovery_service_vault_ids
   local storage_account_ids
   local subindex
   local virtual_network_ids
   local vm_ids
+  local vnet_link_names
 
   # Map input parameter values.
   echo "Parsing input parameters..."
@@ -203,6 +204,7 @@ function main() {
       # deleted when linked to Virtual Networks.
       echo "(${index}) Deleting Private DNS Zone Virtual Network Links, if any..."
       vnet_link_names="$(az network private-dns link vnet list \
+        --only-show-errors \
         --output tsv \
         --query "[].name" \
         --resource-group "${parameters[--resource-group-name]}" \
@@ -215,14 +217,16 @@ function main() {
         echo "(${index}.${iteration_count}) Deleting Private DNS Zone Virtual Network Link..."
         az network private-dns link vnet delete \
           --name "${vnet_link_name}" \
+          --only-show-errors \
           --resource-group "${parameters[--resource-group-name]}" \
           --yes \
           --zone-name "${private_dns_zone_name}"
       done
 
-      echo "(${index}) Deleting ${private_dns_zone_id}..."
+      echo "(${index}) Deleting ${private_dns_zone_name}..."
       az network private-dns zone delete \
         --name "${private_dns_zone_name}" \
+        --only-show-errors \
         --output none \
         --resource-group "${parameters[--resource-group-name]}" \
         --yes
