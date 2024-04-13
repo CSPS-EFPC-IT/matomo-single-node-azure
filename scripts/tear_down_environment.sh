@@ -214,7 +214,7 @@ function main() {
       iteration_count=0
       for vnet_link_name in ${vnet_link_names}; do
         (( ++iteration_count ))
-        echo "(${index}.${iteration_count}) Deleting Private DNS Zone Virtual Network Link..."
+        echo "(${index}.${iteration_count}) Deleting ${vnet_link_name}..."
         az network private-dns link vnet delete \
           --name "${vnet_link_name}" \
           --only-show-errors \
