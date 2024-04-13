@@ -186,42 +186,45 @@ function main() {
   fi
 
   echo "Deleting Private DNS Zone, if any..."
-  private_dns_zone_ids="$(az network private-dns zone list \
+  private_dns_zone_names="$(az network private-dns zone list \
       --only-show-errors \
       --output tsv \
-      --query "[].id" \
+      --query "[].name" \
       --resource-group "${parameters[--resource-group-name]}" \
     )"
-  if [ -z "${private_dns_zone_ids}" ]; then
+  if [ -z "${private_dns_zone_names}" ]; then
     echo "No Private DNS Zone Found. Skipping."
   else
     index=0
-    for private_dns_zone_id in ${private_dns_zone_ids}; do
+    for private_dns_zone_name in ${private_dns_zone_names}; do
       ((++index))
 
       # Delete all Virtual Network Links first as Private DNS Zone can't be
       # deleted when linked to Virtual Networks.
-      echo "(${index}) Deleting Virtual Network Links, if any..."
+      echo "(${index}) Deleting Private DNS Zone Virtual Network Links, if any..."
       vnet_link_names="$(az network private-dns link vnet list \
         --output tsv \
         --query "[].name" \
-        --ids "${private_dns_zone_id}" \
-      | xargs  \
+        --resource-group "${parameters[--resource-group-name]}" \
+        --zone-name "${private_dns_zone_name}" \
+        | xargs  \
       )"
       iteration_count=0
       for vnet_link_name in ${vnet_link_names}; do
         (( ++iteration_count ))
-        echo "(${index}.${iteration_count}) Deleting Virtual Network Link..."
+        echo "(${index}.${iteration_count}) Deleting Private DNS Zone Virtual Network Link..."
         az network private-dns link vnet delete \
           --name "${vnet_link_name}" \
-          --ids "${private_dns_zone_id}" \
-          --yes
+          --resource-group "${parameters[--resource-group-name]}" \
+          --yes \
+          --zone-name "${private_dns_zone_name}"
       done
 
       echo "(${index}) Deleting ${private_dns_zone_id}..."
       az network private-dns zone delete \
+        --name "${private_dns_zone_name}" \
         --output none \
-        --ids "${private_dns_zone_id}" \
+        --resource-group "${parameters[--resource-group-name]}" \
         --yes
     done
   fi
