@@ -955,6 +955,7 @@
 						"name": "[variables('applicationGatewayRequestRoutingRuleHttpsName')]",
 						"properties": {
 							"ruleType": "Basic",
+							"priority": 10010,
 							"httpListener": {
 								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpsName'))]"
 							},
@@ -973,6 +974,7 @@
 						"name": "[variables('applicationGatewayRequestRoutingRuleHttpName')]",
 						"properties": {
 							"ruleType": "Basic",
+							"priority": 10020,
 							"httpListener": {
 								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpName'))]"
 							},
