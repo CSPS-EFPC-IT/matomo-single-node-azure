@@ -1028,8 +1028,7 @@
 				],
 				"sslPolicy": {
 					"policyType": "Predefined",
-					"policyName": "AppGwSslPolicy20220101",
-					"minProtocolVersion": "TLSv1_2"
+					"policyName": "AppGwSslPolicy20220101"
 				},
 				"enableHttp2": false,
 				"autoscaleConfiguration": {
