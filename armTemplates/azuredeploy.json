@@ -389,7 +389,7 @@
 		"logAnalyticsWorkspaceName": "[concat(variables('resourceNamePrefix'), '-LAW')]",
 		"matomoDatabaseName": "[tolower(custom.cleanName(parameters('matomoDatabaseUsername')))]",
 		"privateDnsZoneName": "[concat(variables('databaseServerName'),'.private.mysql.database.azure.com')]",
-		"privateDnsZoneVirtualNetworkLinkName": "[concat(variables('privateDnsZoneName'), '/', variables('virtualNetworkName'))]",
+		"privateDnsZoneVirtualNetworkLinkName": "[variables('virtualNetworkName')]",
 		"recoveryServiceVaultBackupPoliciesDeploymentName": "[take(concat(deployment().name, '_rsv-bp'), 64)]",
 		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_rsv'), 64)]",
 		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",
@@ -759,7 +759,7 @@
 		{
 			"type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
 			"apiVersion": "2020-06-01",
-			"name": "[variables('privateDnsZoneVirtualNetworkLinkName')]",
+			"name": "[concat(variables('privateDnsZoneName'), '/', variables('privateDnsZoneVirtualNetworkLinkName'))]",
 			"location": "global",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
@@ -836,7 +836,7 @@
 		},
 		{
 			"type": "Microsoft.Network/applicationGateways",
-			"apiVersion": "2019-11-01",
+			"apiVersion": "2023-11-01",
 			"name": "[variables('applicationGatewayName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
@@ -955,6 +955,7 @@
 						"name": "[variables('applicationGatewayRequestRoutingRuleHttpsName')]",
 						"properties": {
 							"ruleType": "Basic",
+							"priority": 10010,
 							"httpListener": {
 								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpsName'))]"
 							},
@@ -973,6 +974,7 @@
 						"name": "[variables('applicationGatewayRequestRoutingRuleHttpName')]",
 						"properties": {
 							"ruleType": "Basic",
+							"priority": 10020,
 							"httpListener": {
 								"id": "[concat(resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName')), '/httpListeners/', variables('applicationGatewayHttpListenersHttpName'))]"
 							},
@@ -1025,27 +1027,8 @@
 					}
 				],
 				"sslPolicy": {
-					"policyType": "Custom",
-					"minProtocolVersion": "TLSv1_2",
-					"cipherSuites": [
-						"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-						"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-						"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-						"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-						"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-						"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-						"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-						"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-						"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-						"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-						"TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-						"TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
-						"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-						"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-						"TLS_RSA_WITH_AES_256_CBC_SHA256",
-						"TLS_RSA_WITH_AES_128_GCM_SHA256",
-						"TLS_RSA_WITH_AES_128_CBC_SHA256"
-					]
+					"policyType": "Predefined",
+					"policyName": "AppGwSslPolicy20220101"
 				},
 				"enableHttp2": false,
 				"autoscaleConfiguration": {
@@ -1081,9 +1064,10 @@
 			"type": "Microsoft.DBforMySQL/flexibleServers",
 			"apiVersion": "[variables('databaseServerApiVersion')]",
 			"name": "[variables('databaseServerName')]",
+			"comments": "Added explicite dependency on Microsoft.Network/privateDnsZones/virtualNetworkLinks resource to prevent error at deployement time.",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-				"[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+				"[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), variables('privateDnsZoneVirtualNetworkLinkName'))]"
 			],
 			"location": "[parameters('resourceLocation')]",
 			"tags": "[parameters('resourceTags')]",
