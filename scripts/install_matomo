@@ -21,7 +21,8 @@ source ./utils.sh
 function install_utilities() {
   logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
-    mysql-client
+    mysql-client \
+    software-properties-common
 }
 
 ######################################
