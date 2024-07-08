@@ -256,7 +256,7 @@ function set_up_apache2() {
   local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.2/apache2/php.ini"
+  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.3/apache2/php.ini"
   local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
 
   logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
