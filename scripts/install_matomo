@@ -22,7 +22,8 @@ function install_utilities() {
   logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
     mysql-client \
-    software-properties-common
+    software-properties-common \
+    gpg
 }
 
 ######################################
@@ -46,6 +47,7 @@ function install_matomo_dependencies() {
   logger::action "Installing packages..."
   apt install --yes --quiet \
     apache2 \
+    crontab \
     libapache2-mod-php8.3 \
     libmaxminddb-dev \
     libmaxminddb0 \
