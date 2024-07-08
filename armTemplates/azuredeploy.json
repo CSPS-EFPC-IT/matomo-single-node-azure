@@ -1280,9 +1280,9 @@
 				},
 				"storageProfile": {
 					"imageReference": {
-						"publisher": "Canonical",
-						"offer": "0001-com-ubuntu-server-focal",
-						"sku": "20_04-lts-gen2",
+						"publisher": "canonical",
+						"offer": "ubuntu-24_04-lts",
+						"sku": "minimal",
 						"version": "latest"
 					},
 					"osDisk": {
