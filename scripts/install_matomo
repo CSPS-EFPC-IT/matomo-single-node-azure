@@ -19,7 +19,7 @@ source ./utils.sh
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
 function install_utilities() {
-  logger::action "Installing mysql-client..."
+  logger::action "Installing packages..."
   apt-get install --yes --quiet \
     gpg \
     mysql-client \
