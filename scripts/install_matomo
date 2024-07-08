@@ -39,7 +39,6 @@ function install_matomo_dependencies() {
 
   logger::action "Adding package repositories..."
   add-apt-repository --yes ppa:maxmind/ppa
-  add-apt-repository --yes ppa:ondrej/php
 
   logger::action "Update package repository definition..."
   apt update
@@ -47,7 +46,7 @@ function install_matomo_dependencies() {
   logger::action "Installing packages..."
   apt install --yes --quiet \
     apache2 \
-    crontab \
+    cron \
     libapache2-mod-php8.3 \
     libmaxminddb-dev \
     libmaxminddb0 \
