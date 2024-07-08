@@ -1060,154 +1060,154 @@
 				"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
 			}
 		},
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[variables('databaseServerName')]",
-		// 	"comments": "Added explicite dependency on Microsoft.Network/privateDnsZones/virtualNetworkLinks resource to prevent error at deployement time.",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-		// 		"[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), variables('privateDnsZoneVirtualNetworkLinkName'))]"
-		// 	],
-		// 	"location": "[parameters('resourceLocation')]",
-		// 	"tags": "[parameters('resourceTags')]",
-		// 	"sku": {
-		// 		"name": "[parameters('databaseServerSkuName')]",
-		// 		"tier": "[parameters('databaseServerSkuTier')]"
-		// 	},
-		// 	"properties": {
-		// 		"version": "[parameters('databaseServerVersion')]",
-		// 		"administratorLogin": "[parameters('databaseServerAdministratorLogin')]",
-		// 		"administratorLoginPassword": "[parameters('databaseServerAdministratorLoginPassword')]",
-		// 		"Network": {
-		// 			"DelegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseServerSubnetName'))]",
-		// 			"PrivateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
-		// 		},
-		// 		"Storage": {
-		// 			"StorageSizeGB": "[parameters('databaseServerStorageSizeGB')]",
-		// 			"Iops": "[parameters('databaseServerStorageIops')]",
-		// 			"Autogrow": "[parameters('databaseServerStorageAutogrow')]"
-		// 		},
-		// 		"Backup": {
-		// 			"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
-		// 			"geoRedundantBackup": "[parameters('databaseServerGeoRedundantBackup')]"
-		// 		},
-		// 		"highAvailability": {
-		// 			"mode": "[parameters('databaseServerHighAvailabilityMode')]",
-		// 			"standbyAvailabilityZone": "[parameters('databaseServerStandbyAvailabilityZone')]"
-		// 		}
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
-		// 	"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.3 Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server.",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "ON",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
-		// 	"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.4 Ensure server parameter 'audit_log_events' has 'CONNECTION' set for MySQL Database Server.",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[if(contains(toUpper(parameters('databaseServerConfigurationAuditLogEvents')), 'CONNECTION'), parameters('databaseServerConfigurationAuditLogEvents'), concat(parameters('databaseServerConfigurationAuditLogEvents'), if(empty(parameters('databaseServerConfigurationAuditLogEvents')), '', ','), 'CONNECTION'))]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/collation_server')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "[parameters('databaseServerConfigurationCollationServer')]",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/require_secure_transport')]",
-		// 	"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.1 Ensure 'Enforce SSL connection' is set to 'Enabled' for Standard MySQL Database Server.",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "ON",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/sql_generate_invisible_primary_key')]",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "OFF",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
-		// 	"apiVersion": "[variables('databaseServerApiVersion')]",
-		// 	"name": "[concat(variables('databaseServerName'), '/tls_version')]",
-		// 	"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.2 Ensure 'TLS Version' is set to 'TLSV1.2' for MySQL flexible Database Server.",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"properties": {
-		// 		"value": "TLSV1.2,TLSV1.3",
-		// 		"source": "user-override"
-		// 	}
-		// },
-		// {
-		// 	"type": "Microsoft.Insights/diagnosticSettings",
-		// 	"apiVersion": "2021-05-01-preview",
-		// 	"name": "local-mysql-logging",
-		// 	"dependsOn": [
-		// 		"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
-		// 	],
-		// 	"scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]",
-		// 	"properties": {
-		// 		"logs": [
-		// 			{
-		// 				"category": "MySqlAuditLogs",
-		// 				"enabled": true,
-		// 				"retentionPolicy": {
-		// 					"days": 0,
-		// 					"enabled": false
-		// 				}
-		// 			}
-		// 		],
-		// 		"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
-		// 	}
-		// },
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[variables('databaseServerName')]",
+			"comments": "Added explicite dependency on Microsoft.Network/privateDnsZones/virtualNetworkLinks resource to prevent error at deployement time.",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+				"[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), variables('privateDnsZoneVirtualNetworkLinkName'))]"
+			],
+			"location": "[parameters('resourceLocation')]",
+			"tags": "[parameters('resourceTags')]",
+			"sku": {
+				"name": "[parameters('databaseServerSkuName')]",
+				"tier": "[parameters('databaseServerSkuTier')]"
+			},
+			"properties": {
+				"version": "[parameters('databaseServerVersion')]",
+				"administratorLogin": "[parameters('databaseServerAdministratorLogin')]",
+				"administratorLoginPassword": "[parameters('databaseServerAdministratorLoginPassword')]",
+				"Network": {
+					"DelegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('databaseServerSubnetName'))]",
+					"PrivateDnsZoneResourceId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
+				},
+				"Storage": {
+					"StorageSizeGB": "[parameters('databaseServerStorageSizeGB')]",
+					"Iops": "[parameters('databaseServerStorageIops')]",
+					"Autogrow": "[parameters('databaseServerStorageAutogrow')]"
+				},
+				"Backup": {
+					"backupRetentionDays": "[parameters('databaseServerBackupRetentionDays')]",
+					"geoRedundantBackup": "[parameters('databaseServerGeoRedundantBackup')]"
+				},
+				"highAvailability": {
+					"mode": "[parameters('databaseServerHighAvailabilityMode')]",
+					"standbyAvailabilityZone": "[parameters('databaseServerStandbyAvailabilityZone')]"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/audit_log_enabled')]",
+			"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.3 Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server.",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "ON",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/audit_log_events')]",
+			"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.4 Ensure server parameter 'audit_log_events' has 'CONNECTION' set for MySQL Database Server.",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[if(contains(toUpper(parameters('databaseServerConfigurationAuditLogEvents')), 'CONNECTION'), parameters('databaseServerConfigurationAuditLogEvents'), concat(parameters('databaseServerConfigurationAuditLogEvents'), if(empty(parameters('databaseServerConfigurationAuditLogEvents')), '', ','), 'CONNECTION'))]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/character_set_server')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[parameters('databaseServerConfigurationCharacterSetServer')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/collation_server')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "[parameters('databaseServerConfigurationCollationServer')]",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/require_secure_transport')]",
+			"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.1 Ensure 'Enforce SSL connection' is set to 'Enabled' for Standard MySQL Database Server.",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "ON",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/sql_generate_invisible_primary_key')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "OFF",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/tls_version')]",
+			"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.2 Ensure 'TLS Version' is set to 'TLSV1.2' for MySQL flexible Database Server.",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "TLSV1.2,TLSV1.3",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.Insights/diagnosticSettings",
+			"apiVersion": "2021-05-01-preview",
+			"name": "local-mysql-logging",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"scope": "[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]",
+			"properties": {
+				"logs": [
+					{
+						"category": "MySqlAuditLogs",
+						"enabled": true,
+						"retentionPolicy": {
+							"days": 0,
+							"enabled": false
+						}
+					}
+				],
+				"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+			}
+		},
 		{
 			"type": "Microsoft.Network/networkInterfaces",
 			"apiVersion": "2020-05-01",
@@ -1336,8 +1336,8 @@
 			"name": "[concat(variables('webServerVirtualMachineName'),'/', variables('webServerVirtualMachineSetUpExtensionName'))]",
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]"
-				//"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+				"[resourceId('Microsoft.Compute/virtualMachines/', variables('webServerVirtualMachineName'))]",
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.Azure.Extensions",
