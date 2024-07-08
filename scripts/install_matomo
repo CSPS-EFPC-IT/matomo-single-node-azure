@@ -21,9 +21,10 @@ source ./utils.sh
 function install_utilities() {
   logger::action "Installing mysql-client..."
   apt-get install --yes --quiet \
+    gpg \
     mysql-client \
     software-properties-common \
-    gpg
+    vim
 }
 
 ######################################
