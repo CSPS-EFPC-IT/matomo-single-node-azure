@@ -19,9 +19,12 @@ source ./utils.sh
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
 function install_utilities() {
-  logger::action "Installing mysql-client..."
+  logger::action "Installing packages..."
   apt-get install --yes --quiet \
-    mysql-client
+    gpg \
+    mysql-client \
+    software-properties-common \
+    vim
 }
 
 ######################################
@@ -37,7 +40,6 @@ function install_matomo_dependencies() {
 
   logger::action "Adding package repositories..."
   add-apt-repository --yes ppa:maxmind/ppa
-  add-apt-repository --yes ppa:ondrej/php
 
   logger::action "Update package repository definition..."
   apt update
@@ -45,16 +47,17 @@ function install_matomo_dependencies() {
   logger::action "Installing packages..."
   apt install --yes --quiet \
     apache2 \
-    libapache2-mod-php8.2 \
+    cron \
+    libapache2-mod-php8.3 \
     libmaxminddb-dev \
     libmaxminddb0 \
     mmdb-bin \
-    php8.2-cli \
-    php8.2-curl \
-    php8.2-gd \
-    php8.2-mbstring \
-    php8.2-mysql \
-    php8.2-xml
+    php8.3-cli \
+    php8.3-curl \
+    php8.3-gd \
+    php8.3-mbstring \
+    php8.3-mysql \
+    php8.3-xml
 }
 
 ######################################
@@ -254,7 +257,7 @@ function set_up_apache2() {
   local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.2/apache2/php.ini"
+  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.3/apache2/php.ini"
   local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
 
   logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."

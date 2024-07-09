@@ -394,7 +394,8 @@
 		"recoveryServiceVaultDeploymentName": "[take(concat(deployment().name, '_rsv'), 64)]",
 		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
-		"storageAccountAllowedIpAddressArray": "[if(empty(parameters('storageAccountAllowedIpAddressList')), createArray(), split(parameters('storageAccountAllowedIpAddressList'), ','))]",
+		"storageAccountAllowedIpAddressArray": "[if(empty(variables('storageAccountAllowedIpAddressListCleansed')), createArray(), split(variables('storageAccountAllowedIpAddressListCleansed'), ','))]",
+        "storageAccountAllowedIpAddressListCleansed": "[replace(parameters('storageAccountAllowedIpAddressList'), '/32', '')]",
 		"storageAccountName": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4)),'sa'))]",
 		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
 		"virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
@@ -1280,9 +1281,9 @@
 				},
 				"storageProfile": {
 					"imageReference": {
-						"publisher": "Canonical",
-						"offer": "0001-com-ubuntu-server-focal",
-						"sku": "20_04-lts-gen2",
+						"publisher": "canonical",
+						"offer": "ubuntu-24_04-lts",
+						"sku": "minimal",
 						"version": "latest"
 					},
 					"osDisk": {
