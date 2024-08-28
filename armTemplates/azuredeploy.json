@@ -142,14 +142,32 @@
 		"databaseServerVersion": {
 			"type": "string",
 			"defaultValue": "8.0.21",
-			"allowedValues": [ "5.7", "8.0.21" ],
+			"allowedValues": [
+				"5.7",
+				"8.0.21"
+			],
 			"metadata": {
 				"description": "The version of the MySQL Server to deploy, if any."
 			}
 		},
 		"dataDiskSizeGB": {
 			"type": "int",
-			"allowedValues": [ 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+			"allowedValues": [
+				4,
+				8,
+				16,
+				32,
+				64,
+				128,
+				256,
+				512,
+				1024,
+				2048,
+				4096,
+				8192,
+				16384,
+				32767
+			],
 			"metadata": {
 				"description": "The size of the Matomo Data Disk in giga bytes."
 			}
@@ -395,7 +413,7 @@
 		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
 		"storageAccountAllowedIpAddressArray": "[if(empty(variables('storageAccountAllowedIpAddressListCleansed')), createArray(), split(variables('storageAccountAllowedIpAddressListCleansed'), ','))]",
-        "storageAccountAllowedIpAddressListCleansed": "[replace(parameters('storageAccountAllowedIpAddressList'), '/32', '')]",
+		"storageAccountAllowedIpAddressListCleansed": "[replace(parameters('storageAccountAllowedIpAddressList'), '/32', '')]",
 		"storageAccountName": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4)),'sa'))]",
 		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
 		"virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
