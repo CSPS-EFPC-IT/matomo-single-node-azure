@@ -1368,14 +1368,14 @@
 				},
 				"protectedSettings": {
 					"fileUris": [
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/apache2.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/install_unattended_upgrade_tools')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/logger.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/mysql.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/os.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/php.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/utils.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/apache2.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/install_unattended_upgrade_tools')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/logger.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/mysql.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/os.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/php.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/upgrade_server')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/utils.sh')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
