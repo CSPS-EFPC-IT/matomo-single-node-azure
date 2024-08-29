@@ -257,7 +257,7 @@ function set_up_apache2() {
   local -r APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-enabled/mpm-prefork.conf"
+  local -r APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-enabled/mpm_prefork.conf"
   local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.3/apache2/php.ini"
   local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
 
