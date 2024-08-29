@@ -282,6 +282,10 @@ function set_up_apache2() {
 
   logger::action "Update MPM prefork module configuration..."
   apache2::update_config_file \
+    "StartServers" \
+    "10" \
+    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+  apache2::update_config_file \
     "MinSpareServers" \
     "10" \
     "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
