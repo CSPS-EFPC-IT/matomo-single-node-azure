@@ -254,7 +254,7 @@ function set_up_apache2() {
   local php_max_execution_time="${2}"
 
   # Constants
-  local -r APACHE2_CONF_ENABLED_SECURITY_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
+  local -r APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
   local -r APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-enabled/mpm-prefork.conf"
@@ -295,7 +295,7 @@ function set_up_apache2() {
     "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
 
   logger::action "Hardening web werver..."
-  apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_FILE_PATH}"
+  apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH}"
 
   logger::action "Updating Apache2's PHP configuration..."
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
