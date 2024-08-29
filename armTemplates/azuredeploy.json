@@ -142,14 +142,32 @@
 		"databaseServerVersion": {
 			"type": "string",
 			"defaultValue": "8.0.21",
-			"allowedValues": [ "5.7", "8.0.21" ],
+			"allowedValues": [
+				"5.7",
+				"8.0.21"
+			],
 			"metadata": {
 				"description": "The version of the MySQL Server to deploy, if any."
 			}
 		},
 		"dataDiskSizeGB": {
 			"type": "int",
-			"allowedValues": [ 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+			"allowedValues": [
+				4,
+				8,
+				16,
+				32,
+				64,
+				128,
+				256,
+				512,
+				1024,
+				2048,
+				4096,
+				8192,
+				16384,
+				32767
+			],
 			"metadata": {
 				"description": "The size of the Matomo Data Disk in giga bytes."
 			}
@@ -395,7 +413,7 @@
 		"recoveryServiceVaultProtectedItemsDeploymentName": "[take(concat(deployment().name, '_rsv-pi'), 64)]",
 		"resourceNamePrefix": "[concat(parameters('projectShortName'), if(equals(parameters('environmentName'), 'prod'), '', concat('-', toupper(parameters('environmentName')))))]",
 		"storageAccountAllowedIpAddressArray": "[if(empty(variables('storageAccountAllowedIpAddressListCleansed')), createArray(), split(variables('storageAccountAllowedIpAddressListCleansed'), ','))]",
-        "storageAccountAllowedIpAddressListCleansed": "[replace(parameters('storageAccountAllowedIpAddressList'), '/32', '')]",
+		"storageAccountAllowedIpAddressListCleansed": "[replace(parameters('storageAccountAllowedIpAddressList'), '/32', '')]",
 		"storageAccountName": "[tolower(concat(custom.cleanName(parameters('projectShortName')), if(equals(parameters('environmentName'), 'prod'), '', take(parameters('environmentName'),4)),'sa'))]",
 		"virtualNetworkAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/24')]",
 		"virtualNetworkName": "[concat(variables('resourceNamePrefix'), '-VN')]",
@@ -1350,14 +1368,14 @@
 				},
 				"protectedSettings": {
 					"fileUris": [
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/apache2.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/install_unattended_upgrade_tools')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/logger.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/mysql.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/os.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/php.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-20.04/utils.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/apache2.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/install_unattended_upgrade_tools')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/logger.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/mysql.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/os.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/php.sh')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/upgrade_server')]",
+						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/utils.sh')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
