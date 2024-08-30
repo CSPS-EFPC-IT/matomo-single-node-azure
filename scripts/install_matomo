@@ -294,6 +294,10 @@ function set_up_apache2() {
     "max_execution_time" \
     "${php_max_execution_time}" \
     "${APACHE2_PHP_INI_FILE_PATH}"
+  php::update_config_file \
+    "max_input_vars" \
+    "2000" \
+    "${APACHE2_PHP_INI_FILE_PATH}"
 
   logger::action "Restarting Apache2..."
   service apache2 restart
