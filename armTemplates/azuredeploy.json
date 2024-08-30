@@ -392,6 +392,7 @@
 		"applicationGatewaySslCertificateHttpsName": "HTTPS-Certificate",
 		"applicationGatewaySubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.0/27')]",
 		"applicationGatewaySubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-AG-SN')]",
+		"applicationGatewayWebApplicationFirewallPolicyName": "[concat(variables('resourceNamePrefix'), '-AG-WAF-Policy')]",
 		"applicationNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-NSG')]",
 		"applicationSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.32/27')]",
 		"applicationSubnetName": "[concat(variables('resourceNamePrefix'), '-PAZ-APP-SN')]",
@@ -854,6 +855,41 @@
 			}
 		},
 		{
+			"type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+			"apiVersion": "2024-01-01",
+			"name": "[variables('ApplicationGatewayWebApplicationFirewallPolicyName')]",
+			"tags": "[parameters('resourceTags')]",
+			"location": "[parameters('resourceLocation')]",
+			"properties": {
+				"customRules": [],
+				"policySettings": {
+					"requestBodyCheck": true,
+					"maxRequestBodySizeInKb": 128,
+					"fileUploadLimitInMb": 100,
+					"state": "Enabled",
+					"mode": "Detection",
+					"requestBodyInspectLimitInKB": 128,
+					"fileUploadEnforcement": true,
+					"requestBodyEnforcement": true
+				},
+				"managedRules": {
+					"managedRuleSets": [
+						{
+							"ruleSetType": "OWASP",
+							"ruleSetVersion": "3.2",
+							"ruleGroupOverrides": []
+						},
+						{
+							"ruleSetType": "Microsoft_BotManagerRuleSet",
+							"ruleSetVersion": "1.0",
+							"ruleGroupOverrides": []
+						}
+					],
+					"exclusions": []
+				}
+			}
+		},
+		{
 			"type": "Microsoft.Network/applicationGateways",
 			"apiVersion": "2023-11-01",
 			"name": "[variables('applicationGatewayName')]",
@@ -861,7 +897,8 @@
 			"location": "[parameters('resourceLocation')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-				"[resourceId('Microsoft.Network/publicIPAddresses', variables('applicationGatewayPublicIpName'))]"
+				"[resourceId('Microsoft.Network/publicIPAddresses', variables('applicationGatewayPublicIpName'))]",
+				"[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('applicationGatewayWebApplicationFirewallPolicyName'))]"
 			],
 			"identity": {
 				"type": "UserAssigned",
@@ -1053,6 +1090,9 @@
 				"autoscaleConfiguration": {
 					"minCapacity": 1,
 					"maxCapacity": 10
+				},
+				"firewallPolicy": {
+					"id": "[resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('applicationGatewayWebApplicationFirewallPolicyName'))]"
 				}
 			}
 		},
