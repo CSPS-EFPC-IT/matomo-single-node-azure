@@ -1114,8 +1114,17 @@
 							"days": 0,
 							"enabled": false
 						}
+					},
+					{
+						"category": "ApplicationGatewayFirewallLog",
+						"enabled": true,
+						"retentionPolicy": {
+							"days": 0,
+							"enabled": false
+						}
 					}
 				],
+				"logAnalyticsDestinationType": "Dedicated",
 				"workspaceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
 			}
 		},
