@@ -1122,6 +1122,15 @@
 							"days": 0,
 							"enabled": false
 						}
+					},
+					{
+						"category": "ApplicationGatewayPerformanceLog",
+						"categoryGroup": null,
+						"enabled": true,
+						"retentionPolicy": {
+							"days": 0,
+							"enabled": false
+						}
 					}
 				],
 				"logAnalyticsDestinationType": "Dedicated",
