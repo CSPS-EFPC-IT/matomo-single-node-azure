@@ -12,6 +12,9 @@ source ./os.sh
 source ./php.sh
 source ./utils.sh
 
+# Constant
+PHP_VERSION="8.3"
+
 ######################################
 # Install packages required to complete matomo installation.
 # Arguments: None
@@ -46,18 +49,18 @@ function install_matomo_dependencies() {
 
   logger::action "Installing packages..."
   apt install --yes --quiet \
-    apache2 \
     cron \
-    libapache2-mod-php8.3 \
     libmaxminddb-dev \
     libmaxminddb0 \
     mmdb-bin \
-    php8.3-cli \
-    php8.3-curl \
-    php8.3-gd \
-    php8.3-mbstring \
-    php8.3-mysql \
-    php8.3-xml
+    nginx \
+    php${PHP_VERSION}-cli \
+    php${PHP_VERSION}-curl \
+    php${PHP_VERSION}-fpm \
+    php${PHP_VERSION}-gd \
+    php${PHP_VERSION}-mbstring \
+    php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-xml
 }
 
 ######################################
@@ -240,85 +243,109 @@ install_or_update_matomo() {
   fi
 }
 
+
 ######################################
-# Set up Apache2 for matomo.
+# Set up php client.
+# These parameters are used when Matomo's console core:archive jobs are started by crontab.
 # Arguments:
-# - The matomo document root path, a string.
 # - The PHP max execution time value, an integer.
 # Outputs:
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
-function set_up_apache2() {
+function set_up_php_client() {
+
   # Parameters
-  local matomo_document_root_path="${1}"
-  local php_max_execution_time="${2}"
+  local php_max_execution_time="${1}"
 
-  # Constants
-  local -r APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
-  local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
-  local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-enabled/mpm_prefork.conf"
-  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.3/apache2/php.ini"
-  local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
+  # Constant
+  local -r PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/cli/php.ini"
 
-  logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
-  # Use the Default site config file as a template.
-  cp "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME}" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
-  # Updating matomo site config DocumentRoot.
-  apache2::update_config_file \
-    "DocumentRoot" \
-    "${matomo_document_root_path}" \
-    "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
-
-  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 1/2)..."
-  # Ref.: https://httpd.apache.org/docs/2.4/mod/core.html#allowoverride
-  sed -i "/^[[:space:]]*DocumentRoot .*$/a  \ \n\t<Directory ${matomo_document_root_path}>\n\t\tAllowOverride All\n\t<\/Directory>\n" "${APACHE2_SITES_AVAILABLE_PATH}/${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME}"
-
-  logger::action "Enabling ${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf} site..."
-  logger::warn "$(a2ensite "${APACHE2_MATOMO_SITE_CONFIG_FILE_NAME%%.conf}")"
-
-  logger::action "Disabling ${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf} site..."
-  logger::warn "$(a2dissite "${APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME%%.conf}")"
-
-  logger::action "Update MPM prefork module configuration..."
-  apache2::update_config_file \
-    "StartServers" \
-    "10" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
-  apache2::update_config_file \
-    "MinSpareServers" \
-    "10" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
-  apache2::update_config_file \
-    "MaxSpareServers" \
-    "20" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
-  apache2::update_config_file \
-    "MaxConnectionsPerChild" \
-    "10000" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
-
-  logger::action "Hardening web werver..."
-  apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH}"
-
-  logger::action "Updating Apache2's PHP configuration..."
+  logger::action "Updating PHP Client configuration..."
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
   # Values required to run report on 12 months of data.
-  php::update_config_file \
-    "memory_limit" \
-    "4096M" \
-    "${APACHE2_PHP_INI_FILE_PATH}"
-  php::update_config_file \
-    "max_execution_time" \
-    "${php_max_execution_time}" \
-    "${APACHE2_PHP_INI_FILE_PATH}"
-  php::update_config_file \
-    "max_input_vars" \
-    "2000" \
-    "${APACHE2_PHP_INI_FILE_PATH}"
+  php::update_config_file "memory_limit" "4096M" "${PHP_INI_FILE_PATH}"
+  php::update_config_file "max_execution_time" "${php_max_execution_time}" "${PHP_INI_FILE_PATH}"
+  php::update_config_file "max_input_vars" "2000" "${PHP_INI_FILE_PATH}"
+}
 
-  logger::action "Restarting Apache2..."
-  service apache2 restart
+######################################
+# Set up php fpm.
+# These parameters are used when nginx is serving php pages.
+# Arguments: none
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_php_fpm() {
+
+  # Constant
+  local -r PHP_FPM_POOL_CONF="/etc/php/${PHP_VERSION}/fpm/pool.d/www.conf"
+
+  # Variables
+  local max_children
+  local memory_total
+  local min_spare_servers
+  local processor_count
+  local start_servers
+
+  # Update PHP FPM pool settings.
+  # Ref. : https://tideways.com/profiler/blog/an-introduction-to-php-fpm-tuning
+
+  logger::action "Getting the server processor count..."
+  processor_count="$(grep -c "processor" /proc/cpuinfo)"
+  logger::info "${processor_count} processor(s) detected."
+
+  logger::action "Getting the server memory size..."
+  memory_total="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+  logger::info "${memory_total} MB detected."
+
+  # Use dynamic process manager.
+  logger::action "Setting process manager to 'dynamic'..."
+  php::update_config_file "pm" "dynamic" "${PHP_FPM_POOL_CONF}"
+
+  # Set max_children = (Total RAM – Memory used for Linux, DB, etc.) / process size
+  max_children=$(( ((memory_total / 1024) - 2048) / 128 ))
+  logger::action "Setting process manager max_children to ${max_children}..."
+  php::update_config_file "pm.max_children" "${max_children}" "${PHP_FPM_POOL_CONF}"
+
+  # Set start_servers	= Number of CPU cores x 4
+  start_servers=$(( processor_count * 4 ))
+  logger::action "Setting process manager start_servers	to ${start_servers}..."
+  php::update_config_file "pm.start_servers" "${start_servers}" "${PHP_FPM_POOL_CONF}"
+
+  # Set min_spare_servers	= Number of CPU cores x 2
+  min_spare_servers=$(( processor_count * 2 ))
+  logger::action "Setting process manager min_spare_servers to ${min_spare_servers}..."
+  php::update_config_file "pm.min_spare_servers" "${min_spare_servers}" "${PHP_FPM_POOL_CONF}"
+
+  # Set max_spare_servers	= Same as start_servers
+  logger::action "Setting process manager max_spare_servers to ${start_servers}..."
+  php::update_config_file "pm.max_spare_servers" "${start_servers}" "${PHP_FPM_POOL_CONF}"
+
+  # Set max_requests = Explicitly use default value (500)
+  logger::action "Setting process manager max_requests to 500..."
+  php::update_config_file "pm.max_requests" 500 "${PHP_FPM_POOL_CONF}"
+}
+
+######################################
+# Set up nginx for matomo.
+# Arguments: None
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_nginx() {
+
+  logger::action "Copying Matomo Web site configuration file..."
+  cp "./matomo.conf" "/etc/nginx/sites-available/matomo.conf"
+  chmod 644 "/etc/nginx/sites-available/matomo.conf"
+
+  logger::action "Enabling Matomo site..."
+  ln -s "/etc/nginx/sites-available/matomo.conf" "/etc/nginx/sites-enabled/matomo.conf"
+
+  logger::action "Disabling Default site..."
+  rm "/etc/nginx/sites-enabled/default.conf"
+
+  logger::action "Restarting Nginx..."
+  service nginx restart
 }
 
 ######################################
@@ -443,19 +470,15 @@ function main() {
     "${MATOMO_FILE_OWNER}" \
     "${MATOMO_FILE_GROUP}"
 
-  logger::title "Set Up Apache2"
-  set_up_apache2 \
-    "${MATOMO_HOME_PATH}" \
+  logger::title "Set Up PHP Client"
+  set_up_php_client \
     "${parameters[php_max_execution_time]}"
 
-  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
-  # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
-  # The command below will complain about the configuration file not being
-  # found during the initial installation. This is the expected behaviour as
-  # Matomo's configuration file will only be created once the initial set up
-  # procedure is completed through the application Web portal.
-  # The --ignore-warn option has been added to prevent script failure.
-  runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction --ignore-warn
+  logger::title "Set Up PHP FPM"
+  set_up_php_fpm
+
+  logger::title "Set Up Nginx"
+  set_up_nginx
 
   logger::action "Set up Matomo Archive Crontab..."
   set_up_crontab \
