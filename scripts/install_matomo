@@ -488,7 +488,7 @@ function main() {
   logger::title "Set Up Nginx"
   set_up_nginx
 
-  logger::action "Set up Matomo Archive Crontab..."
+  logger::title "Set up Matomo Archive Crontab..."
   set_up_crontab \
     "${MATOMO_HOME_PATH}" \
     "${MATOMO_FILE_OWNER}" \
