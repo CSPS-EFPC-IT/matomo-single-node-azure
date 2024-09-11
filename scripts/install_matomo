@@ -340,13 +340,17 @@ function set_up_nginx() {
 
   logger::action "Enabling Matomo site..."
   if  [[ -L "/etc/nginx/sites-enabled/matomo.conf" ]]; then
-    logger::info "Site already enabled. Skipping."
+    logger::info "Matomo site already enabled. Skipping."
   else
     ln -s "/etc/nginx/sites-available/matomo.conf" "/etc/nginx/sites-enabled/matomo.conf"
   fi
 
   logger::action "Disabling Default site..."
-  rm "/etc/nginx/sites-enabled/default"
+  if [[ ! -e "/etc/nginx/sites-enabled/default" ]]; then
+    logger::info "Default site already disabled. Skipping."
+  else
+    rm "/etc/nginx/sites-enabled/default"
+  fi
 
   logger::action "Restarting Nginx..."
   service nginx restart
