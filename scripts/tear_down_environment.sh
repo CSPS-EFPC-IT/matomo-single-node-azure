@@ -276,6 +276,29 @@ function main() {
     done
   fi
 
+  echo "Deleting Application Gateway WAF policies, if any..."
+  application_gateway_web_application_firewall_policy_ids="$(az network application-gateway waf-policy list \
+      --only-show-errors \
+      --output tsv \
+      --query "[].id" \
+      --resource-group "${parameters[--resource-group-name]}" \
+    )"
+  if [ -z "${application_gateway_web_application_firewall_policy_ids}" ]; then
+    echo "No Application Gateway WAF Policies Found. Skipping."
+  else
+    index=0
+    for application_gateway_web_application_firewall_policy_id in ${application_gateway_web_application_firewall_policy_ids}; do
+      ((++index))
+      echo "(${index}) Deleting ${application_gateway_web_application_firewall_policy_id}..."
+      az network application-gateway waf-policy delete \
+        --ids "${application_gateway_web_application_firewall_policy_id}" \
+        --only-show-errors \
+        --output none
+    done
+  fi
+
+  ####################
+
   echo "Deleting Virtual Networks, if any..."
   virtual_network_ids="$(az network vnet list \
       --only-show-errors \
