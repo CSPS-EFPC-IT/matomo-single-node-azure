@@ -282,8 +282,11 @@ function set_up_php_fpm() {
 
   # Variables
   local max_children
+  local max_requests
+  local max_spare_servers
   local memory_total
   local min_spare_servers
+  local process_manager
   local processor_count
   local start_servers
 
@@ -299,31 +302,34 @@ function set_up_php_fpm() {
   logger::info "${memory_total} MB detected."
 
   # Use dynamic process manager.
-  logger::action "Setting process manager to 'dynamic'..."
-  php::update_config_file "pm" "dynamic" "${PHP_FPM_POOL_CONF}"
+  process_manager="dynamic"
+  logger::action "Setting process manager to ${process_manager}..."
+  php::update_config_file "pm" "${process_manager}" "${PHP_FPM_POOL_CONF}"
 
   # Set max_children = (Total RAM – Memory used for Linux, DB, etc.) / process size
   max_children=$(( ((memory_total / 1024) - 2048) / 128 ))
   logger::action "Setting process manager max_children to ${max_children}..."
   php::update_config_file "pm.max_children" "${max_children}" "${PHP_FPM_POOL_CONF}"
 
-  # Set start_servers	= Number of CPU cores x 4
+  # Set start_servers = Number of CPU cores x 4
   start_servers=$(( processor_count * 4 ))
   logger::action "Setting process manager start_servers	to ${start_servers}..."
   php::update_config_file "pm.start_servers" "${start_servers}" "${PHP_FPM_POOL_CONF}"
 
-  # Set min_spare_servers	= Number of CPU cores x 2
+  # Set min_spare_servers = Number of CPU cores x 2
   min_spare_servers=$(( processor_count * 2 ))
   logger::action "Setting process manager min_spare_servers to ${min_spare_servers}..."
   php::update_config_file "pm.min_spare_servers" "${min_spare_servers}" "${PHP_FPM_POOL_CONF}"
 
-  # Set max_spare_servers	= Same as start_servers
-  logger::action "Setting process manager max_spare_servers to ${start_servers}..."
-  php::update_config_file "pm.max_spare_servers" "${start_servers}" "${PHP_FPM_POOL_CONF}"
+  # Set max_spare_servers = Same as start_servers
+  max_spare_servers=${start_servers}
+  logger::action "Setting process manager max_spare_servers to ${max_spare_servers}..."
+  php::update_config_file "pm.max_spare_servers" "${max_spare_servers}" "${PHP_FPM_POOL_CONF}"
 
   # Set max_requests = Explicitly use default value (500)
-  logger::action "Setting process manager max_requests to 500..."
-  php::update_config_file "pm.max_requests" 500 "${PHP_FPM_POOL_CONF}"
+  max_requests=500
+  logger::action "Setting process manager max_requests to ${max_requests}..."
+  php::update_config_file "pm.max_requests" ${max_requests} "${PHP_FPM_POOL_CONF}"
 }
 
 ######################################
