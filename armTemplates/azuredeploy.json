@@ -868,7 +868,7 @@
 					"fileUploadLimitInMb": 100,
 					"state": "Enabled",
 					"mode": "Detection",
-					"requestBodyInspectLimitInKB": 128,
+					"requestBodyInspectLimitInKB": 1024,
 					"fileUploadEnforcement": true,
 					"requestBodyEnforcement": true
 				},
