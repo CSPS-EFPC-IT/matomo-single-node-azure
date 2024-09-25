@@ -864,7 +864,7 @@
 				"customRules": [],
 				"policySettings": {
 					"requestBodyCheck": true,
-					"maxRequestBodySizeInKb": 128,
+					"maxRequestBodySizeInKb": 1024,
 					"fileUploadLimitInMb": 100,
 					"state": "Enabled",
 					"mode": "Detection",
