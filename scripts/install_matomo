@@ -305,7 +305,7 @@ function set_up_apache2() {
   # ServerLimit and MaxRequestWorkers values must be equal when greater than 256.
   # ServerLimit directive is not part of the original mpm_prefork.conf file.
   # Adding it if missing.
-  if ( ! grep "ServerLimit" ${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH} ); then
+  if ( ! grep --quiet "ServerLimit" ${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH} ); then
     logger::action "Adding \"ServerLimit\" directive to \"${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}\"..."
     echo "ServerLimit [undefined]" >> "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   fi
