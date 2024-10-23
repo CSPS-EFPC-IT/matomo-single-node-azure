@@ -353,7 +353,6 @@ function set_up_apache2() {
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
 function set_up_logrotate() {
-
   logger::info "Adding or replacing configuration for apache2..."
   cat << EOF > "/etc/logrotate.d/apache2"
 /var/log/apache2/*.log {
