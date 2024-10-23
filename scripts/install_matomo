@@ -301,13 +301,16 @@ function set_up_apache2() {
     "MaxSpareServers" \
     "128" \
     "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
-  # ServerLimit and MaxRequestWorkers values must be equal when greater than 256.
+  # ServerLimit and MaxRequestWorkers values must be equal and explicitely defined when greater than 256.
+  # ServerLimit directive is not part of the original mpm_prefork.conf file.
+  # Updating it if present, adding it otherwise.
   if ( grep "ServerLimit" ${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH} ); then
     apache2::update_config_file \
       "ServerLimit" \
       "${MAX_REQUEST_WORKERS}" \
       "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   else
+    logger::action "Adding ServerLimit directive to ${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
     echo "ServerLimit ${MAX_REQUEST_WORKERS}" >> "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   fi
   apache2::update_config_file \
