@@ -257,7 +257,7 @@ function set_up_apache2() {
   local -r APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-enabled/mpm_prefork.conf"
+  local -r APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-available/mpm_prefork.conf"
   local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.3/apache2/php.ini"
   local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
   local -r APACHE2_CONFIG_FILE_PATH="/etc/apache2/apache2.conf"
@@ -292,32 +292,32 @@ function set_up_apache2() {
   apache2::update_config_file \
     "StartServers" \
     "128" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   apache2::update_config_file \
     "MinSpareServers" \
     "64" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   apache2::update_config_file \
     "MaxSpareServers" \
     "128" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   # ServerLimit and MaxRequestWorkers values must be equal when greater than 256.
-  if ( grep "ServerLimit" ${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH} ); then
+  if ( grep "ServerLimit" ${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH} ); then
     apache2::update_config_file \
       "ServerLimit" \
       "${MAX_REQUEST_WORKERS}" \
-      "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+      "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   else
-    echo "ServerLimit ${MAX_REQUEST_WORKERS}" >> "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    echo "ServerLimit ${MAX_REQUEST_WORKERS}" >> "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   fi
   apache2::update_config_file \
     "MaxRequestWorkers" \
     "${MAX_REQUEST_WORKERS}" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   apache2::update_config_file \
     "MaxConnectionsPerChild" \
     "4000" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
 
   logger::action "Hardening web werver..."
   apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH}"
