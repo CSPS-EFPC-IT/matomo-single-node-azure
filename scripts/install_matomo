@@ -257,9 +257,17 @@ function set_up_apache2() {
   local -r APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH="/etc/apache2/conf-enabled/security.conf"
   local -r APACHE2_DEFAULT_SITE_CONFIG_FILE_NAME="000-default.conf"
   local -r APACHE2_MATOMO_SITE_CONFIG_FILE_NAME="matomo.conf"
-  local -r APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-enabled/mpm_prefork.conf"
+  local -r APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH="/etc/apache2/mods-available/mpm_prefork.conf"
   local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/8.3/apache2/php.ini"
   local -r APACHE2_SITES_AVAILABLE_PATH="/etc/apache2/sites-available"
+  local -r APACHE2_CONFIG_FILE_PATH="/etc/apache2/apache2.conf"
+  local -r MAX_REQUEST_WORKERS="1500"
+
+  logger::action "Setting KeepAlive to Off in Apache2 main configuration..."
+  apache2::update_config_file \
+    "KeepAlive" \
+    "Off" \
+    "${APACHE2_CONFIG_FILE_PATH}"
 
   logger::action "Creating Matomo site configuration file using Apache2 Default site configuration file as template..."
   # Use the Default site config file as a template.
@@ -283,20 +291,35 @@ function set_up_apache2() {
   logger::action "Update MPM prefork module configuration..."
   apache2::update_config_file \
     "StartServers" \
-    "10" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "128" \
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   apache2::update_config_file \
     "MinSpareServers" \
-    "10" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "64" \
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   apache2::update_config_file \
     "MaxSpareServers" \
-    "20" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "128" \
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
+  # ServerLimit and MaxRequestWorkers values must be equal when greater than 256.
+  # ServerLimit directive is not part of the original mpm_prefork.conf file.
+  # Adding it if missing.
+  if ( ! grep "ServerLimit" ${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH} ); then
+    logger::action "Adding \"ServerLimit\" directive to \"${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}\"..."
+    echo "ServerLimit [undefined]" >> "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
+  fi
+  apache2::update_config_file \
+    "ServerLimit" \
+    "${MAX_REQUEST_WORKERS}" \
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
+  apache2::update_config_file \
+    "MaxRequestWorkers" \
+    "${MAX_REQUEST_WORKERS}" \
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
   apache2::update_config_file \
     "MaxConnectionsPerChild" \
-    "10000" \
-    "${APACHE2_MODS_ENABLED_MPM_PREFORK_CONFIG_FILE_PATH}"
+    "4000" \
+    "${APACHE2_MODS_AVAILABLE_MPM_PREFORK_CONFIG_FILE_PATH}"
 
   logger::action "Hardening web werver..."
   apache2::harden "${APACHE2_CONF_ENABLED_SECURITY_CONFIG_FILE_PATH}"
