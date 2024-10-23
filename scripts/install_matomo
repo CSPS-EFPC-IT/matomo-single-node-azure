@@ -22,6 +22,7 @@ function install_utilities() {
   logger::action "Installing packages..."
   apt-get install --yes --quiet \
     gpg \
+    logrotate \
     mysql-client \
     software-properties-common \
     vim
@@ -345,6 +346,40 @@ function set_up_apache2() {
 }
 
 ######################################
+# Set up logrotate.
+# Arguments:
+# - None
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_logrotate() {
+
+  logger::info "Adding or replacing configuration for apache2..."
+  cat << EOF > "/etc/logrotate.d/apache2"
+/var/log/apache2/*.log {
+  daily
+  missingok
+  rotate 30
+  dateext
+  dateyesterday
+  notifempty
+  create 640 root adm
+  sharedscripts
+  prerotate
+    if [ -d /etc/logrotate.d/httpd-prerotate ]; then
+      run-parts /etc/logrotate.d/httpd-prerotate
+    fi
+  endscript
+  postrotate
+    if pgrep -f ^/usr/sbin/apache2 > /dev/null; then
+      invoke-rc.d apache2 reload 2>&1 | logger -t apache2.logrotate
+    fi
+  endscript
+}
+EOF
+}
+
+######################################
 # Set up Matomo specific crontabs.
 # Arguments:
 # - The matomo home path, a string.
@@ -479,6 +514,9 @@ function main() {
   # procedure is completed through the application Web portal.
   # The --ignore-warn option has been added to prevent script failure.
   runuser -u "${MATOMO_FILE_OWNER}" -- "${MATOMO_HOME_PATH}"/console core:create-security-files --no-interaction --ignore-warn
+
+  logger::action "Set up logrotate..."
+  set_up_logrotate
 
   logger::action "Set up Matomo Archive Crontab..."
   set_up_crontab \
