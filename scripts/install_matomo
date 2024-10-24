@@ -294,7 +294,7 @@ function set_up_php_apache2() {
   local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/apache2/php.ini"
 
   logger::action "Updating PHP Apache2's configuration..."
-  php::update_config_file "memory_limit" "128M" "${CLI_PHP_INI_FILE_PATH}"
+  php::update_config_file "memory_limit" "128M" "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file "max_execution_time" "${php_max_execution_time}" "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file "log_errors" "On" "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file "display_errors" "Off" "${APACHE2_PHP_INI_FILE_PATH}"
