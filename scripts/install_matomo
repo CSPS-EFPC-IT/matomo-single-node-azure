@@ -264,20 +264,8 @@ install_or_update_matomo() {
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
 function set_up_php_client() {
-  # Parameters
-  file_owner="${1}"
-  file_group="${2}"
-
   # Constant
   local -r CLI_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/cli/php.ini"
-  local -r CLI_PHP_ERROR_LOG_FILE_PATH="/var/log/php_${PHP_VERSION}_cli_error.log"
-
-  logger::action "Creating PHP client's error log file if missing..."
-  if ! test -f "${CLI_PHP_ERROR_LOG_FILE_PATH}" ; then
-    touch "${CLI_PHP_ERROR_LOG_FILE_PATH}"
-    chown "${file_owner}:${file_group}" "${CLI_PHP_ERROR_LOG_FILE_PATH}"
-    chmod 664 "${CLI_PHP_ERROR_LOG_FILE_PATH}"
-  fi
 
   logger::action "Updating PHP Client's configuration..."
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
@@ -287,7 +275,6 @@ function set_up_php_client() {
   php::update_config_file "max_execution_time" "0" "${CLI_PHP_INI_FILE_PATH}"
   php::update_config_file "log_errors" "On" "${CLI_PHP_INI_FILE_PATH}"
   php::update_config_file "display_errors" "Off" "${CLI_PHP_INI_FILE_PATH}"
-  php::update_config_file "error_log" "${CLI_PHP_ERROR_LOG_FILE_PATH}" "${CLI_PHP_INI_FILE_PATH}"
 }
 
 ######################################
@@ -551,9 +538,7 @@ function main() {
     "${parameters[matomo_database_name]}"
 
   logger::title "Set up PHP Client."
-  set_up_php_client \
-    "${MATOMO_FILE_OWNER}" \
-    "${MATOMO_FILE_GROUP}"
+  set_up_php_client
 
   logger::title "Set up PHP Apache2."
   set_up_php_apache2 "${parameters[php_max_execution_time]}"
