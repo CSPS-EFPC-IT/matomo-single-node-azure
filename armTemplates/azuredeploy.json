@@ -1228,6 +1228,19 @@
 		{
 			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
 			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/max_allowed_packet')]",
+			"comments": "Recommended for high performance. Ref.: https://matomo.org/faq/new-to-piwik/faq_137",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "1073741824",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
 			"name": "[concat(variables('databaseServerName'), '/require_secure_transport')]",
 			"comments": "Ref. CIS Microsoft Azure Foundations Benchmark v1.5.0 - 08-16-2022 - 4.4.1 Ensure 'Enforce SSL connection' is set to 'Enabled' for Standard MySQL Database Server.",
 			"dependsOn": [
@@ -1260,6 +1273,19 @@
 			],
 			"properties": {
 				"value": "TLSV1.2,TLSV1.3",
+				"source": "user-override"
+			}
+		},
+		{
+			"type": "Microsoft.DBforMySQL/flexibleServers/configurations",
+			"apiVersion": "[variables('databaseServerApiVersion')]",
+			"name": "[concat(variables('databaseServerName'), '/wait_timeout')]",
+			"comments": "Recommended for high performance. Ref.: https://matomo.org/faq/new-to-piwik/faq_137",
+			"dependsOn": [
+				"[resourceId('Microsoft.DBforMySQL/flexibleServers', variables('databaseServerName'))]"
+			],
+			"properties": {
+				"value": "28800",
 				"source": "user-override"
 			}
 		},
@@ -1434,6 +1460,7 @@
 						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/php.sh')]",
 						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/upgrade_server')]",
 						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/utils.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/configurations/common.config.ini.php')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
 					],
