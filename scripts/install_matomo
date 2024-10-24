@@ -72,6 +72,55 @@ function install_matomo_dependencies() {
 }
 
 ######################################
+# Set up php client.
+# These parameters are used when Matomo's console core:archive jobs are started by crontab.
+# Arguments:
+# - Error log file owner, a string.
+# - Error log file group, a string.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_php_client() {
+  # Constant
+  local -r CLI_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/cli/php.ini"
+
+  logger::action "Updating PHP Client's configuration..."
+  # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
+  # Ref. https://matomo.org/faq/new-to-piwik/faq_137
+  # Values required to run report on 12 months of data.
+  php::update_config_file "memory_limit" "4G" "${CLI_PHP_INI_FILE_PATH}"
+  php::update_config_file "max_execution_time" "0" "${CLI_PHP_INI_FILE_PATH}"
+  php::update_config_file "log_errors" "On" "${CLI_PHP_INI_FILE_PATH}"
+  php::update_config_file "display_errors" "Off" "${CLI_PHP_INI_FILE_PATH}"
+}
+
+######################################
+# Set up php apache2.
+# These parameters are used when Matomo is serving HTTP requests.
+# Arguments:
+# - The PHP max execution time value, an integer.
+# Outputs:
+#   Writes message to STDOUT or STDERR based on message level.
+######################################
+function set_up_php_apache2() {
+
+  # Parameters
+  local php_max_execution_time="${1}"
+
+  # Constant
+  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/apache2/php.ini"
+
+  logger::action "Updating PHP Apache2's configuration..."
+  php::update_config_file "memory_limit" "128M" "${APACHE2_PHP_INI_FILE_PATH}"
+  php::update_config_file "max_execution_time" "${php_max_execution_time}" "${APACHE2_PHP_INI_FILE_PATH}"
+  php::update_config_file "log_errors" "On" "${APACHE2_PHP_INI_FILE_PATH}"
+  php::update_config_file "display_errors" "Off" "${APACHE2_PHP_INI_FILE_PATH}"
+
+  # max_input_vars updated from default (1000) based on apache2 error log analysis.
+  php::update_config_file "max_input_vars" "2000" "${APACHE2_PHP_INI_FILE_PATH}"
+}
+
+######################################
 # Assess whether an update is required based on a current and a desired version.
 # Both version values must respect the Sementic Versioning. Ref.: https://semver.org
 # Arguments:
@@ -255,55 +304,6 @@ install_or_update_matomo() {
 }
 
 ######################################
-# Set up php client.
-# These parameters are used when Matomo's console core:archive jobs are started by crontab.
-# Arguments:
-# - Error log file owner, a string.
-# - Error log file group, a string.
-# Outputs:
-#   Writes message to STDOUT or STDERR based on message level.
-######################################
-function set_up_php_client() {
-  # Constant
-  local -r CLI_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/cli/php.ini"
-
-  logger::action "Updating PHP Client's configuration..."
-  # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
-  # Ref. https://matomo.org/faq/new-to-piwik/faq_137
-  # Values required to run report on 12 months of data.
-  php::update_config_file "memory_limit" "4G" "${CLI_PHP_INI_FILE_PATH}"
-  php::update_config_file "max_execution_time" "0" "${CLI_PHP_INI_FILE_PATH}"
-  php::update_config_file "log_errors" "On" "${CLI_PHP_INI_FILE_PATH}"
-  php::update_config_file "display_errors" "Off" "${CLI_PHP_INI_FILE_PATH}"
-}
-
-######################################
-# Set up php apache2.
-# These parameters are used when Matomo is serving HTTP requests.
-# Arguments:
-# - The PHP max execution time value, an integer.
-# Outputs:
-#   Writes message to STDOUT or STDERR based on message level.
-######################################
-function set_up_php_apache2() {
-
-  # Parameters
-  local php_max_execution_time="${1}"
-
-  # Constant
-  local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/apache2/php.ini"
-
-  logger::action "Updating PHP Apache2's configuration..."
-  php::update_config_file "memory_limit" "128M" "${APACHE2_PHP_INI_FILE_PATH}"
-  php::update_config_file "max_execution_time" "${php_max_execution_time}" "${APACHE2_PHP_INI_FILE_PATH}"
-  php::update_config_file "log_errors" "On" "${APACHE2_PHP_INI_FILE_PATH}"
-  php::update_config_file "display_errors" "Off" "${APACHE2_PHP_INI_FILE_PATH}"
-
-  # max_input_vars updated from default (1000) based on apache2 error log analysis.
-  php::update_config_file "max_input_vars" "2000" "${APACHE2_PHP_INI_FILE_PATH}"
-}
-
-######################################
 # Set up Apache2 for matomo.
 # Arguments:
 # - The matomo document root path, a string.
@@ -324,7 +324,7 @@ function set_up_apache2() {
   local -r APACHE2_CONFIG_FILE_PATH="/etc/apache2/apache2.conf"
   local -r MAX_REQUEST_WORKERS="1500"
 
-  logger::action "Setting KeepAlive to Off in Apache2 main configuration..."
+  logger::action "Updating Apache2 main configuration..."
   apache2::update_config_file \
     "KeepAlive" \
     "Off" \
@@ -554,7 +554,7 @@ function main() {
   set_up_apache2 \
     "${MATOMO_HOME_PATH}"
 
-  logger::action "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
+  logger::title "Prevent Apache2 from serving Matomo's code, data or config files (part 2/2)..."
   # Ref.: https://matomo.org/faq/troubleshooting/how-do-i-fix-the-error-private-directories-are-accessible/
   # The command below will complain about the configuration file not being
   # found during the initial installation. This is the expected behaviour as
