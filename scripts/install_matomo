@@ -59,6 +59,13 @@ function install_matomo_dependencies() {
     php8.3-mbstring \
     php8.3-mysql \
     php8.3-xml
+
+  logger::action "Adding LP-PPA-maxmind repository to unattended-upgrades Allowed-Origins if missing..."
+  if ( grep --quiet "LP-PPA-maxmind:noble" /etc/apt/apt.conf.d/50unattended-upgrades ); then
+    logger::info "Repository already added. Skipping."
+  else
+    sed -i '/Unattended-Upgrade::Allowed-Origins {/a\\t"LP-PPA-maxmind:noble";' /etc/apt/apt.conf.d/50unattended-upgrades
+  fi
 }
 
 ######################################
