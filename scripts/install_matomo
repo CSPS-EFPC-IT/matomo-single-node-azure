@@ -88,7 +88,7 @@ function set_up_php_client() {
   # Ref. https://matomo.org/docs/setup-auto-archiving/#important-tips-for-medium-to-high-traffic-websites
   # Ref. https://matomo.org/faq/new-to-piwik/faq_137
   # Values required to run report on 12 months of data.
-  php::update_config_file "memory_limit" "4G" "${CLI_PHP_INI_FILE_PATH}"
+  php::update_config_file "memory_limit" "-1" "${CLI_PHP_INI_FILE_PATH}"
   php::update_config_file "max_execution_time" "0" "${CLI_PHP_INI_FILE_PATH}"
   php::update_config_file "log_errors" "On" "${CLI_PHP_INI_FILE_PATH}"
   php::update_config_file "display_errors" "Off" "${CLI_PHP_INI_FILE_PATH}"
@@ -111,7 +111,7 @@ function set_up_php_apache2() {
   local -r APACHE2_PHP_INI_FILE_PATH="/etc/php/${PHP_VERSION}/apache2/php.ini"
 
   logger::action "Updating PHP Apache2's configuration..."
-  php::update_config_file "memory_limit" "128M" "${APACHE2_PHP_INI_FILE_PATH}"
+  php::update_config_file "memory_limit" "4G" "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file "max_execution_time" "${php_max_execution_time}" "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file "log_errors" "On" "${APACHE2_PHP_INI_FILE_PATH}"
   php::update_config_file "display_errors" "Off" "${APACHE2_PHP_INI_FILE_PATH}"
