@@ -539,7 +539,8 @@ function main() {
   set_up_php_client
 
   logger::title "Set up PHP Apache2."
-  set_up_php_apache2 "${parameters[php_max_execution_time]}"
+  set_up_php_apache2 \
+    "${parameters[php_max_execution_time]}"
 
   logger::title "Install or Update Matomo"
   install_or_update_matomo \
