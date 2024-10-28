@@ -41,7 +41,6 @@ function install_matomo_dependencies() {
   # Ref.: https://matomo.org/docs/requirements/
   #       https://fr.matomo.org/faq/how-to/faq_164/
   #       https://github.com/maxmind/libmaxminddb/blob/master/README.md#on-ubuntu-via-ppa
-
   logger::action "Adding package repositories..."
   add-apt-repository --yes ppa:maxmind/ppa
 
@@ -103,7 +102,6 @@ function set_up_php_client() {
 #   Writes message to STDOUT or STDERR based on message level.
 ######################################
 function set_up_php_apache2() {
-
   # Parameters
   local php_max_execution_time="${1}"
 
