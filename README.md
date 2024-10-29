@@ -12,17 +12,21 @@ This project deploys the following Azure resources:
 - Bastion and its Public IP
 
 And installs the following software (up to their latest available patch level for the linux distro) on the virtual machine:
-- Ubuntu 24.04 LTS (Minimal)
-- Mysql client 8.0
 - Apache 2.4
-- PHP-CLI 8.3
+- Mysql client 8.0
 - PHP 8.3 modules
-  - php8.3-gd
+  - php8.3-cli
   - php8.3-curl
+  - php8.3-gd
   - php8.3-mbstring
   - php8.3-mysql
   - php8.3-xml
+- Ubuntu 24.04 LTS (Minimal)
+- gpg
 - libmaxminddb
+- logrotate
+- Matomo 5.2.1
+- vim
 
 # Prerequisites
 ## Tools
