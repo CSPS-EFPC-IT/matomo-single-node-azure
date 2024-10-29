@@ -12,17 +12,21 @@ This project deploys the following Azure resources:
 - Bastion and its Public IP
 
 And installs the following software (up to their latest available patch level for the linux distro) on the virtual machine:
-- Ubuntu 24.04 LTS (Minimal)
-- Mysql client 8.0
 - Apache 2.4
-- PHP-CLI 8.3
+- Mysql client 8.0
 - PHP 8.3 modules
-  - php8.3-gd
+  - php8.3-cli
   - php8.3-curl
+  - php8.3-gd
   - php8.3-mbstring
   - php8.3-mysql
   - php8.3-xml
+- Ubuntu 24.04 LTS (Minimal)
+- gpg
 - libmaxminddb
+- logrotate
+- Matomo 5.2.1
+- vim
 
 # Prerequisites
 ## Tools
@@ -33,7 +37,7 @@ And installs the following software (up to their latest available patch level fo
 ## Azure Ressources
 1. An Azure subscription.
 1. A target resource group.
-1. A Key Vault with a properly signed SSL/TLS Certificate for the new moodle instance.
+1. A Key Vault with a properly signed SSL/TLS Certificate.
 1. A User Assigned Managed Identity (UAMI).
 
 ## Azure Permissions
@@ -42,7 +46,7 @@ And installs the following software (up to their latest available patch level fo
 
 ## Others
 1. Optional - An SMTP server.
-1. Optional - A custom domain name for the new moodle instance.
+1. Optional - A custom domain name for the new matomo instance.
 
 # Usage
 1. Clone this projet.
@@ -59,7 +63,6 @@ az deployment group create --name $deploymentName --resource-group $resourceGrou
 ```
 
 # Useful References
-- This project makes use of some generic bash scripts and libraries hosted in a [separate project](https://github.com/CSPS-EFPC-IT/generic-shell-scripts).
 - The database setup by this project enforces TLS/SSL connections. See [HOW DO I SETUP MATOMO TO SECURELY CONNECT TO THE DATABASE USING MYSQL SSL?](https://matomo.org/faq/how-to-install/faq_26273/) for details about how to finalize Matomo installation. Once the initial setup is completed, add the following lines to your [matomo installation folder]/config/config.ini.php under the `[database]` section:
 ```
 ; Database SSL Options START

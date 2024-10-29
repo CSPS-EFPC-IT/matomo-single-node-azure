@@ -55,7 +55,6 @@ jobs:
                 -databaseServerStorageSizeGB $(databaseServerStorageSizeGB)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
-                -genericShellScriptsRepoRawFilesBaseUrl "$(genericShellScriptsRepoRawFilesBaseUrl)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
                 -matomoDatabasePassword "$(matomoDatabasePassword)"
                 -matomoDatabaseUsername "$(matomoDatabaseUsername)"
