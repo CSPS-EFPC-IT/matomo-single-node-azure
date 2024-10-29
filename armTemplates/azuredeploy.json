@@ -198,12 +198,6 @@
 				"description": "The name of the provisioned environment. Used to build resource names."
 			}
 		},
-		"genericShellScriptsRepoRawFilesBaseUrl": {
-			"type": "string",
-			"metadata": {
-				"description": "The public base URL of the generic-shell-scripts repository's raw files."
-			}
-		},
 		"logAnalyticsWorkspaceRetentionPeriod": {
 			"type": "int",
 			"minValue": 30,
@@ -1452,17 +1446,17 @@
 				},
 				"protectedSettings": {
 					"fileUris": [
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/apache2.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/install_unattended_upgrade_tools')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/logger.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/mysql.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/os.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/php.sh')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/upgrade_server')]",
-						"[concat(parameters('genericShellScriptsRepoRawFilesBaseUrl'),'/ubuntu-24.04-minimal/utils.sh')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/configurations/common.config.ini.php')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/apache2.sh')]",
 						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_matomo')]",
-						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]"
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/install_unattended_upgrade_tools')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/logger.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/mysql.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/os.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/php.sh')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/setup_web_server')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/upgrade_server')]",
+						"[concat(parameters('projectPublicRawFilesBaseUrl'),'/scripts/utils.sh')]"
 					],
 					"commandToExecute": "[concat('sudo ./setup_web_server', ' --data_disk_size ', parameters('dataDiskSizeGB'), 'G', ' --db_server_admin_password ', parameters('databaseServerAdministratorLoginPassword'), ' --db_server_admin_username ', parameters('databaseServerAdministratorLogin'), ' --db_server_fqdn ', reference(variables('databaseServerName')).fullyQualifiedDomainName, ' --matomo_database_name ', variables('matomoDatabaseName'), ' --matomo_database_password ', parameters('matomoDatabasePassword'), ' --matomo_database_username ', parameters('matomoDatabaseUsername'), ' --matomo_version ', parameters('matomoVersion'), ' --php_max_execution_time ', parameters('webServerBackendMaxExecutionTime'), ' --smtp_server_fqdn ', parameters('smtpServerFqdn'), ' --smtp_server_from_address ', parameters('smtpServerFromAddress'), ' --smtp_server_password ', parameters('smtpServerPassword'), ' --smtp_server_port ', parameters('smtpServerPort'), ' --smtp_server_username ', parameters('smtpServerUsername'), ' --web_server_admin_email ', parameters('webServerAdminEmail'), ' --web_server_fqdn ', if(empty(parameters('webServerFqdn')), reference(variables('applicationGatewayPublicIpName')).dnsSettings.fqdn, parameters('webServerFqdn')), ' --web_server_reboot_utc_time ', parameters('webServerRebootUtcTime'), ' --web_server_resource_name ',  variables('webServerVirtualMachineName'), ' > /var/log/setup_web_server.$(date +\"%Y%m%dT%H%M%S\").log 2>&1')]"
 				}

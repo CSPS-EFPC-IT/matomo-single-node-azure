@@ -1,0 +1,268 @@
+#!/bin/bash
+#
+# Install unattended upgrade tools on Ubuntu server.
+# Notes
+#   This script must be run as root (ex.: sudo sh ./[script_name]).
+#   This script is designed to be idempotent.
+# Style Guide
+#   https://google.github.io/styleguide/shellguide.html
+
+# Parameters: all manadatory and must be prefixed with "--" on command line.
+declare -A parameters=( \
+  [server_admin_email]="" \
+  [server_fqdn]="" \
+  [server_reboot_utc_time]="" \
+  [server_resource_name]="" \
+  [smtp_server_fqdn]="" \
+  [smtp_server_from_address]="" \
+  [smtp_server_password]="" \
+  [smtp_server_port]="" \
+  [smtp_server_username]="" \
+  )
+
+# Constants
+readonly APTICRON_CONF_FILE_PATH="/etc/apticron/apticron.conf"
+readonly APTICRON_DEFAULT_CONF_FILE_PATH="/usr/lib/apticron/apticron.conf"
+readonly AUTO_UPGRADES_CONF_FILE_PATH="/etc/apt/apt.conf.d/20auto-upgrades"
+readonly POSTFIX_CONF_FILE_PATH="/etc/postfix/main.cf"
+readonly POSTFIX_SASL_PASSWORD_DB_PATH="/etc/postfix/sasl_passwd.db"
+readonly POSTFIX_SASL_PASSWORD_PATH="/etc/postfix/sasl_passwd"
+readonly POSTFIX_SENDER_CANONICAL_MAPS="/etc/postfix/sender_canonical_maps"
+readonly POSTFIX_SMTP_HEADER_CHECKS="/etc/postfix/header_checks"
+readonly UNATTENDED_UPGRADES_CONF_FILE_PATH="/etc/apt/apt.conf.d/50unattended-upgrades"
+
+# Functions
+source ./logger.sh
+source ./utils.sh
+
+#######################################
+# Update or append a parameter to unattended-upgrade configuration file if
+# missing. The parameter assignment format is '[parameter] "[value]";'.
+# Ex.: xyz "abc";
+# Arguments:
+#   1) Parameter to set, text string.
+#   2) Value to set, text string.
+#   3) File to update, file path
+# Outputs:
+#   Writes log messages to STDOUT.
+#   Writes error messages to STDERR.
+#######################################
+function update_or_append_for_unattended_upgrade() {
+  local parameter="$1"
+  local value="$2"
+  local file_path="$3"
+
+  logger::info "Setting \"${parameter}\" parameter to \"${value}\" in \"${file_path}\"..."
+
+  case $(grep -c "^${parameter}" "${file_path}") in
+  0)
+    logger::info "Parameter not found. Appending it to file..."
+    echo "${parameter} \"${value}\";" >> "${file_path}"
+    ;;
+  1)
+    logger::info "Parameter found. Updating it..."
+    sed -i -e "s|^${parameter}.*|${parameter} \"${value}\";|" "${file_path}"
+    ;;
+  *)
+    logger::error "More than one line matched the search criteria. Aborting."
+    exit 1
+    ;;
+  esac
+}
+
+#######################################
+# Update or append a parameter to Postfix configuration file if missing.
+# The parameter assignment format is '[parameter] = [value]'.
+# Ex.: xyz = abc
+# Arguments:
+#   1) Parameter to set, text string.
+#   2) Value to set, text string.
+#   3) File to update, file path
+# Outputs:
+#   Writes log messages to STDOUT.
+#   Writes error messages to STDERR.
+#######################################
+function update_or_append_for_postfix() {
+  local parameter="$1"
+  local value="$2"
+  local file_path="$3"
+
+  logger::info "Setting \"${parameter}\" parameter to \"${value}\" in \"${file_path}\"..."
+
+  case $(grep -c "^${parameter}" "${file_path}") in
+  0)
+    logger::info "Parameter not found. Appending it to file..."
+    echo "${parameter} = ${value}" >> "${file_path}"
+    ;;
+  1)
+    logger::info "Parameter found. Updating it..."
+    sed -i -e "s|^${parameter}.*|${parameter} = ${value}|" "${file_path}"
+    ;;
+  *)
+    logger::error "More than one line matched the search criteria. Aborting."
+    exit 1
+    ;;
+  esac
+}
+
+function main() {
+  utils::set_exit_trap
+
+  #############################################################################
+
+  logger::title "Start of $0"
+
+  #############################################################################
+
+  logger::title "Parsing Input Parameters..."
+  utils::parse_parameters "$@"
+
+  #############################################################################
+
+  logger::title "Package installation"
+
+  logger::action "Installing Apticron, Postfix (along with missing dependency) and Unattended-Upgrades..."
+  export DEBIAN_FRONTEND=noninteractive
+  apt install -y \
+    apticron \
+    postfix libsasl2-modules \
+    unattended-upgrades
+
+  #############################################################################
+
+  logger::title "Unattended-Upgrades Configuration"
+
+  logger::info "Enabling OS updates..."
+  sed -i -e "s|^//\([[:blank:]]*\"\${distro_id}:\${distro_codename}-updates\";\)$|  \1|g" "${UNATTENDED_UPGRADES_CONF_FILE_PATH}"
+
+  logger::info "Setting \"Unattended-Upgrade::Mail\" parameter to \"${parameters[server_admin_email]}\"..."
+  sed -i -e "s|^//\(Unattended-Upgrade::Mail\) .*$|\1 \"${parameters[server_admin_email]}\";|g" "${UNATTENDED_UPGRADES_CONF_FILE_PATH}"
+
+  logger::info "Enabling \"Unattended-Upgrade::Remove-Unused-Kernel-Packages\"..."
+  sed -i -e "s|^//\(Unattended-Upgrade::Remove-Unused-Kernel-Packages\) .*$|\1 \"true\";|g" "${UNATTENDED_UPGRADES_CONF_FILE_PATH}"
+
+  logger::info "Enabling \"Unattended-Upgrade::Remove-Unused-Dependencies\"..."
+  sed -i -e "s|^//\(Unattended-Upgrade::Remove-Unused-Dependencies\) .*$|\1 \"true\";|g" "${UNATTENDED_UPGRADES_CONF_FILE_PATH}"
+
+  logger::info "Enabling \"Unattended-Upgrade::Automatic-Reboot\"..."
+  sed -i -e "s|^//\(Unattended-Upgrade::Automatic-Reboot\) .*$|\1 \"true\";|g" "${UNATTENDED_UPGRADES_CONF_FILE_PATH}"
+
+  logger::info "Setting \"Unattended-Upgrade::Automatic-Reboot-Time\" to \"${parameters[server_reboot_utc_time]}\"..."
+  sed -i -e "s|^//\(Unattended-Upgrade::Automatic-Reboot-Time\) .*$|\1 \"${parameters[server_reboot_utc_time]}\";|g" "${UNATTENDED_UPGRADES_CONF_FILE_PATH}"
+
+  #############################################################################
+
+  logger::title "Aptitude (apt) Configuration"
+
+  # The following parameters are not present in the original file but will be there in subsequent script runs.
+  update_or_append_for_unattended_upgrade "APT::Periodic::Download-Upgradeable-Packages" "1" "${AUTO_UPGRADES_CONF_FILE_PATH}"
+  update_or_append_for_unattended_upgrade "APT::Periodic::AutocleanInterval" "7" "${AUTO_UPGRADES_CONF_FILE_PATH}"
+
+  #############################################################################
+
+  logger::title "Apticron Configuration"
+
+  logger::info "Initializing Apticron Configuration file..."
+  # Since we are always starting from the default configuration file (we never change),
+  # the same transformations are applied every time.
+  cp "${APTICRON_DEFAULT_CONF_FILE_PATH}" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Setting \"EMAIL\" parameter to \"${parameters[server_admin_email]}\"..."
+  sed -i -e "s/^\(EMAIL=\).*$/\1\"${parameters[server_admin_email]}\"/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Setting \"SYSTEM\" parameter to \"${parameters[server_resource_name]}\"..."
+  sed -i -e "s/^\(SYSTEM=\).*$/\1\"${parameters[server_resource_name]}\"/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Disabling \"NOTIFY_HOLDS\" parameter..."
+  sed -i -e "s/^\(NOTIFY_HOLDS=\).*$/\1\"0\"/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Disabling \"NOTIFY_NEW\" parameter..."
+  sed -i -e "s/^\(NOTIFY_NEW=\).*$/\1\"0\"/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Enabling \"NOTIFY_NO_UPDATES\" parameter..."
+  sed -i -e "s/^\(NOTIFY_NO_UPDATES=\).*$/\1\"1\"/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Enabling and setting \"CUSTOM_SUBJECT\" parameter to '[apticron] \$SYSTEM: \$NUM_PACKAGES package update(s)'..."
+  sed -i -e "s/^# \(CUSTOM_SUBJECT=\)\"\".*$/\1'[apticron] \$SYSTEM: \$NUM_PACKAGES package update(s)'/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Enabling and setting \"CUSTOM_NO_UPDATES_SUBJECT\" parameter to '[apticron] \$SYSTEM: no updates'..."
+  sed -i -e "s/^# \(CUSTOM_NO_UPDATES_SUBJECT=\)\"\".*$/\1'[apticron] \$SYSTEM: no updates'/g" "${APTICRON_CONF_FILE_PATH}"
+
+  logger::info "Enabling and setting \"CUSTOM_FROM\" parameter to \"${parameters[smtp_server_from_address]}\"..."
+  sed -i -e "s/^# \(CUSTOM_FROM=\)\"\".*$/\1\"${parameters[smtp_server_from_address]}\"/g" "${APTICRON_CONF_FILE_PATH}"
+
+  #############################################################################
+
+  logger::title "Postfix Configuration"
+
+  logger::action "Basic configuration"
+
+  logger::info "Setting \"myhostname\" parameter to \"${parameters[server_fqdn]}\" in \"${POSTFIX_CONF_FILE_PATH}\"..."
+  sed -i -e "s/^\(myhostname =\).*$/\1 ${parameters[server_fqdn]}/g" "${POSTFIX_CONF_FILE_PATH}"
+
+  # Setting myorigin to $myhostname.
+  # This parameter is not present in the original file but will be there in subsequent script runs.
+  # shellcheck disable=SC2016
+  update_or_append_for_postfix "myorigin" '$myhostname' "${POSTFIX_CONF_FILE_PATH}"
+
+  logger::action "Enabling SMTP relay authentication"
+  # Ref.: https://www.linode.com/docs/guides/postfix-smtp-debian7/
+
+  logger::info "Creating Postfix SASL Password file..."
+  echo "${parameters[smtp_server_fqdn]} ${parameters[smtp_server_username]}:${parameters[smtp_server_password]}" > "${POSTFIX_SASL_PASSWORD_PATH}"
+
+  logger::info "Creating a Hash database file from Postfix SASL Password file..."
+  postmap "${POSTFIX_SASL_PASSWORD_PATH}"
+
+  logger::info "Setting ownership on Postfix SASL password files..."
+  chown root:root "${POSTFIX_SASL_PASSWORD_PATH}" "${POSTFIX_SASL_PASSWORD_DB_PATH}"
+
+  logger::info "Setting permissions on Postfix SASL password files..."
+  chmod 600 "${POSTFIX_SASL_PASSWORD_PATH}" "${POSTFIX_SASL_PASSWORD_DB_PATH}"
+
+  logger::info "Setting \"relayhost\" parameter to \"${parameters[smtp_server_fqdn]}:${parameters[smtp_server_port]}\" in \"${POSTFIX_CONF_FILE_PATH}\"..."
+  sed -i -e "s/^\(relayhost =\).*$/\1 ${parameters[smtp_server_fqdn]}:${parameters[smtp_server_port]}/g" "${POSTFIX_CONF_FILE_PATH}"
+
+  update_or_append_for_postfix "smtp_sasl_auth_enable" "yes" "${POSTFIX_CONF_FILE_PATH}"
+
+  update_or_append_for_postfix "smtp_sasl_security_options" "noanonymous" "${POSTFIX_CONF_FILE_PATH}"
+
+  update_or_append_for_postfix "smtp_sasl_password_maps" "hash:${POSTFIX_SASL_PASSWORD_PATH}" "${POSTFIX_CONF_FILE_PATH}"
+
+  # Setting smtp_use_tls = yes
+  # "With Postfix 2.3 and later use smtp_tls_security_level instead."
+  # Ref.: https://www.postfix.org/postconf.5.html#smtp_use_tls
+  update_or_append_for_postfix "smtp_tls_security_level" "encrypt" "${POSTFIX_CONF_FILE_PATH}"
+
+  logger::action "Enforcing FROM address on all outgoing emails"
+  # Ref.: https://serverfault.com/questions/147921/forcing-the-from-address-when-postfix-relays-over-smtp
+
+  update_or_append_for_postfix "sender_canonical_classes" "envelope_sender, header_sender" "${POSTFIX_CONF_FILE_PATH}"
+
+  update_or_append_for_postfix "sender_canonical_maps" "regexp:${POSTFIX_SENDER_CANONICAL_MAPS}" "${POSTFIX_CONF_FILE_PATH}"
+
+  update_or_append_for_postfix "smtp_header_checks" "regexp:${POSTFIX_SMTP_HEADER_CHECKS}" "${POSTFIX_CONF_FILE_PATH}"
+
+  logger::info "Creating Postfix Sender Canonical Maps file: \"${POSTFIX_SENDER_CANONICAL_MAPS}\"..."
+  echo "/.+/    ${parameters[smtp_server_from_address]}" > "${POSTFIX_SENDER_CANONICAL_MAPS}"
+
+  logger::info "Creating Postfix SMTP Header Checks file: \"${POSTFIX_SMTP_HEADER_CHECKS}\"..."
+  # Using "Do not reply / Ne pas répondre" as the FROM Address' friendly name.
+  # Since email headers must be encoded using ASCII-7 for compatibility reason,
+  # UTF-8 characters must be encoded using MIME encoded word syntax (either Q or base64 encoding).
+  # ref.: https://docs.aws.amazon.com/ses/latest/dg/send-email-raw.html#send-email-raw-mime
+  echo "/From:.*/ REPLACE From: \"Do not reply / Ne pas r=?utf-8?B?w6k=?=pondre\" <${parameters[smtp_server_from_address]}>" > "${POSTFIX_SMTP_HEADER_CHECKS}"
+
+  logger::action "Reloading configuration file..."
+  service postfix reload
+
+  #############################################################################
+
+  logger::title "End of $0"
+
+  #############################################################################
+
+  utils::unset_exit_trap
+}
+
+main "$@"
