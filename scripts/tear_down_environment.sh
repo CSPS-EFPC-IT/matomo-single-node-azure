@@ -251,7 +251,8 @@ function main() {
         --name "${bastion_name}" \
         --only-show-errors \
         --output none \
-        --resource-group "${parameters[--resource-group-name]}"
+        --resource-group "${parameters[--resource-group-name]}" \
+        --yes
     done
   fi
 
