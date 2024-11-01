@@ -5,8 +5,7 @@
 # Style Guide: https://google.github.io/styleguide/shellguide.html
 
 # The function libraries and the upgrade_server script are injected on the
-# server at deployment time by the Azure Resource Manager (ARM). The source
-# code for these can be found at https://github.com/CSPS-EFPC-IT/generic-shell-scripts.
+# server at deployment time by the Azure Resource Manager (ARM).
 # See the ARM template deployment parameters for the exact version used.
 
 # Functions
