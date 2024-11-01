@@ -43,9 +43,6 @@
         "environmentName": {
             "value": "dev"
         },
-        "genericShellScriptsRepoRawFilesBaseUrl": {
-            "value": "https://raw.githubusercontent.com/CSPS-EFPC-IT/generic-shell-scripts/main"
-        },
         "matomoDatabasePassword": {
             "value": "mySecret"
         },
