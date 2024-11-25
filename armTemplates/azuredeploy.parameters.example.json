@@ -115,7 +115,7 @@
         "webServerVirtualMachineSize": {
             "value": "Standard_DS2_v2"
         },
-        "applicationGatewayWebApplicationFirewallPolicyCustomRules1": {
+        "applicationGatewayWebApplicationFirewallPolicyCustomRule1": {
             "value": {
                 "name": "myCustomRuleName",
                 "priority": 10,
