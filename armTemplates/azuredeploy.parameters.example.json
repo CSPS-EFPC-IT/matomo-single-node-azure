@@ -114,6 +114,30 @@
         },
         "webServerVirtualMachineSize": {
             "value": "Standard_DS2_v2"
+        },
+        "applicationGatewayWebApplicationFirewallPolicyCustomRules1": {
+            "value": {
+                "name": "myCustomRuleName",
+                "priority": 10,
+                "ruleType": "MatchRule",
+                "action": "Block",
+                "matchConditions": [
+                    {
+                        "matchVariables": [
+                            {
+                                "variableName": "RequestUri"
+                            }
+                        ],
+                        "operator": "EndsWith",
+                        "negationConditon": false,
+                        "matchValues": [
+                            ".env"
+                        ],
+                        "transforms": []
+                    }
+                ],
+                "skippedManagedRuleSets": []
+            }
         }
     }
 }
