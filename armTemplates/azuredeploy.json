@@ -14,6 +14,12 @@
 				"description": "The User Identity assigned to the Application Gateway to get the SSL Certificate Secret."
 			}
 		},
+		"applicationGatewayWebApplicationFirewallPolicyCustomRule1": {
+			"type": "secureObject",
+			"metadata": {
+				"description": "A JSON object containing the definition of an Application Gateway Web Application Firewal's custom rule."
+			}
+		},
 		"armTemplateRepoRawFilesBaseUrl": {
 			"type": "string",
 			"metadata": {
@@ -851,17 +857,19 @@
 		{
 			"type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
 			"apiVersion": "2024-01-01",
-			"name": "[variables('ApplicationGatewayWebApplicationFirewallPolicyName')]",
+			"name": "[variables('applicationGatewayWebApplicationFirewallPolicyName')]",
 			"tags": "[parameters('resourceTags')]",
 			"location": "[parameters('resourceLocation')]",
 			"properties": {
-				"customRules": [],
+				"customRules": [
+					"[parameters('applicationGatewayWebApplicationFirewallPolicyCustomRule1')]"
+				],
 				"policySettings": {
 					"requestBodyCheck": true,
 					"maxRequestBodySizeInKb": 1024,
 					"fileUploadLimitInMb": 100,
 					"state": "Enabled",
-					"mode": "Detection",
+					"mode": "Prevention",
 					"requestBodyInspectLimitInKB": 1024,
 					"fileUploadEnforcement": true,
 					"requestBodyEnforcement": true

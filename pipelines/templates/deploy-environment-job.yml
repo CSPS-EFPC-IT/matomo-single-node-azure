@@ -41,6 +41,7 @@ jobs:
               overrideParameters: >-
                 -applicationGatewaySslCertificateUri "$(applicationGatewaySslCertificateUri)"
                 -applicationGatewayUserAssignedIdentity "$(applicationGatewayUserAssignedIdentity)"
+                -applicationGatewayWebApplicationFirewallPolicyCustomRule1 $(applicationGatewayWebApplicationFirewallPolicyCustomRule1)
                 -armTemplateRepoRawFilesBaseUrl "$(armTemplateRepoRawFilesBaseUrl)"
                 -dataDiskSizeGB $(dataDiskSizeGB)
                 -databaseServerAdministratorLogin "$(databaseServerAdministratorLogin)"
