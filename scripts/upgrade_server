@@ -31,14 +31,14 @@ function main() {
     logger::error "Max waiting time reached. Aborting.";
     exit 1
   else
-    apt update
+    apt-get update
   fi
 
   logger::action "Upgrading all installed server packages to their latest version and apply available security patches..."
-  apt upgrade -y
+  apt-get upgrade -y
 
   logger::action "Removing server packages that are no longer needed..."
-  apt autoremove -y
+  apt-get autoremove -y
 
   logger::title "End of $0"
 

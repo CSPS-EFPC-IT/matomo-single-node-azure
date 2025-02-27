@@ -5,20 +5,16 @@ parameters:
   - dev
   - staging
   - prod
-- name: site
-  type: string
 
 variables:
-- group: common-${{ parameters.env }}-secret
-- group: ${{ parameters.site }}-public
-- group: ${{ parameters.site }}-${{ parameters.env }}-public
-- group: ${{ parameters.site }}-${{ parameters.env }}-secret
+- group: web-analytics-${{ parameters.env }}-public
+- group: web-analytics-${{ parameters.env }}-secret
 
 jobs:
 - deployment: deployResourcesJob
   displayName: 'Deploy Environment Job'
   pool:
-    vmImage: ubuntu-20.04
+    vmImage: ubuntu-24.04
   environment: '$(resourceGroupName)'
   strategy:
       runOnce:

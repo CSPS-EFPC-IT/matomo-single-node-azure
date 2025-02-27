@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install or Update Matomo on Ubuntu 20.04.
+# Install or Update Matomo on Ubuntu 24.04.
 # This script must be run as root (ex.: sudo sh [script_name])
 # Style Guide: https://google.github.io/styleguide/shellguide.html
 
@@ -45,10 +45,10 @@ function install_matomo_dependencies() {
   add-apt-repository --yes ppa:maxmind/ppa
 
   logger::action "Update package repository definition..."
-  apt update
+  apt-get update
 
   logger::action "Installing packages..."
-  apt install --yes --quiet \
+  apt-get install --yes --quiet \
     apache2 \
     cron \
     libapache2-mod-php${PHP_VERSION} \
