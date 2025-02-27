@@ -4,4 +4,3 @@ extends:
   template: templates/tear-down-environment-job.yml
   parameters:
     env: 'dev'
-    site: 'webAnalytics-matomoSingleNode'

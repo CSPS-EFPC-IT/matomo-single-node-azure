@@ -5,14 +5,10 @@ parameters:
   - dev
   - staging
   - prod
-- name: site
-  type: string
 
 variables:
-- group: common-${{ parameters.env }}-secret
-- group: ${{ parameters.site }}-public
-- group: ${{ parameters.site }}-${{ parameters.env }}-public
-- group: ${{ parameters.site }}-${{ parameters.env }}-secret
+- group: web-analytics-${{ parameters.env }}-public
+- group: web-analytics-${{ parameters.env }}-secret
 
 jobs:
 - deployment: deployResourcesJob
