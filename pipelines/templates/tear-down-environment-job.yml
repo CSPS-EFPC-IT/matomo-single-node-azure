@@ -11,7 +11,7 @@ variables:
 
 jobs:
 - deployment: deployResourcesJob
-  displayName: 'Deploy Environment Job'
+  displayName: 'Tear Down Environment'
   pool:
     vmImage: ubuntu-24.04
   environment: '$(resourceGroupName)'
