@@ -50,6 +50,8 @@ jobs:
                 -databaseServerSkuTier "$(databaseServerSkuTier)"
                 -databaseServerStorageIops $(databaseServerStorageIops)
                 -databaseServerStorageSizeGB $(databaseServerStorageSizeGB)
+                -databaseServerApiVersion $(databaseServerApiVersion)
+                -databaseServerVersion "(databaseServerVersion)
                 -deniedIpAddressList "$(deniedIpAddressList)"
                 -environmentName "$(environmentName)"
                 -logAnalyticsWorkspaceRetentionPeriod $(logAnalyticsWorkspaceRetentionPeriod)
