@@ -150,7 +150,8 @@
 			"defaultValue": "8.0.21",
 			"allowedValues": [
 				"5.7",
-				"8.0.21"
+				"8.0.21",
+				"8.4"
 			],
 			"metadata": {
 				"description": "The version of the MySQL Server to deploy, if any."
@@ -400,7 +401,7 @@
 		"bastionPublicIpName": "[concat(variables('bastionName'), '-PublicIP')]",
 		"bastionSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.128/27')]",
 		"bastionSubnetName": "AzureBastionSubnet",
-		"databaseServerApiVersion": "2023-06-30",
+		"databaseServerApiVersion": "2024-12-30",
 		"databaseServerName": "[toLower(concat(variables('resourceNamePrefix'), '-DB'))]",
 		"databaseServerNetworkSecurityGroupName": "[concat(variables('resourceNamePrefix'), '-DATA-NSG')]",
 		"databaseServerSubnetAddressPrefix": "[concat(parameters('virtualNetworkAddressBase'), '.64/27')]",
