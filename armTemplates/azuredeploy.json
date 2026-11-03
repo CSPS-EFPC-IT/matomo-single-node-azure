@@ -150,7 +150,8 @@
 			"defaultValue": "8.0.21",
 			"allowedValues": [
 				"5.7",
-				"8.0.21"
+				"8.0.21",
+				"8.4.9"
 			],
 			"metadata": {
 				"description": "The version of the MySQL Server to deploy, if any."
